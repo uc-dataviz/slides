@@ -253,257 +253,441 @@ Some brief advice about selecting your account names (particularly for GitHub),
 
 ---
 
+class: inverse, center, middle
 
+--
 
-# Why visualize data?
+## Facts, truth, and beauty
 
-* Statistical methods
-* Machine learning
-* Drawing a picture
+--
+
+## Data, truth, and beauty
+
+--
+
+## Beautiful visualizations
 
 ---
 
-# Anscombe's quartet
+class: inverse center middle
 
-&lt;img src="index_files/figure-html/anscombe-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+# Facts, truth, and beauty
 
 ---
 
-# Datasaurus dozen
+## What is truth?
+
+- Core principles of the universe?
+
+--
+- Underlying trends in society?
+
+--
+- Something transcendental?
+
+--
+- Reality?
+
+---
+
+# How do we find truth?
 
 .center[
 
-&lt;img src="index_files/figure-html/datasaurus-graph-static-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+## Science!
+
+]
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/ndgt-scientism.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+???
+
+[Original tweet](https://twitter.com/neiltyson/status/345551599382446081)
+
+---
+
+# But wait!
+
+.center[
+
+## Beware of scientism!
+
+]
+
+.large[.task["… promotion of science as the best or only objective means by which society should determine normative and epistemological values"]]
+
+???
+
+[Wikipedia](https://en.wikipedia.org/wiki/Scientism)
+
+---
+
+## Science is not the only way
+
+- Art
+- Music
+- Literature
+- Religion
+- Nature
+
+???
+
+None of these methods deal with raw facts, though!
+
+---
+
+## Nothing here is factual…
+
+…but it all reveals truth
+
+.pull-left[
+
+.pull-left[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/les-mis.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[**Cosette**]
+
+]
+
+.pull-right[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/King_Lear.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[**King Lear**]
+
+]
+
+]
+
+.pull-right[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/beethoven.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[**Beethoven's 9th symphony**]
+
+]
+
+???
+
+Sources: 
+
+- [Cosette](https://commons.wikimedia.org/wiki/File:Cosette-sweeping-les-miserables-albert-bellenger-1886.jpg)
+- [King Lear](https://commons.wikimedia.org/wiki/File:King_Lear.jpg)
+- [Beethoven](https://commons.wikimedia.org/wiki/File:Beethoven,_Symphony_No._9,_finale,_bars_116-123.png)
+
+---
+
+class: middle, center
+
+# **Facts ≠ truth**
+
+---
+
+class: middle, center
+
+# Where does truth come when&lt;br&gt;there are no facts?
+
+--
+
+# Beauty
+
+---
+
+# Beauty in science
+
+.pull-left.center[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/beautiful-question.jpg" width="50%" style="display: block; margin: auto;" /&gt;
+
+.small[Frank Wilczek's A Beautiful Question]
+
+]
+
+.midi[This is also true for science and math and other more factual realms]
+
+---
+
+# Content + form
+
+.center[.large[Art is how we translate core,&lt;br&gt;essential **content** (or truth!)&lt;br&gt;to different **forms**&lt;br&gt;for specific **audiences**.]]
+
+---
+
+class: middle, center
+
+# Truth is beautiful
+
+--
+
+### Truth ≠ facts
+
+--
+
+### Truth comes from aesthetic combination of content and form
+
+--
+
+### Facts require beauty to be true
+
+---
+
+class: center middle inverse
+
+# Data, truth, and beauty
+
+---
+
+# Just show me the data!
+
+
+
+--
+
+.pull-left[
+
+```r
+head(my_data, 10)
+```
+
+```
+## # A tibble: 10 × 2
+##        x     y
+##    &lt;dbl&gt; &lt;dbl&gt;
+##  1  55.4  97.2
+##  2  51.5  96.0
+##  3  46.2  94.5
+##  4  42.8  91.4
+##  5  40.8  88.3
+##  6  38.7  84.9
+##  7  35.6  79.9
+##  8  33.1  77.6
+##  9  29.0  74.5
+## 10  26.2  71.4
+```
+]
+
+--
+
+.pull-right[
+
+```r
+mean(my_data$x)
+```
+
+```
+*## [1] 54.26327
+```
+
+```r
+mean(my_data$y)
+```
+
+```
+*## [1] 47.83225
+```
+
+```r
+cor(my_data$x, my_data$y)
+```
+
+```
+*## [1] -0.06447185
+```
+]
+
+---
+
+class: center
+
+# oh no
+
+&lt;img src="index_files/figure-html/datasaurus-graph-1.gif" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Raw data is not enough
+
+&lt;img src="index_files/figure-html/datasaurus-graph-static-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Humans love patterns
+
+.center[
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pattern-processing.png" alt="Pattern processing" width="80%" /&gt;
+&lt;p class="caption"&gt;Pattern processing&lt;/p&gt;
+&lt;/div&gt;
+
+.footnote[https://doi.org/10.3389/fnins.2014.00265]
 
 ]
 
 ---
 
-# Outlier detection
-
-
-```r
-knitr::include_graphics("https://socviz.co/assets/ch-01-jackman-outlier.png")
-```
-
-&lt;img src="https://socviz.co/assets/ch-01-jackman-outlier.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
-
----
-
-class: inverse
-
-# What makes visualizations bad
-
----
-
-# Lies
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/cost_of_gas.jpg" width="150%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Dual axes
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/drowning_cage.jpeg" width="90%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Lacking functionality
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/Bush_cuts2.png" width="130%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Lacking functionality
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/stand_your_ground.jpg" width="90%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Junky
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/death_penalty.jpg" width="130%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Purpose of visualizations
-
-&gt; Any kind of visual representation of information designed to enable communication, analysis, discovery, exploration, etc.
+# (Sometimes we love them too much)
 
 --
 
-* What is your goal?
-* How do you design a visualization to meet that goal?
-
----
-
-# Statistical graphics
-
-* Visualize abstract data typically of the quantitative form
-* Convey data accurately and reveal the underlying structure
-* Lack exploration and interaction
-
----
-
-# Double-time bar charts
-
-&lt;img src="https://dougmccune.com/blog/wp-content/uploads/2011/04/burglary1.png" width="150%" style="display: block; margin: auto;" /&gt;
-    
----
-
-# Double-time bar charts
-
-&lt;img src="https://dougmccune.com/blog/wp-content/uploads/2011/04/small_multiples_small.png" width="90%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Information dashboards
-
-* Popular in business and industry
-* Visualize abstract data, frequently (though not always) over time
-* Convey large amounts of information quickly
-* Extremely dense
+.center[
+.box-inv-3.sp-after[**Pareidolia**: seeing patterns that aren't there.]
+]
 
 --
 
-#### Examples
+.pull-left[
 
-* [COVID-19 United States Cases by County](https://coronavirus.jhu.edu/us-map)
-* [California COVID Assessment Tool](https://calcat.covid19.ca.gov/cacovidmodels/) - built in Shiny!
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pareidolia-1.jpg" width="80%" style="display: block; margin: auto;" /&gt;
 
----
+]
 
-# Infographics
+.pull-right[
 
-* Depict abstract data in an effort to be eye-catching and capture attention
-* Convey information quickly
-* Easy to go wrong
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pareidolia-3.jpg" width="80%" style="display: block; margin: auto;" /&gt;
 
----
-
-# Sexual sun stroke
-
-&lt;img src="https://klientboost.com/wp-content/uploads/2013/05/1.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+]
 
 ---
 
-# What is that?
+# Beauty is necessary to see patterns
 
-&lt;img src="https://i.kinja-img.com/gawker-media/image/upload/b5icpqdsnzsdaezvnrm1.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+.pull-left[
 
----
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/amount-diffs-table.png" title="Amount donated table" alt="Amount donated table" width="80%" style="display: block; margin: auto;" /&gt;
 
-# Huh?
+]
 
-&lt;img src="https://68.media.tumblr.com/fd2be427c6794cc8e25bc23c42da73aa/tumblr_omvcm7m9va1sgh0voo1_1280.jpg" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+--
 
----
+.pull-right[
 
-# What makes a good visualization
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/amount-diffs.png" title="Amount donated graph" alt="Amount donated graph" width="80%" style="display: block; margin: auto;" /&gt;
 
-From *The Truthful Art*
-
-* Is it truthful?
-* Is it functional?
-* Is it beautiful?
-* Is it insightful?
-* Is it enlightening?
+]
 
 ---
 
-# Dr. John Snow
+class: center middle inverse
 
-&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Snow-cholera-map-1.jpg/819px-Snow-cholera-map-1.jpg" width="70%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Napoleon's march on Russia
-
-&lt;img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Minard.png" width="90%" style="display: block; margin: auto;" /&gt;
+# Beautiful visualizations
 
 ---
 
-# Napoleon's march on Russia
+# What makes a great visualization?
 
-&lt;img src="https://upload.wikimedia.org/wikipedia/commons/e/e2/Minard_Update.png" width="90%" style="display: block; margin: auto;" /&gt;
+.midi[
 
+- Truthful
+- Functional
+- Beautiful
+- Insightful
+- Enlightening
 
----
+]
 
-# Perception and data visualization
+.footnote[Alberto Cairo, *The Truthful Art*]
 
-* Driven by science
-* Lots to learn here, but we don't have time this week to dive in deep!
-* Important to remember human perception and cognition is a process - design visualizations remembering this fact
-* Work to simplify perception so the story is clear and easy to tell
+???
 
----
+Alberto Cairo, *The Truthful Art*:
 
-# Visual tasks and decoding graphs
-
-&lt;img src="https://socviz.co/assets/ch-01-cleveland-task-types.png" width="90%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Visual tasks and decoding graphs
-
-&lt;img src="https://socviz.co/assets/ch-01-heer-bostock-results.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
-
----
-
-# Channels and decoding information
-
-&lt;img src="https://socviz.co/assets/ch-01-channels-for-cont-data-vertical.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+&gt; 1. It is truthful, as it’s based on thorough and honest research.
+&gt; 
+&gt; 2. It is functional, as it constitutes an accurate depiction of the data, and it’s built in a way that lets people do meaningful operations based on it (seeing change in time).
+&gt; 
+&gt; 3. It is beautiful, in the sense of being attractive, intriguing, and even aesthetically pleasing for its intended audience—scientists, in the first place, but the general public, too.
+&gt; 
+&gt; 4. It is insightful, as it reveals evidence that we would have a hard time seeing otherwise.
+&gt; 
+&gt; 5. It is enlightening because if we grasp and accept the evidence it depicts, it will change our minds for the better.
 
 ---
 
-# Channels and decoding information
+# What makes a great visualization?
 
-&lt;img src="https://socviz.co/assets/ch-01-channels-for-cat-data-vertical.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+.task["Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**."]
 
----
-
-# Bar chart vs. pie chart
-
-
-```
-## Warning: It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
-## It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
-```
-
-&lt;img src="index_files/figure-html/bar-pie-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+.footnote[Edward Tufte, *The Visual Display of Quantitative Information*, p. 51]
 
 ---
 
-# Choropleths
+# What makes a great visualization?
 
+.midi[
 
-```
-## Warning: The `shift_geo` argument is deprecated and will be removed in a future
-## release. We recommend using `tigris::shift_geometry()` instead.
-```
+- Good aesthetics
+- No substantive issues
+- No perceptual issues
+- Honesty + good judgment
 
-```
-## Warning: It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
-## It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
-```
+]
 
-&lt;img src="index_files/figure-html/maps-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+.footnote[Kieran Healy, *Data Visualization: A Practical Introduction*]
 
 ---
 
-# Identifying appropriate graphical forms
+# What's wrong?
 
-1. Think about the task or tasks you want to enable
-1. Try different graphic forms
-1. Arrange the components of the graphic
-1. Test the outcomes
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pie-genus.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
 
 ---
 
-# What is the story?
+# What's wrong?
 
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/ta_piketty.jpeg" width="340px" height="500px" style="display: block; margin: auto;" /&gt;
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/changing-face-of-america.png" width="45%" style="display: block; margin: auto;" /&gt;
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+---
+
+# What's wrong?
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/death_penalty.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# What's right?
+
+.pull-left[
+
+&lt;img src="index_files/figure-html/flatten-the-curve-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+--
+
+.pull-right[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/bergstrom-tweet.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[[Thread by Carl T. Bergstrom](https://twitter.com/CT_Bergstrom/status/1235865328074153986)]
+
+]
+
+???
+
+[Carl Bergstrom on the flatten the curve visualization](https://twitter.com/CT_Bergstrom/status/1235865328074153986)
 
 ---
 

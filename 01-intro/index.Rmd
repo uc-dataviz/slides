@@ -4,22 +4,13 @@ author: "MACS 24000 <br /> University of Chicago"
 output: rcfss::xaringan_wide
 ---
 
-```{r setup, include=FALSE}
-# create xaringan-themer.css
+```{r setup, include = FALSE}
+# generate CSS file
+library(xaringanthemer)
 rcfss::xaringan_theme()
 
-options(htmltools.dir.version = FALSE)
-knitr::opts_chunk$set(
-  cache = TRUE,
-  message = FALSE,
-  echo = FALSE,
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300,
-  fig.showtext = FALSE,
-  fig.align = "center",
-  out.width = "90%"
-  )
-
-set.seed(1234)
+source(here::here("R", "slide-opts.R"))
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r packages, include = FALSE, cache = FALSE}
@@ -36,7 +27,7 @@ library(tidycensus)
 library(statebins)
 library(here)
 
-theme_set(theme_minimal(base_size = rcfss::base_size))
+set.seed(123)
 ```
 
 class: middle, inverse
@@ -271,362 +262,489 @@ Some brief advice about selecting your account names (particularly for GitHub),
 
 ---
 
+class: inverse, center, middle
 
+--
 
-# Why visualize data?
+## Facts, truth, and beauty
 
-* Statistical methods
-* Machine learning
-* Drawing a picture
+--
+
+## Data, truth, and beauty
+
+--
+
+## Beautiful visualizations
 
 ---
 
-# Anscombe's quartet
+class: inverse center middle
 
-```{r anscombe}
-# tidy the dataset
-# source: https://gist.github.com/amoeba/7576126
-anscombe_tidy <- map_df(.x = 1:4, ~ tibble(set = .x,
-                                           x = anscombe[, .x],
-                                           y = anscombe[, .x + 4]))
+# Facts, truth, and beauty
 
-ggplot(data = anscombe_tidy,
-       mapping = aes(x = x, y = y)) +
+---
+
+## What is truth?
+
+- Core principles of the universe?
+
+--
+- Underlying trends in society?
+
+--
+- Something transcendental?
+
+--
+- Reality?
+
+---
+
+# How do we find truth?
+
+.center[
+
+## Science!
+
+]
+
+```{r}
+include_graphics(path = here("images/01/ndgt-scientism.png"), error = FALSE)
+```
+
+???
+
+[Original tweet](https://twitter.com/neiltyson/status/345551599382446081)
+
+---
+
+# But wait!
+
+.center[
+
+## Beware of scientism!
+
+]
+
+.large[.task["… promotion of science as the best or only objective means by which society should determine normative and epistemological values"]]
+
+???
+
+[Wikipedia](https://en.wikipedia.org/wiki/Scientism)
+
+---
+
+## Science is not the only way
+
+- Art
+- Music
+- Literature
+- Religion
+- Nature
+
+???
+
+None of these methods deal with raw facts, though!
+
+---
+
+## Nothing here is factual…
+
+…but it all reveals truth
+
+.pull-left[
+
+.pull-left[
+
+```{r fig.caption = "Cosette"}
+include_graphics(path = here("images/01/les-mis.jpg"))
+```
+
+.small[**Cosette**]
+
+]
+
+.pull-right[
+
+```{r fig.caption = "King Lear"}
+include_graphics(path = here("images/01/King_Lear.jpg"))
+```
+
+.small[**King Lear**]
+
+]
+
+]
+
+.pull-right[
+
+```{r fig.caption = "Beethoven's 9th symphony"}
+include_graphics(path = here("images/01/beethoven.png"))
+```
+
+.small[**Beethoven's 9th symphony**]
+
+]
+
+???
+
+Sources: 
+
+- [Cosette](https://commons.wikimedia.org/wiki/File:Cosette-sweeping-les-miserables-albert-bellenger-1886.jpg)
+- [King Lear](https://commons.wikimedia.org/wiki/File:King_Lear.jpg)
+- [Beethoven](https://commons.wikimedia.org/wiki/File:Beethoven,_Symphony_No._9,_finale,_bars_116-123.png)
+
+---
+
+class: middle, center
+
+# **Facts ≠ truth**
+
+---
+
+class: middle, center
+
+# Where does truth come when<br>there are no facts?
+
+--
+
+# Beauty
+
+---
+
+# Beauty in science
+
+.pull-left.center[
+
+```{r fig.caption = "Frank Wilczek's A Beautiful Question", out.width = "50%"}
+include_graphics(path = here("images/01/beautiful-question.jpg"))
+```
+
+.small[Frank Wilczek's A Beautiful Question]
+
+]
+
+.midi[This is also true for science and math and other more factual realms]
+
+---
+
+# Content + form
+
+.center[.large[Art is how we translate core,<br>essential **content** (or truth!)<br>to different **forms**<br>for specific **audiences**.]]
+
+---
+
+class: middle, center
+
+# Truth is beautiful
+
+--
+
+### Truth ≠ facts
+
+--
+
+### Truth comes from aesthetic combination of content and form
+
+--
+
+### Facts require beauty to be true
+
+---
+
+class: center middle inverse
+
+# Data, truth, and beauty
+
+---
+
+# Just show me the data!
+
+```{r load-datasaurus-dozen, echo=FALSE}
+my_data <- datasaurus_dozen %>% 
+  filter(dataset == "dino") %>% 
+  select(x, y)
+```
+
+--
+
+.pull-left[
+```{r head-datasaurus, echo = TRUE}
+head(my_data, 10)
+```
+]
+
+--
+
+.pull-right[
+```{r summary-datasaurus, highlight.output=1, echo = TRUE}
+mean(my_data$x)
+mean(my_data$y)
+cor(my_data$x, my_data$y)
+```
+]
+
+---
+
+class: center
+
+# oh no
+
+```{r datasaurus-graph, echo = FALSE, warning = FALSE}
+ggplot(datasaurus_dozen, aes(x = x, y = y))+
   geom_point() +
-  geom_smooth(method = "lm", se = FALSE, fullrange = TRUE) +
-  facet_wrap(~ set) +
-  labs(title = "Anscombe's quartet",
-       x = expression(X),
-       y = expression(Y))
+  coord_fixed() +
+  theme_minimal(base_size = rcfss::base_size) +
+  transition_states(dataset, 3, 3) + 
+  ease_aes('cubic-in-out')
 ```
 
 ---
 
-# Datasaurus dozen
+# Raw data is not enough
+
+```{r datasaurus-graph-static}
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+  facet_wrap(vars(dataset)) +
+  geom_point(size = 0.8) +
+  coord_fixed() +
+  theme_minimal()
+```
+
+---
+
+# Humans love patterns
 
 .center[
 
-```{r datasaurus-graph-static, fig.height = 8, fig.width = 8}
-ggplot(datasaurus_dozen, aes(x = x, y = y)) +
-  facet_wrap(~ dataset) +
-  geom_point() +
-  theme_minimal()
+```{r fig.cap = "Pattern processing"}
+include_graphics(path = here("images/01/pattern-processing.png"))
+```
+
+.footnote[https://doi.org/10.3389/fnins.2014.00265]
+
+]
+
+---
+
+# (Sometimes we love them too much)
+
+--
+
+.center[
+.box-inv-3.sp-after[**Pareidolia**: seeing patterns that aren't there.]
+]
+
+--
+
+.pull-left[
+
+```{r out.width = "80%"}
+include_graphics(path = here("images/01/pareidolia-1.jpg"))
+```
+
+]
+
+.pull-right[
+
+```{r out.width = "80%"}
+include_graphics(path = here("images/01/pareidolia-3.jpg"))
 ```
 
 ]
 
 ---
 
-# Outlier detection
+# Beauty is necessary to see patterns
 
-```{r south-africa-outlier, out.height = "500px", echo = TRUE}
-knitr::include_graphics("https://socviz.co/assets/ch-01-jackman-outlier.png")
+.pull-left[
+
+```{r out.width = "80%", fig.alt = "Amount donated table"}
+include_graphics(path = here("images/01/amount-diffs-table.png"))
 ```
 
----
-
-class: inverse
-
-# What makes visualizations bad
-
----
-
-# Lies
-
-```{r gas, out.width = "150%"}
-knitr::include_graphics(here("images", "cost_of_gas.jpg"))
-```
-
----
-
-# Dual axes
-
-```{r nic-cage}
-knitr::include_graphics(here("images", "drowning_cage.jpeg"))
-```
-
----
-
-# Lacking functionality
-
-```{r bush-tax-cuts, out.width = "130%"}
-knitr::include_graphics(here("images", "Bush_cuts2.png"))
-```
-
----
-
-# Lacking functionality
-
-```{r gun-deaths}
-knitr::include_graphics(here("images", "stand_your_ground.jpg"))
-```
-
----
-
-# Junky
-
-```{r death-penalty, out.width = "130%"}
-knitr::include_graphics(here("images", "death_penalty.jpg"))
-```
-
----
-
-# Purpose of visualizations
-
-> Any kind of visual representation of information designed to enable communication, analysis, discovery, exploration, etc.
+]
 
 --
 
-* What is your goal?
-* How do you design a visualization to meet that goal?
+.pull-right[
 
----
-
-# Statistical graphics
-
-* Visualize abstract data typically of the quantitative form
-* Convey data accurately and reveal the underlying structure
-* Lack exploration and interaction
-
----
-
-# Double-time bar charts
-
-```{r double-bar-chart, out.width = "150%"}
-knitr::include_graphics("https://dougmccune.com/blog/wp-content/uploads/2011/04/burglary1.png")
-```
-    
----
-
-# Double-time bar charts
-
-```{r double-bar-chart-facet}
-knitr::include_graphics("https://dougmccune.com/blog/wp-content/uploads/2011/04/small_multiples_small.png")
+```{r out.width = "80%", fig.alt = "Amount donated graph"}
+include_graphics(path = here("images/01/amount-diffs.png"))
 ```
 
+]
+
 ---
 
-# Information dashboards
+class: center middle inverse
 
-* Popular in business and industry
-* Visualize abstract data, frequently (though not always) over time
-* Convey large amounts of information quickly
-* Extremely dense
+# Beautiful visualizations
+
+---
+
+# What makes a great visualization?
+
+.midi[
+
+- Truthful
+- Functional
+- Beautiful
+- Insightful
+- Enlightening
+
+]
+
+.footnote[Alberto Cairo, *The Truthful Art*]
+
+???
+
+Alberto Cairo, *The Truthful Art*:
+
+> 1. It is truthful, as it’s based on thorough and honest research.
+> 
+> 2. It is functional, as it constitutes an accurate depiction of the data, and it’s built in a way that lets people do meaningful operations based on it (seeing change in time).
+> 
+> 3. It is beautiful, in the sense of being attractive, intriguing, and even aesthetically pleasing for its intended audience—scientists, in the first place, but the general public, too.
+> 
+> 4. It is insightful, as it reveals evidence that we would have a hard time seeing otherwise.
+> 
+> 5. It is enlightening because if we grasp and accept the evidence it depicts, it will change our minds for the better.
+
+---
+
+# What makes a great visualization?
+
+.task["Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**."]
+
+.footnote[Edward Tufte, *The Visual Display of Quantitative Information*, p. 51]
+
+---
+
+# What makes a great visualization?
+
+.midi[
+
+- Good aesthetics
+- No substantive issues
+- No perceptual issues
+- Honesty + good judgment
+
+]
+
+.footnote[Kieran Healy, *Data Visualization: A Practical Introduction*]
+
+---
+
+# What's wrong?
+
+```{r out.width = "60%"}
+include_graphics(path = here("images/01/pie-genus.png"))
+```
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+---
+
+# What's wrong?
+
+```{r out.width = "45%"}
+include_graphics(path = here("images/01/changing-face-of-america.png"))
+```
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+---
+
+# What's wrong?
+
+```{r out.width = "60%"}
+include_graphics(path = here("images", "death_penalty.jpg"))
+```
+
+---
+
+# What's right?
+
+.pull-left[
+
+```{r flatten-the-curve, echo=FALSE, fig.dim=c(4.8, 3.75), out.width="100%"}
+high_mean <- 12
+high_sd <- 4
+flat_mean <- 35
+flat_sd <- 12
+
+ggplot(tibble(x = c(0, 70)), aes(x = x)) +
+  stat_function(geom = "area", fun = dnorm, n = 1000, 
+                args = list(mean = high_mean, sd = high_sd),
+                fill = "#FF4136", alpha = 0.8) +
+  stat_function(geom = "area", fun = dnorm, n = 1000, 
+                args = list(mean = flat_mean, sd = flat_sd),
+                fill = "#0074D9", alpha = 0.8) +
+  geom_hline(yintercept = dnorm(flat_mean, flat_mean, flat_sd), 
+             linetype = "61", color = "grey75") +
+  annotate(geom = "text", x = qnorm(0.5, high_mean, high_sd), 
+           y = dnorm(qnorm(0.5, high_mean, high_sd), high_mean, high_sd) / 2, 
+           label = "Without\nprotective\nmeasures", color = "white", size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  annotate(geom = "text", x = qnorm(0.5, flat_mean, sd = flat_sd), 
+           y = dnorm(qnorm(0.5, flat_mean, sd = flat_sd), flat_mean, sd = flat_sd) / 2, 
+           label = "With protective\nmeasures", color = "white", size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  annotate(geom = "text", x = 45, y = dnorm(flat_mean, flat_mean, sd = flat_sd), 
+           label = "Healthcare system capacity", vjust = -0.5, hjust = 0, size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  labs(x = "Time since first case", 
+       y = "# of\ncases",
+       title = "Flatten the curve!", 
+       subtitle = "Slow down community spread by social distancing",
+       caption = "Adapted from the CDC and The Economist\nVisit flattenthecurve.com") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_minimal(base_family = "Fira Sans Condensed Light") +
+  theme(panel.grid = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_blank(),
+        axis.title = element_text(family = "Fira Sans Condensed", face = "bold"),
+        axis.title.y = element_text(angle = 0, vjust = 0.5),
+        plot.title = element_text(family = "Fira Sans Condensed", face = "bold", size = rel(1.7)),
+        plot.subtitle = element_text(size = rel(1.2), color = "grey50"),
+        plot.caption = element_text(color = "grey50"))
+```
+
+]
+
+???
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
 
 --
 
-#### Examples
+.pull-right[
 
-* [COVID-19 United States Cases by County](https://coronavirus.jhu.edu/us-map)
-* [California COVID Assessment Tool](https://calcat.covid19.ca.gov/cacovidmodels/) - built in Shiny!
-
----
-
-# Infographics
-
-* Depict abstract data in an effort to be eye-catching and capture attention
-* Convey information quickly
-* Easy to go wrong
-
----
-
-# Sexual sun stroke
-
-```{r sexual-sun-stroke}
-knitr::include_graphics("https://klientboost.com/wp-content/uploads/2013/05/1.jpg")
+```{r}
+include_graphics(path = here("images/01/bergstrom-tweet.png"))
 ```
 
----
+.small[[Thread by Carl T. Bergstrom](https://twitter.com/CT_Bergstrom/status/1235865328074153986)]
 
-# What is that?
+]
 
-```{r terrible-area-chart}
-knitr::include_graphics("https://i.kinja-img.com/gawker-media/image/upload/b5icpqdsnzsdaezvnrm1.jpg")
-```
+???
 
----
-
-# Huh?
-
-```{r paid-maternity-leave, out.height = "500px"}
-knitr::include_graphics("https://68.media.tumblr.com/fd2be427c6794cc8e25bc23c42da73aa/tumblr_omvcm7m9va1sgh0voo1_1280.jpg")
-```
-
----
-
-# What makes a good visualization
-
-From *The Truthful Art*
-
-* Is it truthful?
-* Is it functional?
-* Is it beautiful?
-* Is it insightful?
-* Is it enlightening?
-
----
-
-# Dr. John Snow
-
-```{r snow, out.width = "70%"}
-knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Snow-cholera-map-1.jpg/819px-Snow-cholera-map-1.jpg")
-```
-
----
-
-# Napoleon's march on Russia
-
-```{r minard-orig}
-knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/2/29/Minard.png")
-```
-
----
-
-# Napoleon's march on Russia
-
-```{r minard-translate}
-knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/e/e2/Minard_Update.png")
-```
-
-
----
-
-# Perception and data visualization
-
-* Driven by science
-* Lots to learn here, but we don't have time this week to dive in deep!
-* Important to remember human perception and cognition is a process - design visualizations remembering this fact
-* Work to simplify perception so the story is clear and easy to tell
-
----
-
-# Visual tasks and decoding graphs
-
-```{r cleveland}
-knitr::include_graphics("https://socviz.co/assets/ch-01-cleveland-task-types.png")
-```
-
----
-
-# Visual tasks and decoding graphs
-
-```{r cleveland-replication, out.height = "500px"}
-knitr::include_graphics("https://socviz.co/assets/ch-01-heer-bostock-results.png")
-```
-
----
-
-# Channels and decoding information
-
-```{r channels-ordered-data, out.height = "500px"}
-knitr::include_graphics("https://socviz.co/assets/ch-01-channels-for-cont-data-vertical.png")
-```
-
----
-
-# Channels and decoding information
-
-```{r channels-unordered-data, out.height = "500px"}
-knitr::include_graphics("https://socviz.co/assets/ch-01-channels-for-cat-data-vertical.png")
-```
-
----
-
-# Bar chart vs. pie chart
-
-```{r bar-pie}
-gss_auth <- gss_colrac %>%
-  count(authoritarianism) %>%
-  mutate(authoritarianism = factor(authoritarianism)) %>%
-  mutate(pct = n / sum(n))
-
-# bar chart
-auth_bar <- ggplot(gss_auth, aes(authoritarianism, pct, fill = authoritarianism)) +
-  geom_col() +
-  scale_y_continuous(labels = scales::percent) +
-  scale_fill_brewer(palette = "OrRd", guide = FALSE) +
-  labs(x = "Authoritarianism scale\n(higher indicates more support for authoritarian government)",
-       y = "Percentage of respondents")
-
-# pie chart
-auth_pie <- ggplot(gss_auth, aes(x = factor(1), y = pct, fill = authoritarianism)) +
-  geom_col(width = 1) +
-  geom_text(aes(label = authoritarianism), position = position_stack(vjust = 0.5), size = 7) +
-  coord_polar(theta = "y", direction = -1) +
-  scale_fill_brewer(palette = "OrRd", guide = FALSE) +
-  labs(x = "Authoritarianism scale\n(higher indicates more support for authoritarian government)",
-       y = "Percentage of respondents") +
-  theme_void(base_size = rcfss::base_size)
-
-auth_bar +
-  auth_pie +
-  plot_annotation(title = "Public support for authoritarianism",
-                  caption = "Source: General Social Survey (2012)",
-                  tag_levels = "A") +
-  plot_layout(widths = c(50, 50))
-```
-
----
-
-# Choropleths
-
-```{r maps, fig.asp = .8}
-us_sf <- get_acs(geography = "state", 
-                 variables = c(medincome = "B19013_001"), 
-                 year = 2016,
-                 geometry = TRUE,
-                 shift_geo = TRUE)
-
-trump_map <- left_join(us_sf, election, by = c("NAME" = "state")) %>%
-  ggplot(mapping = aes(fill = pct_trump)) +
-  geom_sf() +
-  scale_fill_distiller(palette = "Reds", labels = scales::percent_format(scale = 1)) +
-  labs(fill = "Percent Trump") +
-  theme_void() +
-  theme(legend.position = "bottom")
-
-trump_statebins <- ggplot(data = election, mapping = aes(state = state, fill = pct_trump)) +
-  geom_statebins()  +
-  coord_equal() +
-  scale_fill_distiller(palette = "Reds", labels = scales::percent_format(scale = 1), guide = FALSE) +
-  labs(fill = "Percent Trump") +
-  theme_statebins(base_size = rcfss::base_size) +
-  theme(legend.position = "bottom")
-
-# lollipop chart
-trump_lollipop <- ggplot(data = election,
-                         mapping = aes(y = reorder(state, pct_trump), x = pct_trump,
-                                       color = pct_trump)) +
-  geom_pointrange(aes(xmin = 0, xmax = pct_trump),
-                  fatten = 3, size = .7) +
-  scale_color_distiller(palette = "Reds", labels = scales::percent_format(scale = 1), guide = FALSE) +
-  labs(y = NULL,
-       x = "Percent Trump") +
-  theme_minimal(base_size = rcfss::base_size * .6)
-
-(trump_lollipop | (trump_map / trump_statebins +
-                     plot_layout(guides = "collect"))) +
-  plot_annotation(title = "2016 US Presidential Election", tag_levels = "A") +
-  plot_layout(ncol = 2, byrow = FALSE) &
-  theme(legend.position = 'bottom')
-```
-
----
-
-# Identifying appropriate graphical forms
-
-1. Think about the task or tasks you want to enable
-1. Try different graphic forms
-1. Arrange the components of the graphic
-1. Test the outcomes
-
----
-
-# What is the story?
-
-```{r piketty, out.height = "500px", out.width = "340px"}
-knitr::include_graphics(here("images", "ta_piketty.jpeg"))
-```
+[Carl Bergstrom on the flatten the curve visualization](https://twitter.com/CT_Bergstrom/status/1235865328074153986)
 
 ---
 
