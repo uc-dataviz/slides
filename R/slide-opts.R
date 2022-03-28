@@ -7,7 +7,8 @@ knitr::opts_chunk$set(
   fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150,
   fig.showtext = TRUE,
   fig.align = "center",
-  out.width = "80%"
+  out.width = "80%",
+  hiline = TRUE
 )
 
 # set base theme

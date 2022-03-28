@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Grammar of graphics</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Grammar of graphics
+### MACS 40700 <br /> University of Chicago
+
+---
+
+
+
+
+
+
+class: middle, inverse
+
+# Data visualization
+
+---
+
+## Data visualization
+
+&gt; *"The simple graph has brought more information to the data analyst's mind than any other device."*
+&gt; 
+&gt; John Tukey
+
+- Data visualization is the creation and study of the visual representation of data
+- Many tools for visualizing data -- R is one of them
+- Many approaches/systems within R for making data visualizations -- **ggplot2** is one of them, and that's what we're going to use
+
+---
+
+## ggplot2 `\(\in\)` tidyverse
+
+.pull-left[
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/ggplot2-part-of-tidyverse.png" width="80%" style="display: block; margin: auto;" /&gt;
+] 
+.pull-right[ 
+- **ggplot2** is tidyverse's data visualization package 
+- `gg` in "ggplot2" stands for Grammar of Graphics 
+- Inspired by the book **Grammar of Graphics** by Leland Wilkinson
+]
+
+---
+
+## Grammar of Graphics
+
+.pull-left-narrow[
+A grammar of graphics is a tool that enables us to concisely describe the components of a graphic
+]
+.pull-right-wide[
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/grammar-of-graphics.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.footnote[
+Source: [BloggoType](http://bloggotype.blogspot.com/2016/08/holiday-notes2-grammar-of-graphics.html)
+]
+
+---
+
+## Hello ggplot2!
+
+- `ggplot()` is the main function in ggplot2
+- Plots are constructed in layers
+- Structure of the code for plots can be summarized as
+
+
+```r
+ggplot(data = [dataset], 
+       mapping = aes(x = [x-variable], y = [y-variable])) +
+   geom_xxx() +
+   other options
+```
+
+- The ggplot2 package comes with the tidyverse
+
+
+```r
+library(tidyverse)
+```
+
+- For help with ggplot2, see [ggplot2.tidyverse.org](http://ggplot2.tidyverse.org/)
+
+---
+
+class: middle, inverse
+
+# Why do we visualize?
+
+---
+
+## Why do we visualize? 
+
+1. Discover patterns that may not be obvious from numerical summaries
+
+
+---
+
+## Anscombe's quartet
+
+
+```r
+library(Tmisc)
+quartet %&gt;% slice_head(n = 15)
+```
+
+---
+
+## Summary statistics for Anscombe's quartet
+
+
+```r
+quartet %&gt;%
+  group_by(set) %&gt;%
+  summarise(
+    mean_x = mean(x), 
+    mean_y = mean(y),
+    sd_x = sd(x),
+    sd_y = sd(y),
+    r = cor(x, y)
+  )
+```
+
+```
+## # A tibble: 4 × 6
+##   set   mean_x mean_y  sd_x  sd_y     r
+##   &lt;fct&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 I          9   7.50  3.32  2.03 0.816
+## 2 II         9   7.50  3.32  2.03 0.816
+## 3 III        9   7.5   3.32  2.03 0.816
+## 4 IV         9   7.50  3.32  2.03 0.817
+```
+
+---
+
+## Scatterplots for Anscombe's quartet
+
+&lt;img src="index_files/figure-html/quartet-plot-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Why do we visualize? 
+
+1. Discover patterns that may not be obvious from numerical summaries
+
+2. Convey information in a way that is otherwise difficult/impossible to convey
+
+---
+
+## Impact of Omicron variant on unvaccinated populations
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/covid-hong-kong.jpeg" width="70%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: [John Burn-Murdoch](https://twitter.com/jburnmurdoch/status/1503420660869214213)
+]
+
+---
+
+## COVID-19 vaccination in US Counties
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/nytimes-us-covid-vaccine.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: [New York Times](https://www.nytimes.com/interactive/2020/us/covid-19-vaccine-doses.html), March 28, 2022.
+]
+
+---
+
+class: middle, inverse
+
+# ggplot2 ❤️ 🐧
+
+---
+
+## ggplot2 `\(\in\)` tidyverse
+
+.pull-left[
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/ggplot2-part-of-tidyverse.png" width="80%" style="display: block; margin: auto;" /&gt;
+] 
+.pull-right[ 
+- **ggplot2** is tidyverse's data visualization package 
+- Structure of the code for plots can be summarized as
+
+
+```r
+ggplot(data = [dataset], 
+       mapping = aes(x = [x-variable], 
+                     y = [y-variable])) +
+   geom_xxx() +
+   other options
+```
+]
+
+---
+
+## Data: Palmer Penguins
+
+Measurements for penguin species, island in Palmer Archipelago, size (flipper length, body mass, bill dimensions), and sex.
+
+.pull-left-narrow[
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/penguins.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right-wide[
+
+```r
+library(palmerpenguins)
+glimpse(penguins)
+```
+
+```
+## Rows: 344
+## Columns: 8
+## $ species           &lt;fct&gt; Adelie, Adelie, Adelie, Adelie, Adelie, Adelie, Adel…
+## $ island            &lt;fct&gt; Torgersen, Torgersen, Torgersen, Torgersen, Torgerse…
+## $ bill_length_mm    &lt;dbl&gt; 39.1, 39.5, 40.3, NA, 36.7, 39.3, 38.9, 39.2, 34.1, …
+## $ bill_depth_mm     &lt;dbl&gt; 18.7, 17.4, 18.0, NA, 19.3, 20.6, 17.8, 19.6, 18.1, …
+## $ flipper_length_mm &lt;int&gt; 181, 186, 195, NA, 193, 190, 181, 195, 193, 190, 186…
+## $ body_mass_g       &lt;int&gt; 3750, 3800, 3250, NA, 3450, 3650, 3625, 4675, 3475, …
+## $ sex               &lt;fct&gt; male, female, female, NA, female, male, female, male…
+## $ year              &lt;int&gt; 2007, 2007, 2007, 2007, 2007, 2007, 2007, 2007, 2007…
+```
+]
+
+---
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(data = penguins, 
+       mapping = aes(x = bill_depth_mm, y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+       color = "Species")
+```
+]
+]
+
+---
+
+class: middle, inverse
+
+# Coding out loud
+
+---
+
+.small[
+&gt; **Start with the `penguins` data frame**
+]
+
+.pull-left[
+
+```r
+*ggplot(data = penguins)
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; **map bill depth to the x-axis**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+*      mapping = aes(x = bill_depth_mm))
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; **and map bill length to the y-axis.**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+*                    y = bill_length_mm))
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; **Represent each observation with a point**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm)) + 
+* geom_point()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; **and map species to the color of each point.**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+*                    color = species)) +
+  geom_point()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; **Title the plot "Bill depth and length"**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+* labs(title = "Bill depth and length")
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; Title the plot "Bill depth and length", 
+&gt; **add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins"**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+*      subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins")
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; Title the plot "Bill depth and length", 
+&gt; add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", 
+&gt; **label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+*      x = "Bill depth (mm)", y = "Bill length (mm)")
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; Title the plot "Bill depth and length", 
+&gt; add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", 
+&gt; label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively,
+&gt; **label the legend "Species"**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+*      color = "Species")
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; Title the plot "Bill depth and length", 
+&gt; add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", 
+&gt; label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively,
+&gt; label the legend "Species", 
+&gt; **and add a caption for the data source.**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+       color = "Species",
+*      caption = "Source: Palmer Station LTER / palmerpenguins package")
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+&gt; Start with the `penguins` data frame,
+&gt; map bill depth to the x-axis
+&gt; and map bill length to the y-axis. 
+&gt; Represent each observation with a point
+&gt; and map species to the color of each point.
+&gt; Title the plot "Bill depth and length", 
+&gt; add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", 
+&gt; label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively,
+&gt; label the legend "Species", 
+&gt; and add a caption for the data source.
+&gt; **Finally, use a discrete color scale that is designed to be perceived by viewers with common forms of color blindness.**
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+       color = "Species",
+       caption = "Source: Palmer Station LTER / palmerpenguins package") +
+* scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+       color = "Species",
+       caption = "Source: Palmer Station LTER / palmerpenguins package") +
+  scale_color_viridis_d()
+```
+]
+.panel[.panel-name[Narrative]
+.pull-left-wide[
+.small[
+Start with the `penguins` data frame,
+map bill depth to the x-axis
+and map bill length to the y-axis. 
+
+Represent each observation with a point
+and map species to the color of each point.
+
+Title the plot "Bill depth and length", 
+add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", 
+label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively,
+label the legend "Species", 
+and add a caption for the data source.
+
+Finally, use a discrete color scale that is designed to be perceived by viewers with common forms of color blindness.
+]
+]
+]
+]
+
+---
+
+## Argument names
+
+.tip[
+You can omit the names of first two arguments when building plots with `ggplot()`.
+]
+
+.pull-left[
+
+```r
+ggplot(data = penguins,
+       mapping = aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm,
+           y = bill_length_mm,
+           color = species)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+
+---
+
+class: middle, inverse
+
+# Aesthetics
+
+---
+
+## Aesthetics options
+
+Commonly used characteristics of plotting characters that can be **mapped to a specific variable** in the data are
+
+- `color`
+- `shape`
+- `size`
+- `alpha` (transparency)
+
+---
+
+## color
+
+.pull-left[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm, 
+           y = bill_length_mm,
+*          color = species)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Shape
+
+Mapped to a different variable than `color`
+
+.pull-left[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm, 
+           y = bill_length_mm,
+           color = species,
+*          shape = island)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Shape
+
+Mapped to same variable as `color`
+
+.pull-left[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm, 
+           y = bill_length_mm,
+           color = species,
+*          shape = species)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Size
+
+.pull-left[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm, 
+           y = bill_length_mm,
+           color = species,
+           shape = species,
+*          size = body_mass_g)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Alpha
+
+.pull-left[
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm, 
+           y = bill_length_mm,
+           color = species,
+           shape = species,
+           size = body_mass_g,
+*          alpha = flipper_length_mm)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**Mapping**
+
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm,
+           y = bill_length_mm,
+*          size = body_mass_g,
+*          alpha = flipper_length_mm)) +
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Setting**
+
+
+```r
+ggplot(penguins,
+       aes(x = bill_depth_mm,
+           y = bill_length_mm)) + 
+* geom_point(size = 2, alpha = 0.5)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Mapping vs. setting
+
+- **Mapping:** Determine the size, alpha, etc. of points based on the values of a variable in the data
+  - goes into `aes()`
+
+- **Setting:** Determine the size, alpha, etc. of points **not** based on the values of a variable in the data
+  - goes into `geom_*()` (this was `geom_point()` in the previous example, but we'll learn about other geoms soon!)
+  
+---
+
+class: middle, inverse
+
+# Faceting
+
+---
+
+## Faceting
+
+- Smaller plots that display different subsets of the data
+- Useful for exploring conditional relationships and large data
+
+---
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_grid(rows = vars(species), cols = vars(island))
+```
+]
+]
+
+---
+
+## Various ways to facet
+
+.question[
+In the next few slides describe what each plot displays. Think about how the code relates to the output.
+
+**Note:** The plots in the next few slides do not have proper titles, axis labels, etc. because we want you to figure out what's happening in the plots.
+But you should always label your plots!
+]
+
+---
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_grid(rows = vars(species), cols = vars(sex))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_grid(rows = vars(sex), cols = vars(species))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_wrap(facets = vars(species))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_grid(rows = NULL, cols = vars(species))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+* facet_wrap(facets = vars(species), ncol = 2)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Faceting summary
+
+- `facet_grid()`:
+    - 2 dimensional grid
+    - `rows = vars(&lt;VARIABLE&gt;), cols = vars(&lt;VARIABLE&gt;)`
+    - Alternative: `rows ~ cols`
+- `facet_wrap()`: 1 dimensional ribbon wrapped according to number of rows and columns specified or available plotting area
+
+---
+
+## Facet and color
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(
+  penguins, 
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm, 
+*     color = species)) +
+  geom_point() +
+  facet_grid(species ~ sex) +
+* scale_color_viridis_d()
+```
+]
+]
+
+---
+
+## Facet and color, no legend
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(
+  penguins, 
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm, 
+      color = species)) +
+  geom_point() +
+  facet_grid(species ~ sex) +
+* scale_color_viridis_d(guide = "none")
+```
+]
+]
+
+---
+
+class: middle, inverse
+
+# Take a sad plot, and make it better
+
+---
+
+The American Association of 
+University Professors (AAUP) is a nonprofit membership association of faculty 
+and other academic professionals. 
+[This report](https://www.aaup.org/sites/default/files/files/AAUP_Report_InstrStaff-75-11_apr2013.pdf) 
+by the AAUP shows trends in instructional staff employees between 1975 
+and 2011, and contains an image very similar to the one given below.
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/staff-employment.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+Each row in this dataset represents a faculty type, and the columns are the years for which we have data. 
+The values are percentage of hires of that type of faculty for each year.
+
+
+```r
+staff &lt;- read_csv(here("data/instructional-staff.csv"))
+staff
+```
+
+```
+## # A tibble: 5 × 12
+##   faculty_type    `1975` `1989` `1993` `1995` `1999` `2001` `2003` `2005` `2007`
+##   &lt;chr&gt;            &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 Full-Time Tenu…   29     27.6   25     24.8   21.8   20.3   19.3   17.8   17.2
+## 2 Full-Time Tenu…   16.1   11.4   10.2    9.6    8.9    9.2    8.8    8.2    8  
+## 3 Full-Time Non-…   10.3   14.1   13.6   13.6   15.2   15.5   15     14.8   14.9
+## 4 Part-Time Facu…   24     30.4   33.1   33.2   35.5   36     37     39.3   40.5
+## 5 Graduate Stude…   20.5   16.5   18.1   18.8   18.7   19     20     19.9   19.5
+## # … with 2 more variables: `2009` &lt;dbl&gt;, `2011` &lt;dbl&gt;
+```
+
+---
+
+## Recreate the visualization
+
+In order to recreate this visualization we need to first reshape the data to have one variable for faculty type and one variable for year. In other words, we will convert the data from the long format to wide format. 
+
+But before we do so... 
+
+.task[
+If the long data will have a row for each year/faculty type combination, and there are 5 faculty types and 11 years of data, how many rows will the data have?
+]
+
+---
+
+class: center, middle
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/pivot.gif" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## `pivot_*()` function
+
+&lt;img src="https://github.com/gadenbuie/tidyexplain/raw/main/images/tidyr-pivoting.gif" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## `pivot_longer()`
+
+
+```r
+pivot_longer(data, cols, names_to = "name", values_to = "value")
+```
+
+- The first argument is `data` as usual.
+- The second argument, `cols`, is where you specify which columns to pivot 
+into longer format -- in this case all columns except for the `faculty_type` 
+- The third argument, `names_to`, is a string specifying the name of the column to create from the data stored in the column names of data -- in this case `year`
+- The fourth argument, `values_to`, is a string specifying the name of the column to create from the data stored in cell values, in this case `percentage`
+
+---
+
+## Pivot instructor data
+
+.small[
+
+```r
+library(tidyverse)
+
+staff_long &lt;- staff %&gt;%
+  pivot_longer(cols = -faculty_type, names_to = "year", 
+               values_to = "percentage") %&gt;%
+  mutate(percentage = as.numeric(percentage))
+
+staff_long
+```
+
+```
+## # A tibble: 55 × 3
+##    faculty_type              year  percentage
+##    &lt;chr&gt;                     &lt;chr&gt;      &lt;dbl&gt;
+##  1 Full-Time Tenured Faculty 1975        29  
+##  2 Full-Time Tenured Faculty 1989        27.6
+##  3 Full-Time Tenured Faculty 1993        25  
+##  4 Full-Time Tenured Faculty 1995        24.8
+##  5 Full-Time Tenured Faculty 1999        21.8
+##  6 Full-Time Tenured Faculty 2001        20.3
+##  7 Full-Time Tenured Faculty 2003        19.3
+##  8 Full-Time Tenured Faculty 2005        17.8
+##  9 Full-Time Tenured Faculty 2007        17.2
+## 10 Full-Time Tenured Faculty 2009        16.8
+## # … with 45 more rows
+```
+]
+
+---
+
+.question[
+This doesn't look quite right, how would you fix it?
+]
+
+.small[
+
+```r
+staff_long %&gt;%
+  ggplot(aes(x = percentage, y = year, color = faculty_type)) +
+  geom_col(position = "dodge")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-44-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.small[
+
+```r
+staff_long %&gt;%
+  ggplot(aes(x = percentage, y = year, fill = faculty_type)) +
+  geom_col(position = "dodge")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Some improvement...
+
+.small[
+
+```r
+staff_long %&gt;%
+  ggplot(aes(x = percentage, y = year, fill = faculty_type)) +
+  geom_col()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-46-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## More improvement
+
+.small[
+
+```r
+staff_long %&gt;%
+  ggplot(aes(x = year, y = percentage, group = faculty_type, 
+             color = faculty_type)) +
+  geom_line() +
+  theme_minimal()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Goal: even more improvement!
+
+.task[
+I want to achieve the following look but I have no idea how!
+]
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/sketch.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Asking good questions
+
+- Describe what you want
+- Describe where you are
+- Create a minimal **repr**oducible **ex**ample: `reprex::reprex()`
+
+---
+
+.panelset[
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/instructor-lines-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.panel[.panel-name[Code]
+
+
+```r
+library(scales)
+
+staff_long %&gt;%
+* mutate(
+*   part_time = if_else(faculty_type == "Part-Time Faculty",
+*                       "Part-Time Faculty", "Other Faculty"),
+*   year = as.numeric(year)
+*   ) %&gt;%
+  ggplot(aes(x = year, y = percentage/100, group = faculty_type, 
+             color = part_time)) +
+  geom_line() +
+* scale_color_manual(values = c("gray", "red")) +
+* scale_y_continuous(labels = label_percent(accuracy = 1)) +
+  theme_minimal() +
+  labs(
+    title = "Instructional staff employment trends",
+    x = "Year", y = "Percentage", color = NULL
+  ) +
+* theme(legend.position = "bottom")
+```
+
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlighStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
