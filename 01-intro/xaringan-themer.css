@@ -36,11 +36,11 @@
   --code-font-is-google: 1;
   --base-font-size: 24px;
   --text-font-size: 1rem;
-  --code-font-size: 0.9rem;
+  --code-font-size: 20px;
   --code-inline-font-size: 1em;
-  --header-h1-font-size: 2.75rem;
-  --header-h2-font-size: 2.25rem;
-  --header-h3-font-size: 1.75rem;
+  --header-h1-font-size: 2rem;
+  --header-h2-font-size: 1.75rem;
+  --header-h3-font-size: 1.5rem;
 
   /* Colors */
   --text-color: #464A53;
@@ -337,4 +337,28 @@ h3 {
   margin-top: 6px;
   border-left: solid 5px #F1DE67;
   background-color: #F3D03E;
+}
+.pull-left {
+  width: 49%;
+  float: left;
+}
+.pull-right {
+  width: 49%;
+  float: right;
+}
+.pull-left-wide {
+  width: 70%;
+  float: left;
+}
+.pull-right-narrow {
+  width: 27%;
+  float: right;
+}
+.pull-left-narrow {
+  width: 27%;
+  float: left;
+}
+.pull-right-wide {
+  width: 70%;
+  float: right;
 }

@@ -302,7 +302,7 @@ class: inverse center middle
 ]
 
 ```{r}
-include_graphics(path = here("images/01/ndgt-scientism.png"), error = FALSE)
+include_graphics(path = "images/01/ndgt-scientism.png")
 ```
 
 ???
@@ -354,7 +354,7 @@ None of these methods deal with raw facts, though!
 .pull-left[
 
 ```{r fig.caption = "Cosette"}
-include_graphics(path = here("images/01/les-mis.jpg"))
+include_graphics(path = "images/01/les-mis.jpg")
 ```
 
 .small[**Cosette**]
@@ -364,7 +364,7 @@ include_graphics(path = here("images/01/les-mis.jpg"))
 .pull-right[
 
 ```{r fig.caption = "King Lear"}
-include_graphics(path = here("images/01/King_Lear.jpg"))
+include_graphics(path = "images/01/King_Lear.jpg")
 ```
 
 .small[**King Lear**]
@@ -376,7 +376,7 @@ include_graphics(path = here("images/01/King_Lear.jpg"))
 .pull-right[
 
 ```{r fig.caption = "Beethoven's 9th symphony"}
-include_graphics(path = here("images/01/beethoven.png"))
+include_graphics(path = "images/01/beethoven.png")
 ```
 
 .small[**Beethoven's 9th symphony**]
@@ -414,7 +414,7 @@ class: middle, center, inverse
 .pull-left.center[
 
 ```{r fig.caption = "Frank Wilczek's A Beautiful Question", out.width = "50%"}
-include_graphics(path = here("images/01/beautiful-question.jpg"))
+include_graphics(path = "images/01/beautiful-question.jpg")
 ```
 
 .small[Frank Wilczek's A Beautiful Question]
@@ -515,7 +515,7 @@ ggplot(datasaurus_dozen, aes(x = x, y = y)) +
 .center[
 
 ```{r fig.cap = "Pattern processing"}
-include_graphics(path = here("images/01/pattern-processing.png"))
+include_graphics(path = "images/01/pattern-processing.png")
 ```
 
 .footnote[https://doi.org/10.3389/fnins.2014.00265]
@@ -537,7 +537,7 @@ include_graphics(path = here("images/01/pattern-processing.png"))
 .pull-left[
 
 ```{r out.width = "80%"}
-include_graphics(path = here("images/01/pareidolia-1.jpg"))
+include_graphics(path = "images/01/pareidolia-1.jpg")
 ```
 
 ]
@@ -545,7 +545,7 @@ include_graphics(path = here("images/01/pareidolia-1.jpg"))
 .pull-right[
 
 ```{r out.width = "80%"}
-include_graphics(path = here("images/01/pareidolia-3.jpg"))
+include_graphics(path = "images/01/pareidolia-3.jpg")
 ```
 
 ]
@@ -557,7 +557,7 @@ include_graphics(path = here("images/01/pareidolia-3.jpg"))
 .pull-left[
 
 ```{r out.width = "80%", fig.alt = "Amount donated table"}
-include_graphics(path = here("images/01/amount-diffs-table.png"))
+include_graphics(path = "images/01/amount-diffs-table.png")
 ```
 
 ]
@@ -567,7 +567,7 @@ include_graphics(path = here("images/01/amount-diffs-table.png"))
 .pull-right[
 
 ```{r out.width = "80%", fig.alt = "Amount donated graph"}
-include_graphics(path = here("images/01/amount-diffs.png"))
+include_graphics(path = "images/01/amount-diffs.png")
 ```
 
 ]
@@ -647,7 +647,7 @@ Alberto Cairo, *The Truthful Art*:
 .right-column[
 
 ```{r out.width = "75%"}
-include_graphics(path = here("images/01/pie-genus.png"))
+include_graphics(path = "images/01/pie-genus.png")
 ```
 
 ]
@@ -676,7 +676,7 @@ include_graphics(path = here("images/01/pie-genus.png"))
 .right-column[
 
 ```{r out.width = "65%"}
-include_graphics(path = here("images/01/changing-face-of-america.png"))
+include_graphics(path = "images/01/changing-face-of-america.png")
 ```
 
 ]
@@ -704,7 +704,7 @@ include_graphics(path = here("images/01/changing-face-of-america.png"))
 .right-column[
 
 ```{r out.width = "75%"}
-include_graphics(path = here("images", "death_penalty.jpg"))
+include_graphics(path = "images/death_penalty.jpg")
 ```
 
 ]
