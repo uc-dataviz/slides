@@ -42,7 +42,7 @@ class: middle, inverse
 
 .pull-left[
 ```{r echo=FALSE, out.width="80%"}
-include_graphics(here("images/ggplot2-part-of-tidyverse.png"))
+include_graphics("./images/ggplot2-part-of-tidyverse.png", error = FALSE)
 ```
 ] 
 .pull-right[ 
