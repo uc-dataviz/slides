@@ -260,8 +260,6 @@ Some brief advice about selecting your account names (particularly for GitHub),
 
 class: inverse, center, middle
 
---
-
 ## Facts, truth, and beauty
 
 --
