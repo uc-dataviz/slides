@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to data visualization</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 24000   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introduction to data visualization
+### MACS 24000 <br /> University of Chicago
+
+---
+
+
+
+
+
+
+class: middle, inverse
+
+# Course Details
+
+---
+
+## Teaching team
+
+### Instrutor
+
+* Dr. Benjamin Soltoff - soltoffbc@uchicago.edu
+
+### Teaching assistants
+
+TBD?
+
+---
+
+## Themes: what, why, and how
+
+- **What:** the plot
+  - Specific types of visualizations for a particular purpose (e.g., maps for spatial data, Sankey diagrams for proportions, etc.) 
+  - Tooling to produce them (e.g., specific R packages)
+
+--
+- **How:** the process
+  - Start with a design (sketch + pseudo code)
+  - Pre-process data (e.g., wrangle, reshape, join, etc.)
+  - Map data to aesthetics
+  - Make visual encoding decisions t(e.g., address accessibility concerns)
+  - Post-process for visual appeal and annotation
+
+--
+- **Why:** the theory
+  - Tie together "how" and "what" through the grammar of graphics
+
+---
+
+class: middle, inverse
+
+# Course components
+
+---
+
+## Course website
+
+.center[.large[[uc-dataviz.netlify.app](https://uc-dataviz.netlify.app/)]]
+.center[.hand[aka "the one link to rule them all"]]
+
+.center[
+&lt;iframe width="900" height="450" src="https://uc-dataviz.netlify.app/" frameborder="0" style="background:white;"&gt;&lt;/iframe&gt;  
+]
+
+---
+
+## Lectures
+
+- Class will be in person this semester
+- Attendance is expected (as long as you're healthy!)
+
+
+- A little bit of everything:
+  - Traditional lecture
+  - Live coding + demos
+  - Short exercises + solution discussion
+
+---
+
+## Announcements
+
+- Posted on Canvas, be sure to check both regularly
+
+- I'll assume that you've read an announcement by the next "business" day
+
+---
+
+class: middle, inverse
+
+# Assessments
+
+---
+
+## Assessments
+
+- Homework assignments:
+  - Submitted on GitHub, individual
+- Projects:
+  - Submitted on GitHub, team-based
+  - Interim deadlines, peer review on content, peer evaluation for team contribution
+
+---
+
+## Teams
+
+- Team assignments
+  - Assigned different teams for each project
+  - Peer evaluation during teamwork and after completion
+- Expectations and roles
+  - Everyone is expected to contribute equal *effort*
+  - Everyone is expected to understand *all* code turned in
+  - Individual contribution evaluated by peer evaluation, commits, etc.
+
+---
+
+## Project 1
+
+- Curated-ish data sources, different results
+
+- Presentation and write-up
+
+- Wrapped up end of week 5
+
+---
+
+## Project 2
+
+- The world is your oyster!
+
+- Presentation and write-up
+
+- Wrapped up during exam week
+
+---
+
+## Grading
+
+This course is assessed 100% on your coursework (there is no exam). We will be assessing you based on the following assignments,
+
+&lt;br/&gt;
+
+|Assignment|Type       |Value  | n  |Due                  |
+|:---------|:----------|:------|:---|---------------------|
+|Homeworks         |Individual      |50%    | 4 | ~ Every other week  |
+|Project 1 | Team      |20%    | 1  | Week 5        |
+|Project 2 | Team      |30%    | 1  | Exam week      | 
+
+---
+
+class: middle, inverse
+
+# Course policies
+
+---
+
+## Collaboration policy
+
+- Only work that is clearly assigned as team work should be completed collaboratively (Projects)
+
+- Homeworks must be completed individually. You may not directly share answers / code with others, however you are welcome to discuss the problems in general and ask for advice
+
+---
+
+## Sharing / reusing code policy
+
+- We are aware that a huge volume of code is available on the web, and many tasks may have solutions posted
+
+- Unless explicitly stated otherwise, this course's policy is that you may make use of any online resources (e.g. RStudio Community, StackOverflow, etc.) but you must explicitly cite where you obtained any code you directly use or use as inspiration in your solution(s).
+
+- Any recycled code that is discovered and is not explicitly cited will be treated as plagiarism, regardless of source
+
+---
+
+class: middle, inverse
+
+# Course Tools
+
+---
+
+## RStudio 
+
+- Local R installations
+
+- [Software setup instructions](https://cfss.uchicago.edu/setup/#option-2-install-the-software-locally)
+
+---
+
+## GitHub
+
+.center[.large[https://github.com/dataviz-sp22]]
+
+&lt;br&gt;
+
+- GitHub organization for the course
+
+- All of your work and your membership (enrollment) in the organization is private
+
+- Each assignment is a private repo on GitHub, I distribute the assignments on GitHub and you submit them there
+
+- Feedback on assignments is given as GitHub issues, only points recorded on Canvas gradebook
+
+.task[
+Fill out the *Collecting GitHub Usernames* survey for collection of your account names, later this week you will be invited to the course organization.
+]
+
+---
+
+## Username advice
+
+.hand[in case you don't yet have a GitHub account...]
+
+Some brief advice about selecting your account names (particularly for GitHub),
+
+- Incorporate your actual name! People like to know who they’re dealing with and makes your username easier for people to guess or remember
+
+- Reuse your username from other contexts, e.g., Twitter or Slack
+
+- Pick a username you will be comfortable revealing to your future boss
+
+- Shorter is better than longer, but be as unique as possible
+
+- Make it timeless. Avoid highlighting your current university, employer, or place of residence
+
+---
+
+## GitHub Discussions
+
+.center[.midi[https://github.com/dataviz-sp22/discussion/discussions]]
+
+&lt;br&gt;
+
+- Online forum for asking and answering questions
+
+- Private repo in the course organization
+
+- You will need to join the course organization for access
+
+- Ask **and answer** questions related to course logistics, assignment, etc. here
+
+- Personal questions (e.g., extensions, illnesses, etc.) should be via email to me
+
+---
+
+
+
+# Why visualize data?
+
+* Statistical methods
+* Machine learning
+* Drawing a picture
+
+---
+
+# Anscombe's quartet
+
+&lt;img src="index_files/figure-html/anscombe-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Datasaurus dozen
+
+.center[
+
+&lt;img src="index_files/figure-html/datasaurus-graph-static-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+
+# Outlier detection
+
+
+```r
+knitr::include_graphics("https://socviz.co/assets/ch-01-jackman-outlier.png")
+```
+
+&lt;img src="https://socviz.co/assets/ch-01-jackman-outlier.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: inverse
+
+# What makes visualizations bad
+
+---
+
+# Lies
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/cost_of_gas.jpg" width="150%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Dual axes
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/drowning_cage.jpeg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Lacking functionality
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/Bush_cuts2.png" width="130%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Lacking functionality
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/stand_your_ground.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Junky
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/death_penalty.jpg" width="130%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Purpose of visualizations
+
+&gt; Any kind of visual representation of information designed to enable communication, analysis, discovery, exploration, etc.
+
+--
+
+* What is your goal?
+* How do you design a visualization to meet that goal?
+
+---
+
+# Statistical graphics
+
+* Visualize abstract data typically of the quantitative form
+* Convey data accurately and reveal the underlying structure
+* Lack exploration and interaction
+
+---
+
+# Double-time bar charts
+
+&lt;img src="https://dougmccune.com/blog/wp-content/uploads/2011/04/burglary1.png" width="150%" style="display: block; margin: auto;" /&gt;
+    
+---
+
+# Double-time bar charts
+
+&lt;img src="https://dougmccune.com/blog/wp-content/uploads/2011/04/small_multiples_small.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Information dashboards
+
+* Popular in business and industry
+* Visualize abstract data, frequently (though not always) over time
+* Convey large amounts of information quickly
+* Extremely dense
+
+--
+
+#### Examples
+
+* [COVID-19 United States Cases by County](https://coronavirus.jhu.edu/us-map)
+* [California COVID Assessment Tool](https://calcat.covid19.ca.gov/cacovidmodels/) - built in Shiny!
+
+---
+
+# Infographics
+
+* Depict abstract data in an effort to be eye-catching and capture attention
+* Convey information quickly
+* Easy to go wrong
+
+---
+
+# Sexual sun stroke
+
+&lt;img src="https://klientboost.com/wp-content/uploads/2013/05/1.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# What is that?
+
+&lt;img src="https://i.kinja-img.com/gawker-media/image/upload/b5icpqdsnzsdaezvnrm1.jpg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Huh?
+
+&lt;img src="https://68.media.tumblr.com/fd2be427c6794cc8e25bc23c42da73aa/tumblr_omvcm7m9va1sgh0voo1_1280.jpg" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# What makes a good visualization
+
+From *The Truthful Art*
+
+* Is it truthful?
+* Is it functional?
+* Is it beautiful?
+* Is it insightful?
+* Is it enlightening?
+
+---
+
+# Dr. John Snow
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Snow-cholera-map-1.jpg/819px-Snow-cholera-map-1.jpg" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Napoleon's march on Russia
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Minard.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Napoleon's march on Russia
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/e/e2/Minard_Update.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Perception and data visualization
+
+* Driven by science
+* Lots to learn here, but we don't have time this week to dive in deep!
+* Important to remember human perception and cognition is a process - design visualizations remembering this fact
+* Work to simplify perception so the story is clear and easy to tell
+
+---
+
+# Visual tasks and decoding graphs
+
+&lt;img src="https://socviz.co/assets/ch-01-cleveland-task-types.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Visual tasks and decoding graphs
+
+&lt;img src="https://socviz.co/assets/ch-01-heer-bostock-results.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Channels and decoding information
+
+&lt;img src="https://socviz.co/assets/ch-01-channels-for-cont-data-vertical.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Channels and decoding information
+
+&lt;img src="https://socviz.co/assets/ch-01-channels-for-cat-data-vertical.png" width="90%" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Bar chart vs. pie chart
+
+
+```
+## Warning: It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
+## It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
+```
+
+&lt;img src="index_files/figure-html/bar-pie-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Choropleths
+
+
+```
+## Warning: The `shift_geo` argument is deprecated and will be removed in a future
+## release. We recommend using `tigris::shift_geometry()` instead.
+```
+
+```
+## Warning: It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
+## It is deprecated to specify `guide = FALSE` to remove a guide. Please use `guide = "none"` instead.
+```
+
+&lt;img src="index_files/figure-html/maps-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Identifying appropriate graphical forms
+
+1. Think about the task or tasks you want to enable
+1. Try different graphic forms
+1. Arrange the components of the graphic
+1. Test the outcomes
+
+---
+
+# What is the story?
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/ta_piketty.jpeg" width="340px" height="500px" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: middle, inverse
+
+# Before Thursday
+
+---
+
+## Before Thursday
+
+- Create a GitHub account if you don't have one
+
+- Complete the [*Collecting GitHub usernames* survey](https://forms.gle/HkaVKm7wgUPRW1Zh7)
+
+- Read the [syllabus](https://uc-dataviz.netlify.app/syllabus.html)
+
+- Complete the [reading](https://uc-dataviz.netlify.app/schedule.html)
+
+- Make sure you have working installations of R and RStudio
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlighStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
