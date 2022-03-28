@@ -3,7 +3,7 @@
   <head>
     <title>Introduction to data visualization</title>
     <meta charset="utf-8" />
-    <meta name="author" content="MACS 24000   University of Chicago" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -12,7 +12,7 @@
 class: center, middle, inverse, title-slide
 
 # Introduction to data visualization
-### MACS 24000 <br /> University of Chicago
+### MACS 40700 <br /> University of Chicago
 
 ---
 
@@ -50,7 +50,7 @@ TBD?
   - Start with a design (sketch + pseudo code)
   - Pre-process data (e.g., wrangle, reshape, join, etc.)
   - Map data to aesthetics
-  - Make visual encoding decisions t(e.g., address accessibility concerns)
+  - Make visual encoding decisions (e.g., address accessibility concerns)
   - Post-process for visual appeal and annotation
 
 --
@@ -79,7 +79,7 @@ class: middle, inverse
 ## Lectures
 
 - Class will be in person this semester
-- Attendance is expected (as long as you're healthy!)
+- Attendance is expected (as long as you're healthy)
 
 
 - A little bit of everything:
@@ -105,9 +105,9 @@ class: middle, inverse
 
 ## Assessments
 
-- Homework assignments:
+- Homework assignments
   - Submitted on GitHub, individual
-- Projects:
+- Projects
   - Submitted on GitHub, team-based
   - Interim deadlines, peer review on content, peer evaluation for team contribution
 
@@ -117,7 +117,7 @@ class: middle, inverse
 
 - Team assignments
   - Assigned different teams for each project
-  - Peer evaluation during teamwork and after completion
+  - Peer evaluation after completion
 - Expectations and roles
   - Everyone is expected to contribute equal *effort*
   - Everyone is expected to understand *all* code turned in
@@ -131,7 +131,7 @@ class: middle, inverse
 
 - Presentation and write-up
 
-- Wrapped up end of week 5
+- Wrapped up in week 5
 
 ---
 
@@ -146,10 +146,6 @@ class: middle, inverse
 ---
 
 ## Grading
-
-This course is assessed 100% on your coursework (there is no exam). We will be assessing you based on the following assignments,
-
-&lt;br/&gt;
 
 |Assignment|Type       |Value  | n  |Due                  |
 |:---------|:----------|:------|:---|---------------------|
@@ -169,7 +165,7 @@ class: middle, inverse
 
 - Only work that is clearly assigned as team work should be completed collaboratively (Projects)
 
-- Homeworks must be completed individually. You may not directly share answers / code with others, however you are welcome to discuss the problems in general and ask for advice
+- Homeworks must be completed individually. You may not directly share answers / code with others, however you are welcome to discuss the problems in general and ask for advice.
 
 ---
 
@@ -277,16 +273,14 @@ class: inverse center middle
 
 ## What is truth?
 
+.midi[
+
 - Core principles of the universe?
-
---
 - Underlying trends in society?
-
---
 - Something transcendental?
-
---
 - Reality?
+
+]
 
 ---
 
@@ -324,11 +318,15 @@ class: inverse center middle
 
 ## Science is not the only way
 
+.midi[
+
 - Art
 - Music
 - Literature
 - Religion
 - Nature
+
+]
 
 ???
 
@@ -378,13 +376,13 @@ Sources:
 
 ---
 
-class: middle, center
+class: middle, center, inverse
 
 # **Facts ≠ truth**
 
 ---
 
-class: middle, center
+class: middle, center, inverse
 
 # Where does truth come when&lt;br&gt;there are no facts?
 
@@ -607,7 +605,7 @@ Alberto Cairo, *The Truthful Art*:
 
 # What makes a great visualization?
 
-.task["Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**."]
+&gt; Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**.
 
 .footnote[Edward Tufte, *The Visual Display of Quantitative Information*, p. 51]
 
@@ -630,7 +628,21 @@ Alberto Cairo, *The Truthful Art*:
 
 # What's wrong?
 
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pie-genus.png" width="60%" style="display: block; margin: auto;" /&gt;
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/pie-genus.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+]
+
 
 ???
 
@@ -643,7 +655,20 @@ Alberto Cairo, *The Truthful Art*:
 
 # What's wrong?
 
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/changing-face-of-america.png" width="45%" style="display: block; margin: auto;" /&gt;
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/changing-face-of-america.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+]
 
 ???
 
@@ -656,38 +681,39 @@ Alberto Cairo, *The Truthful Art*:
 
 # What's wrong?
 
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/death_penalty.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/death_penalty.jpg" width="75%" style="display: block; margin: auto;" /&gt;
+
+]
 
 ---
 
 # What's right?
 
-.pull-left[
-
-&lt;img src="index_files/figure-html/flatten-the-curve-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-
-]
-
-???
+.left-column[
 
 - Aesthetic issues
 - Substantive issues
 - Perceptual issues
 - Honesty + judgment issues
 
---
-
-.pull-right[
-
-&lt;img src="/Users/soltoffbc/Projects/Data Visualization/slides/images/01/bergstrom-tweet.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-.small[[Thread by Carl T. Bergstrom](https://twitter.com/CT_Bergstrom/status/1235865328074153986)]
-
 ]
 
-???
+.right-column[
 
-[Carl Bergstrom on the flatten the curve visualization](https://twitter.com/CT_Bergstrom/status/1235865328074153986)
+&lt;img src="index_files/figure-html/flatten-the-curve-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
 
 ---
 

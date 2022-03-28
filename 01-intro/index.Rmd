@@ -1,6 +1,6 @@
 ---
 title: "Introduction to data visualization"
-author: "MACS 24000 <br /> University of Chicago"
+author: "MACS 40700 <br /> University of Chicago"
 output: rcfss::xaringan_wide
 ---
 
@@ -59,7 +59,7 @@ TBD?
   - Start with a design (sketch + pseudo code)
   - Pre-process data (e.g., wrangle, reshape, join, etc.)
   - Map data to aesthetics
-  - Make visual encoding decisions t(e.g., address accessibility concerns)
+  - Make visual encoding decisions (e.g., address accessibility concerns)
   - Post-process for visual appeal and annotation
 
 --
@@ -88,7 +88,7 @@ class: middle, inverse
 ## Lectures
 
 - Class will be in person this semester
-- Attendance is expected (as long as you're healthy!)
+- Attendance is expected (as long as you're healthy)
 
 
 - A little bit of everything:
@@ -114,9 +114,9 @@ class: middle, inverse
 
 ## Assessments
 
-- Homework assignments:
+- Homework assignments
   - Submitted on GitHub, individual
-- Projects:
+- Projects
   - Submitted on GitHub, team-based
   - Interim deadlines, peer review on content, peer evaluation for team contribution
 
@@ -126,7 +126,7 @@ class: middle, inverse
 
 - Team assignments
   - Assigned different teams for each project
-  - Peer evaluation during teamwork and after completion
+  - Peer evaluation after completion
 - Expectations and roles
   - Everyone is expected to contribute equal *effort*
   - Everyone is expected to understand *all* code turned in
@@ -140,7 +140,7 @@ class: middle, inverse
 
 - Presentation and write-up
 
-- Wrapped up end of week 5
+- Wrapped up in week 5
 
 ---
 
@@ -155,10 +155,6 @@ class: middle, inverse
 ---
 
 ## Grading
-
-This course is assessed 100% on your coursework (there is no exam). We will be assessing you based on the following assignments,
-
-<br/>
 
 |Assignment|Type       |Value  | n  |Due                  |
 |:---------|:----------|:------|:---|---------------------|
@@ -178,7 +174,7 @@ class: middle, inverse
 
 - Only work that is clearly assigned as team work should be completed collaboratively (Projects)
 
-- Homeworks must be completed individually. You may not directly share answers / code with others, however you are welcome to discuss the problems in general and ask for advice
+- Homeworks must be completed individually. You may not directly share answers / code with others, however you are welcome to discuss the problems in general and ask for advice.
 
 ---
 
@@ -286,16 +282,14 @@ class: inverse center middle
 
 ## What is truth?
 
+.midi[
+
 - Core principles of the universe?
-
---
 - Underlying trends in society?
-
---
 - Something transcendental?
-
---
 - Reality?
+
+]
 
 ---
 
@@ -335,11 +329,15 @@ include_graphics(path = here("images/01/ndgt-scientism.png"), error = FALSE)
 
 ## Science is not the only way
 
+.midi[
+
 - Art
 - Music
 - Literature
 - Religion
 - Nature
+
+]
 
 ???
 
@@ -395,13 +393,13 @@ Sources:
 
 ---
 
-class: middle, center
+class: middle, center, inverse
 
 # **Facts ≠ truth**
 
 ---
 
-class: middle, center
+class: middle, center, inverse
 
 # Where does truth come when<br>there are no facts?
 
@@ -504,7 +502,7 @@ ggplot(datasaurus_dozen, aes(x = x, y = y))+
 
 ```{r datasaurus-graph-static}
 ggplot(datasaurus_dozen, aes(x = x, y = y)) +
-  facet_wrap(vars(dataset)) +
+  facet_wrap(vars(dataset), nrow = 3) +
   geom_point(size = 0.8) +
   coord_fixed() +
   theme_minimal()
@@ -614,7 +612,7 @@ Alberto Cairo, *The Truthful Art*:
 
 # What makes a great visualization?
 
-.task["Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**."]
+> Graphical excellence is the **well-designed presentation of interesting data**—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which **gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space** … [It] is nearly always multivariate … And graphical excellence requires **telling the truth about the data**.
 
 .footnote[Edward Tufte, *The Visual Display of Quantitative Information*, p. 51]
 
@@ -637,10 +635,24 @@ Alberto Cairo, *The Truthful Art*:
 
 # What's wrong?
 
-```{r out.width = "60%"}
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+```{r out.width = "75%"}
 include_graphics(path = here("images/01/pie-genus.png"))
 ```
 
+]
+
+
 ???
 
 - Aesthetic issues
@@ -652,10 +664,23 @@ include_graphics(path = here("images/01/pie-genus.png"))
 
 # What's wrong?
 
-```{r out.width = "45%"}
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+```{r out.width = "65%"}
 include_graphics(path = here("images/01/changing-face-of-america.png"))
 ```
 
+]
+
 ???
 
 - Aesthetic issues
@@ -667,17 +692,39 @@ include_graphics(path = here("images/01/changing-face-of-america.png"))
 
 # What's wrong?
 
-```{r out.width = "60%"}
+.left-column[
+
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+```{r out.width = "75%"}
 include_graphics(path = here("images", "death_penalty.jpg"))
 ```
+
+]
 
 ---
 
 # What's right?
 
-.pull-left[
+.left-column[
 
-```{r flatten-the-curve, echo=FALSE, fig.dim=c(4.8, 3.75), out.width="100%"}
+- Aesthetic issues
+- Substantive issues
+- Perceptual issues
+- Honesty + judgment issues
+
+]
+
+.right-column[
+
+```{r flatten-the-curve}
 high_mean <- 12
 high_sd <- 4
 flat_mean <- 35
@@ -722,29 +769,6 @@ ggplot(tibble(x = c(0, 70)), aes(x = x)) +
 ```
 
 ]
-
-???
-
-- Aesthetic issues
-- Substantive issues
-- Perceptual issues
-- Honesty + judgment issues
-
---
-
-.pull-right[
-
-```{r}
-include_graphics(path = here("images/01/bergstrom-tweet.png"))
-```
-
-.small[[Thread by Carl T. Bergstrom](https://twitter.com/CT_Bergstrom/status/1235865328074153986)]
-
-]
-
-???
-
-[Carl Bergstrom on the flatten the curve visualization](https://twitter.com/CT_Bergstrom/status/1235865328074153986)
 
 ---
 
