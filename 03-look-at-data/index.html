@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Grammar of graphics</title>
+    <title>Looking at data</title>
     <meta charset="utf-8" />
     <meta name="author" content="MACS 40700   University of Chicago" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
@@ -15,7 +15,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Grammar of graphics
+# Looking at data
 ### MACS 40700 <br /> University of Chicago
 
 ---
@@ -27,76 +27,57 @@ class: center, middle, inverse, title-slide
 
 class: middle, inverse
 
-# Announcements
-
----
-
-## Announcements
-
-- Thank you for completing RQ 1 -- review of challenging topics in lecture today
-
-- COVID updates:
-  - Lectures: Planning to continue in person, recordings posted on Duke Capture, linked from course website
-  - Labs: Not recorded, plan for teamwork in place
-  - Regularly check email for any updates
-
-- Any questions from lab?
-
----
-
-## Midori
-
-&lt;img src="images/midori.jpeg" title="Photo of my cat Midori" alt="Photo of my cat Midori" width="50%" style="display: block; margin: auto;" /&gt;
-
----
-
-class: middle, inverse
-
 # A/B testing
 
 ---
 
-## Data: Sale prices of houses in Duke Forest
+## Data: College education costs
 
 .pull-left[
-- Data on houses that were sold in the Duke Forest neighborhood of Durham, NC around November 2020
 
-- Scraped from Zillow
+- Data on four year colleges and universities in the United States (2018-19)
 
-- Source: `openintro::duke_forest`
+- Extracted from College Scorecard API
+
+- Source: `rcfss::scorecard`
+
 ]
+
 .pull-right[
-&lt;img src="images/duke_forest_home.jpg" title="Home in Duke Forest" alt="Home in Duke Forest" width="100%" style="display: block; margin: auto 0 auto auto;" /&gt;
+
+&lt;blockquote class="twitter-tweet"&gt;&lt;p lang="en" dir="ltr"&gt;The 4 stages of a morning lecture &lt;a href="https://t.co/B7v6WLtX3J"&gt;pic.twitter.com/B7v6WLtX3J&lt;/a&gt;&lt;/p&gt;&amp;mdash; College Student (@ColIegeStudent) &lt;a href="https://twitter.com/ColIegeStudent/status/829377468595306500?ref_src=twsrc%5Etfw"&gt;February 8, 2017&lt;/a&gt;&lt;/blockquote&gt; &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
 ]
 
 ---
 
-## `openintro::duke_forest`
+## `rcfss::scorecard`
 
 
 ```r
 library(tidyverse)
-library(openintro)
+# remotes::install_github("uc-cfss/rcfss)
+library(rcfss)
 
-glimpse(duke_forest)
+glimpse(scorecard)
 ```
 
 ```
-## Rows: 98
-## Columns: 13
-## $ address    &lt;chr&gt; "1 Learned Pl, Durham, NC 27705", "1616 Pinecrest Rd, Durha…
-## $ price      &lt;dbl&gt; 1520000, 1030000, 420000, 680000, 428500, 456000, 1270000, …
-## $ bed        &lt;dbl&gt; 3, 5, 2, 4, 4, 3, 5, 4, 4, 3, 4, 4, 3, 5, 4, 5, 3, 4, 4, 3,…
-## $ bath       &lt;dbl&gt; 4.0, 4.0, 3.0, 3.0, 3.0, 3.0, 5.0, 3.0, 5.0, 2.0, 3.0, 3.0,…
-## $ area       &lt;dbl&gt; 6040, 4475, 1745, 2091, 1772, 1950, 3909, 2841, 3924, 2173,…
-## $ type       &lt;chr&gt; "Single Family", "Single Family", "Single Family", "Single …
-## $ year_built &lt;dbl&gt; 1972, 1969, 1959, 1961, 2020, 2014, 1968, 1973, 1972, 1964,…
-## $ heating    &lt;chr&gt; "Other, Gas", "Forced air, Gas", "Forced air, Gas", "Heat p…
-## $ cooling    &lt;fct&gt; central, central, central, central, central, central, centr…
-## $ parking    &lt;chr&gt; "0 spaces", "Carport, Covered", "Garage - Attached, Covered…
-## $ lot        &lt;dbl&gt; 0.97, 1.38, 0.51, 0.84, 0.16, 0.45, 0.94, 0.79, 0.53, 0.73,…
-## $ hoa        &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
-## $ url        &lt;chr&gt; "https://www.zillow.com/homedetails/1-Learned-Pl-Durham-NC-…
+## Rows: 1,732
+## Columns: 14
+## $ unitid    &lt;dbl&gt; 100654, 100663, 100706, 100724, 100751, 100830, 100858, 1009…
+## $ name      &lt;chr&gt; "Alabama A &amp; M University", "University of Alabama at Birmin…
+## $ state     &lt;chr&gt; "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", …
+## $ type      &lt;fct&gt; "Public", "Public", "Public", "Public", "Public", "Public", …
+## $ admrate   &lt;dbl&gt; 0.9175, 0.7366, 0.8257, 0.9690, 0.8268, 0.9044, 0.8067, 0.53…
+## $ satavg    &lt;dbl&gt; 939, 1234, 1319, 946, 1261, 1082, 1300, 1230, 1066, NA, 1076…
+## $ cost      &lt;dbl&gt; 23053, 24495, 23917, 21866, 29872, 19849, 31590, 32095, 3431…
+## $ netcost   &lt;dbl&gt; 14990, 16953, 15860, 13650, 22597, 13987, 24104, 22107, 2071…
+## $ avgfacsal &lt;dbl&gt; 69381, 99441, 87192, 64989, 92619, 71343, 96642, 56646, 5400…
+## $ pctpell   &lt;dbl&gt; 0.7019, 0.3512, 0.2536, 0.7627, 0.1772, 0.4644, 0.1455, 0.23…
+## $ comprate  &lt;dbl&gt; 0.2974, 0.6340, 0.5768, 0.3276, 0.7110, 0.3401, 0.7911, 0.69…
+## $ firstgen  &lt;dbl&gt; 0.3658281, 0.3412237, 0.3101322, 0.3434343, 0.2257127, 0.381…
+## $ debt      &lt;dbl&gt; 15250, 15085, 14000, 17500, 17671, 12000, 17500, 16000, 1425…
+## $ locale    &lt;fct&gt; City, City, City, City, City, City, City, City, City, Suburb…
 ```
 
 ---
@@ -108,13 +89,13 @@ glimpse(duke_forest)
 &lt;div class="panel-name"&gt;Code&lt;/div&gt;
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(alpha = 0.7, size = 2) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE, size = 0.7) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    title = "Price and area of houses in Duke Forest"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    title = "Test scores and net cost of attendance in US universities"
   )
 ```
 
@@ -125,102 +106,66 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 &lt;div class="panel"&gt;
 &lt;div class="panel-name"&gt;Plot&lt;/div&gt;
 
-&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 &lt;/div&gt;
 ]
 
 ---
 
-## New variable: `decade_built`
+## New variable: `pctpell_cat`
 
 
 ```r
-duke_forest &lt;- duke_forest %&gt;%
-  mutate(decade_built = (year_built %/% 10) * 10)
+scorecard &lt;- scorecard %&gt;%
+  mutate(pctpell_cat = cut_interval(x = pctpell, n = 6)) %&gt;%
+  drop_na(pctpell_cat)
 
-duke_forest %&gt;%
-  select(year_built, decade_built)
+scorecard %&gt;%
+  select(pctpell, pctpell_cat)
 ```
 
 ```
-## # A tibble: 98 × 2
-##    year_built decade_built
-##         &lt;dbl&gt;        &lt;dbl&gt;
-##  1       1972         1970
-##  2       1969         1960
-##  3       1959         1950
-##  4       1961         1960
-##  5       2020         2020
-##  6       2014         2010
-##  7       1968         1960
-##  8       1973         1970
-##  9       1972         1970
-## 10       1964         1960
-## # … with 88 more rows
+## # A tibble: 1,728 × 2
+##    pctpell pctpell_cat  
+##      &lt;dbl&gt; &lt;fct&gt;        
+##  1   0.702 (0.667,0.833]
+##  2   0.351 (0.333,0.5]  
+##  3   0.254 (0.167,0.333]
+##  4   0.763 (0.667,0.833]
+##  5   0.177 (0.167,0.333]
+##  6   0.464 (0.333,0.5]  
+##  7   0.146 [0,0.167]    
+##  8   0.236 (0.167,0.333]
+##  9   0.488 (0.333,0.5]  
+## 10   0.706 (0.667,0.833]
+## # … with 1,718 more rows
 ```
 
 ---
 
-## Distribution of `decade_built`
+## Distribution of `pctpell_cat`
 
 
 ```r
-duke_forest &lt;- duke_forest %&gt;%
-  mutate(
-    decade_built = (year_built %/% 10) * 10
-  )
+scorecard &lt;- scorecard %&gt;%
+  mutate(pctpell_cat = cut_interval(x = pctpell, n = 6)) %&gt;%
+  drop_na(pctpell_cat)
 
-duke_forest %&gt;%
-  count(decade_built)
-```
-
-```
-## # A tibble: 11 × 2
-##    decade_built     n
-##           &lt;dbl&gt; &lt;int&gt;
-##  1         1920     1
-##  2         1930     2
-##  3         1940     5
-##  4         1950    26
-##  5         1960    32
-##  6         1970    11
-##  7         1980    13
-##  8         1990     1
-##  9         2000     1
-## 10         2010     5
-## 11         2020     1
-```
-
----
-
-## New variable: `decade_built_cat`
-
-
-```r
-duke_forest &lt;- duke_forest %&gt;%
-  mutate(
-    decade_built_cat = case_when(
-      decade_built &lt;= 1940 ~ "1940 or before",
-      decade_built &gt;= 1990 ~ "1990 or after",
-      TRUE                 ~ as.character(decade_built)
-    )
-  )
-
-duke_forest %&gt;%
-  count(decade_built_cat)
+scorecard %&gt;%
+  count(pctpell_cat)
 ```
 
 ```
 ## # A tibble: 6 × 2
-##   decade_built_cat     n
-##   &lt;chr&gt;            &lt;int&gt;
-## 1 1940 or before       8
-## 2 1950                26
-## 3 1960                32
-## 4 1970                11
-## 5 1980                13
-## 6 1990 or after        8
+##   pctpell_cat       n
+##   &lt;fct&gt;         &lt;int&gt;
+## 1 [0,0.167]       157
+## 2 (0.167,0.333]   610
+## 3 (0.333,0.5]     632
+## 4 (0.5,0.667]     225
+## 5 (0.667,0.833]    74
+## 6 (0.833,1]        30
 ```
 
 ---
@@ -232,15 +177,15 @@ duke_forest %&gt;%
 &lt;div class="panel-name"&gt;Code&lt;/div&gt;
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
-  geom_point(alpha = 0.7, show.legend = FALSE) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+  geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
-  facet_wrap(~decade_built_cat) +
+  facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    color = "Decade built",
-    title = "Price and area of houses in Duke Forest"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    color = "Percentage of Pell grant recipients",
+    title = "Test scores and net cost of attendance in US universities"
   )
 ```
 
@@ -251,7 +196,7 @@ ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
 &lt;div class="panel"&gt;
 &lt;div class="panel-name"&gt;Plot&lt;/div&gt;
 
-&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 &lt;/div&gt;
 ]
@@ -261,7 +206,7 @@ ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
 class: middle
 
 .task[
-In the next two slides, the same plots are created with different "cosmetic" choices. Examine the plots two given (Plot A and Plot B), and indicate your preference by voting for one of them in the Vote tab.
+In the next two slides, the same plots are created with different "cosmetic" choices. Examine the plots two given (Plot A and Plot B), and decide whcih one you prefer.
 ]
 
 ---
@@ -275,9 +220,6 @@ In the next two slides, the same plots are created with different "cosmetic" cho
 .panel[.panel-name[Plot B]
 &lt;img src="index_files/figure-html/test-1-b-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[Vote]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
-]
 ]
 
 ---
@@ -286,13 +228,10 @@ In the next two slides, the same plots are created with different "cosmetic" cho
 
 .panelset[
 .panel[.panel-name[Plot A]
-&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Plot B]
 &lt;img src="index_files/figure-html/test-2-b-1.png" width="90%" style="display: block; margin: auto;" /&gt;
-]
-.panel[.panel-name[Vote]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
 ]
 ]
 
@@ -312,20 +251,20 @@ a deeper look at the plotting code...
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
-  geom_point(alpha = 0.7, show.legend = FALSE) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+  geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
-  facet_wrap(~decade_built_cat) +
+  facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    color = "Decade built",
-    title = "Price and area of houses in Duke Forest"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    color = "Percentage of Pell grant recipients",
+    title = "Test scores and net cost of attendance in US universities"
   ) +
 * theme_minimal(base_size = 16) +
 * scale_color_viridis_d(end = 0.9)
@@ -339,21 +278,22 @@ ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
-  geom_point(alpha = 0.5, size = 2, show.legend = FALSE) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+  geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
-  facet_wrap(~decade_built_cat) +
+  facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    color = "Decade built",
-    title = "Price and area of houses in Duke Forest"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    color = "Percentage of Pell grant recipients",
+    title = "Test scores and net cost of attendance in US universities"
   ) +
+  theme_minimal(base_size = 16) +
 * scale_color_viridis_d(end = 0.8, option = "A")
 ```
 ]
@@ -365,20 +305,20 @@ ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
-  geom_point(alpha = 0.7, show.legend = FALSE) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+  geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
-  facet_wrap(~decade_built_cat) +
+  facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    color = "Decade built",
-    title = "Price and area of houses in Duke Forest",
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    color = "Percentage of Pell grant recipients",
+    title = "Test scores and net cost of attendance in US universities"
   ) +
 * theme_dark(base_size = 16) +
 * scale_color_manual(values = c("yellow", "blue", "orange", "red", "green", "white")) +
@@ -400,7 +340,7 @@ class: middle, inverse
 
 ## Bad taste
 
-&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -418,26 +358,6 @@ Tufte strongly recommends maximizing the **data-to-ink ratio** this in the Visua
 
 ---
 
-## Review: RQ 1
-
-.task[
-**Question 8.** Which of the following is **FALSE** about the data-to-ink ratio?
-]
-
-a. Data-to-ink ratio can be increased by removing content-free decoration. (TRUE)
-
-b. **Data-to-ink ratio can be increased by choosing a more accessible color palette.** **(FALSE)**
-
-c. Visualizations with high data-to-ink ratio can be cognitively difficult for viewers to interpret. (TRUE)
-
-d. Visualizations with excessive 'chart junk' tend to have low data-to-ink ratio. (TRUE)
-
-.footnote[
-Error on quiz: Question asked for TRUE when it should have asked for FALSE. Everyone will get a point for this question regardless of their answer.
-]
-
----
-
 .task[
 Which of the plots has higher data-to-ink ratio?
 ]
@@ -446,13 +366,10 @@ Which of the plots has higher data-to-ink ratio?
 
 .panelset[
 .panel[.panel-name[Plot A]
-&lt;img src="index_files/figure-html/mean-area-decade-a-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/mean-netcost-pctpell-a-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Plot B]
-&lt;img src="index_files/figure-html/mean-area-decade-b-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-.panel[.panel-name[Vote]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
+&lt;img src="index_files/figure-html/mean-netcost-pctpell-b-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 ]
 
@@ -472,23 +389,23 @@ a deeper look at the plotting code...
 
 
 ```r
-mean_area_decade &lt;- duke_forest %&gt;%
-  group_by(decade_built_cat) %&gt;%
-  summarise(mean_area = mean(area))
+mean_netcost_pctpell &lt;- scorecard %&gt;%
+  group_by(pctpell_cat) %&gt;%
+  summarise(mean_netcost = mean(netcost, na.rm = TRUE))
 
-mean_area_decade
+mean_netcost_pctpell
 ```
 
 ```
 ## # A tibble: 6 × 2
-##   decade_built_cat mean_area
-##   &lt;chr&gt;                &lt;dbl&gt;
-## 1 1940 or before       2072.
-## 2 1950                 2545.
-## 3 1960                 2873.
-## 4 1970                 3413.
-## 5 1980                 2889.
-## 6 1990 or after        2822.
+##   pctpell_cat   mean_netcost
+##   &lt;fct&gt;                &lt;dbl&gt;
+## 1 [0,0.167]           29991.
+## 2 (0.167,0.333]       22477.
+## 3 (0.333,0.5]         18655.
+## 4 (0.5,0.667]         17428.
+## 5 (0.667,0.833]       14997.
+## 6 (0.833,1]           10100.
 ```
 
 ---
@@ -497,16 +414,16 @@ mean_area_decade
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+ggplot(mean_netcost_pctpell, aes(y = pctpell_cat, x = mean_netcost)) +
 * geom_col() +
   labs(
-    x = "Mean area (square feet)", y = "Decade built",
-    title = "Mean area of houses in Duke Forest, by decade built"
+    x = "Mean net cost of attendance", y = "Pell grant recipients",
+    title = "Mean net cost of attendance, by Pell grant recipients"
   ) +
   theme_minimal(base_size = 16)
 ```
@@ -520,16 +437,16 @@ ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+ggplot(mean_netcost_pctpell, aes(y = pctpell_cat, x = mean_netcost)) +
 * geom_point(size = 4) +
   labs(
-    x = "Mean area (square feet)", y = "Decade built",
-    title = "Mean area of houses in Duke Forest, by decade built"
+    x = "Mean net cost of attendance", y = "Pell grant recipients",
+    title = "Mean net cost of attendance, by Pell grant recipients"
   ) +
   theme_minimal(base_size = 16)
 ```
@@ -542,22 +459,22 @@ ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/mean-area-decade-lollipop-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/mean-netcost-pctpell-lollipop-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+ggplot(mean_netcost_pctpell, aes(y = pctpell_cat, x = mean_netcost)) +
   geom_point(size = 4) +
 * geom_segment(
 *   aes(
-*     x = 0, xend = mean_area,
-*     y = decade_built_cat, yend = decade_built_cat
+*     x = 0, xend = mean_netcost,
+*     y = pctpell_cat, yend = pctpell_cat
 *   )
 * ) +
   labs(
-    x = "Mean area (square feet)", y = "Decade built",
-    title = "Mean area of houses in Duke Forest, by decade built"
+    x = "Mean net cost of attendance", y = "Pell grant recipients",
+    title = "Mean net cost of attendance, by Pell grant recipients"
   ) +
   theme_minimal(base_size = 16)
 ```
@@ -571,19 +488,14 @@ ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
 .pull-left-wide[
 .task[
 .small[
-This is Minard’s visualization of Napoleon’s retreat. Discuss in a pair (or group) the features of the following visualization. What are the variables plotted? Which aesthetics are they mapped to? Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+This is Minard’s visualization of Napoleon’s retreat. Discuss in a pair (or group) the features of the following visualization. What are the variables plotted? Which aesthetics are they mapped to?
 ]
 ]
 ]
 
 &lt;img src="images/minard.jpg" title="Minard’s visualization of Napoleon’s retreat" alt="Minard’s visualization of Napoleon’s retreat" width="83%" style="display: block; margin: auto;" /&gt;
 
-
-```r
-countdown(minutes = 5, top = 0)
-```
-
-<div class="countdown" id="timer_624351ea" style="top:0;right:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624365a0" style="top:0;right:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -626,20 +538,22 @@ class: middle, inverse
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/mean-area-decade-lollipop-layer-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/mean-netcost-pctpell-lollipop-layer-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+ggplot(mean_netcost_pctpell, aes(y = pctpell_cat, x = mean_netcost)) +
   geom_point(size = 4) +
-  geom_segment(aes(
-    x = 0, xend = mean_area,
-    y = decade_built_cat, yend = decade_built_cat
-  )) +
+  geom_segment(
+    aes(
+      x = 0, xend = mean_netcost,
+      y = pctpell_cat, yend = pctpell_cat
+    )
+  ) +
   labs(
-    x = "Mean area (square feet)", y = "Decade built",
-    title = "Mean area of houses in Duke Forest, by decade built"
+    x = "Mean net cost of attendance", y = "Pell grant recipients",
+    title = "Mean net cost of attendance, by Pell grant recipients"
   ) +
   theme_minimal(base_size = 16)
 ```
@@ -651,32 +565,32 @@ ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
 ## Activity: Spot the difference I
 
 .task[
-Can you spot the differences between the code here and the one provided in the previous slide? Are there any differences in the resulting plot? Work in a pair (or group) to answer. Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+Can you spot the differences between the code here and the one provided in the previous slide? Are there any differences in the resulting plot? Work in a pair (or group) to answer.
 ]
 
 .panelset[
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/mean-area-decade-lollipop-global-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/mean-netcost-pctpell-lollipop-global-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 ]
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+ggplot(mean_netcost_pctpell, aes(y = pctpell_cat, x = mean_netcost)) +
   geom_point(size = 4) +
   geom_segment(aes(
     xend = 0,
-    yend = decade_built_cat
+    yend = pctpell_cat
   )) +
   labs(
-    x = "Mean area (square feet)", y = "Decade built",
-    title = "Mean area of houses in Duke Forest, by decade built"
+    x = "Mean net cost of attendance", y = "Pell grant recipients",
+    title = "Mean net cost of attendance, by Pell grant recipients"
   ) +
   theme_minimal(base_size = 16)
 ```
 ]
 ]
 
-<div class="countdown" id="timer_6243538b" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62436653" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -702,7 +616,7 @@ Think back to all the plots you saw in the lecture, without flipping back throug
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
 "highlighStyle": "solarized-light",
-"highlightLanguage": ["r", "css", "yaml"],
+"highlightLanguage": "r",
 "highlightLines": true,
 "ratio": "16:9",
 "countIncrementalSlides": false
