@@ -34,12 +34,12 @@ class: middle, inverse
 - HW 1 is posted:
   - Go to the course GitHub org and look for a repo named `homework-01-YOUR_GITHUB_NAME`
   - Instructions are in the README
-  - All work must be completed in `hw-01.Rmd` document, knit, and submitted along with the output `hw-01.md`
-  - Due Wednesday, 8 Sep, by 12pm
+  - All work must be completed in `homework-01.Rmd` document, knit, and submitted along with the output `homework-01.md`
+  - Due Tuesday, Apr 12, by 11am
   - At the deadline you'll lose push access to your repo, if you want to submit late, email me to enable late submission
   - Post questions on the discussion forum
 
-- Check email before lab on Monday for your team assignments, sit with your teams in class on Monday
+- Check email before class on Tuesday for your team assignments, sit with your teams in class on Tuesday
 
 ---
 
@@ -55,7 +55,8 @@ class: middle, inverse
 ```r
 # load packages
 library(tidyverse)
-library(openintro)
+# remotes::install_github("uc-cfss/rcfss)
+library(rcfss)
 ```
 
 ---
@@ -81,11 +82,11 @@ For more on including figures in R Markdown documents with the right size, resol
 ```r
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8,     # 8"
-  fig.asp = 0.618,   # the golden ratio
-  fig.retina = 3,    # dpi multiplier for displaying HTML output on retina
-  dpi = 300,         # higher dpi, sharper image
-  out.width = "60%"
+  fig.width = 8, # 8"
+  fig.asp = 0.618, # the golden ratio
+  fig.retina = 3, # dpi multiplier for displaying HTML output on retina
+  dpi = 300, # higher dpi, sharper image
+  out.width = "70%"
 )
 ```
 
@@ -97,36 +98,24 @@ From last class...
 
 
 ```r
-duke_forest &lt;- duke_forest %&gt;%
-  mutate(
-    decade_built = (year_built %/% 10) * 10,
-    decade_built_cat = case_when(
-      decade_built &lt;= 1940 ~ "1940 or before",
-      decade_built &gt;= 1990 ~ "1990 or after",
-      TRUE                 ~ as.character(decade_built)
-    ),
-    decade_built_cat = factor(decade_built_cat, ordered = TRUE)
-  )
+scorecard &lt;- scorecard %&gt;%
+  mutate(pctpell_cat = cut_interval(x = pctpell, n = 6)) %&gt;%
+  drop_na(pctpell_cat)
 
-duke_forest %&gt;%
-  select(year_built, decade_built, decade_built_cat)
+scorecard %&gt;%
+  count(pctpell_cat)
 ```
 
 ```
-## # A tibble: 98 × 3
-##    year_built decade_built decade_built_cat
-##         &lt;dbl&gt;        &lt;dbl&gt; &lt;ord&gt;           
-##  1       1972         1970 1970            
-##  2       1969         1960 1960            
-##  3       1959         1950 1950            
-##  4       1961         1960 1960            
-##  5       2020         2020 1990 or after   
-##  6       2014         2010 1990 or after   
-##  7       1968         1960 1960            
-##  8       1973         1970 1970            
-##  9       1972         1970 1970            
-## 10       1964         1960 1960            
-## # … with 88 more rows
+## # A tibble: 6 × 2
+##   pctpell_cat       n
+##   &lt;fct&gt;         &lt;int&gt;
+## 1 [0,0.167]       157
+## 2 (0.167,0.333]   610
+## 3 (0.333,0.5]     632
+## 4 (0.5,0.667]     225
+## 5 (0.667,0.833]    74
+## 6 (0.833,1]        30
 ```
 
 ---
@@ -137,23 +126,23 @@ From last class...
 
 
 ```r
-mean_area_decade &lt;- duke_forest %&gt;%
-  group_by(decade_built_cat) %&gt;%
-  summarise(mean_area = mean(area))
+mean_netcost_pctpell &lt;- scorecard %&gt;%
+  group_by(pctpell_cat) %&gt;%
+  summarise(mean_netcost = mean(netcost, na.rm = TRUE))
 
-mean_area_decade
+mean_netcost_pctpell
 ```
 
 ```
 ## # A tibble: 6 × 2
-##   decade_built_cat mean_area
-##   &lt;ord&gt;                &lt;dbl&gt;
-## 1 1940 or before       2072.
-## 2 1950                 2545.
-## 3 1960                 2873.
-## 4 1970                 3413.
-## 5 1980                 2889.
-## 6 1990 or after        2822.
+##   pctpell_cat   mean_netcost
+##   &lt;fct&gt;                &lt;dbl&gt;
+## 1 [0,0.167]           29991.
+## 2 (0.167,0.333]       22477.
+## 3 (0.333,0.5]         18655.
+## 4 (0.5,0.667]         17428.
+## 5 (0.667,0.833]       14997.
+## 6 (0.833,1]           10100.
 ```
 
 ---
@@ -180,30 +169,23 @@ class: middle, inverse
 Do you expect the following plots to be the same or different? If different, how? Discuss in a pair (or group) without running the code and sketch the resulting plots based on what you think the code will produce.
 ]
 
-.panelset[
-.panel[.panel-name[Plots]
 
 ```r
 # Plot A
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
 
 ```r
 # Plot B
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(aes(color = decade_built_cat), alpha = 0.7) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(aes(color = pctpell_cat), alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
-]
-.panel[.panel-name[Discuss]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
-]
-]
 
-<div class="countdown" id="timer_624366e6" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+<div class="countdown" id="timer_624371fe" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
 ---
@@ -214,33 +196,26 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 Do you expect the following plots to be the same or different? If different, how? Discuss in a pair (or group) without running the code and sketch the resulting plots based on what you think the code will produce.
 ]
 
-.panelset[
-.panel[.panel-name[Plots]
 
 ```r
 # Plot A
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(aes(color = decade_built_cat))
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(aes(color = pctpell_cat))
 ```
 
 ```r
 # Plot B
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point(color = "blue")
 ```
 
 ```r
 # Plot C
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point(color = "#a493ba")
 ```
-]
-.panel[.panel-name[Discuss]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
-]
-]
 
-<div class="countdown" id="timer_624368f1" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6243713b" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -287,7 +262,7 @@ Always use "typewriter text" (monospace font) when writing function names, and f
 
 
 ```r
-ggplot(duke_forest, aes(x = decade_built_cat)) +
+ggplot(scorecard, aes(x = pctpell_cat)) +
   geom_bar()
 ```
 
@@ -299,7 +274,7 @@ ggplot(duke_forest, aes(x = decade_built_cat)) +
 
 
 ```r
-ggplot(duke_forest, aes(y = decade_built_cat)) +
+ggplot(scorecard, aes(y = pctpell_cat)) +
   geom_bar()
 ```
 
@@ -311,7 +286,7 @@ ggplot(duke_forest, aes(y = decade_built_cat)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_histogram()
 ```
 
@@ -322,38 +297,38 @@ ggplot(duke_forest, aes(x = price)) +
 ## `geom_histogram()` and `binwidth`
 
 .panelset[
-.panel[.panel-name[20K]
+.panel[.panel-name[2K]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 20000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 2000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[50K]
+.panel[.panel-name[5K]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 50000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 5000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[100K]
+.panel[.panel-name[10K]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 100000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 10000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[200K]
+.panel[.panel-name[20K]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 200000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 20000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -366,7 +341,7 @@ ggplot(duke_forest, aes(x = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density()
 ```
 
@@ -380,35 +355,35 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[1]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(bw = 1)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[1000]
+.panel[.panel-name[100]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_density(bw = 1000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_density(bw = 100)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[50000]
+.panel[.panel-name[1000]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_density(bw = 50000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_density(bw = 1000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[500000]
+.panel[.panel-name[10000]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_density(bw = 500000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_density(bw = 10000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -423,7 +398,7 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[full]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "full")
 ```
 
@@ -432,7 +407,7 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[both]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "both")
 ```
 
@@ -441,7 +416,7 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[upper]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "upper")
 ```
 
@@ -450,7 +425,7 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[lower]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "lower")
 ```
 
@@ -466,22 +441,15 @@ ggplot(duke_forest, aes(x = price)) +
 What does each point represent? How are their locations determined? What do the x and y axes represent?
 ]
 
-.panelset[
-.panel[.panel-name[Plot]
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_dotplot(binwidth = 50000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_dotplot(binwidth = 418)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="60%" style="display: block; margin: auto;" /&gt;
-]
-.panel[.panel-name[Discuss]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
-]
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
-<div class="countdown" id="timer_624368bd" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62437092" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -491,8 +459,8 @@ ggplot(duke_forest, aes(x = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = price)) +
-  geom_freqpoly(binwidth = 50000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_freqpoly(binwidth = 1000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -505,8 +473,8 @@ ggplot(duke_forest, aes(x = price)) +
 .panel[.panel-name[Histogram]
 
 ```r
-ggplot(duke_forest, aes(x = price, fill = decade_built_cat)) +
-  geom_histogram(binwidth = 100000)
+ggplot(scorecard, aes(x = netcost, fill = pctpell_cat)) +
+  geom_histogram(binwidth = 5000)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -514,8 +482,8 @@ ggplot(duke_forest, aes(x = price, fill = decade_built_cat)) +
 .panel[.panel-name[Frequency polygon]
 
 ```r
-ggplot(duke_forest, aes(x = price, color = decade_built_cat)) +
-  geom_freqpoly(binwidth = 100000, size = 1)
+ggplot(scorecard, aes(x = netcost, color = pctpell_cat)) +
+  geom_freqpoly(binwidth = 5000, size = 1)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -538,7 +506,7 @@ ggplot(duke_forest, aes(x = price, color = decade_built_cat)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug()
 ```
@@ -551,7 +519,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug(outside = TRUE) +
   coord_cartesian(clip = "off")
@@ -565,7 +533,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug(outside = TRUE, sides = "tr") +
   coord_cartesian(clip = "off") +
@@ -580,8 +548,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(aes(label = bed))
+sample_n(scorecard, size = 50) %&gt;%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type))
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -593,8 +562,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(aes(label = bed, size = bed, color = bed))
+sample_n(scorecard, size = 50) %&gt;%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type, color = type))
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -605,9 +575,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(
-    aes(label = bed, size = bed, color = bed),
+sample_n(scorecard, size = 50) %&gt;%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type, color = type),
     show.legend = FALSE
   )
 ```
@@ -628,7 +598,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_hex()
 ```
 
@@ -676,7 +646,7 @@ How are the following three plots different?
 .panel[.panel-name[Plot A]
 
 ```r
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_point()
 ```
 
@@ -685,7 +655,7 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
 .panel[.panel-name[Plot B]
 
 ```r
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 
@@ -694,18 +664,15 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
 .panel[.panel-name[Plot C]
 
 ```r
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-41-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
-.panel[.panel-name[Discuss]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
-]
 ]
 
-<div class="countdown" id="timer_624367df" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62437330" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -717,8 +684,8 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
 .panel[.panel-name[Plot A]
 
 ```r
-set.seed(1234)
-ggplot(duke_forest, aes(x = bed, y = price)) +
+set.seed(123)
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 
@@ -727,12 +694,22 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
 .panel[.panel-name[Plot B]
 
 ```r
-set.seed(1234)
-ggplot(duke_forest, aes(x = bed, y = price)) +
+set.seed(123)
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-44-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Plot C]
+
+```r
+set.seed(234)
+ggplot(scorecard, aes(x = type, y = netcost)) +
+  geom_jitter()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 ]
 
@@ -752,40 +729,42 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
   - `geom_pointrange()`: vertical line with center
 
 - Spatial
-  - `geom_map()`: fast version of `geom_polygon()` for map data (more on this later...)
+  - `geom_sf()`: for map data (more on this later...)
 
 ---
 
-## Average price per year built
+## Average net cost per Pell grant recipient
 
 
 ```r
-mean_price_year &lt;- duke_forest %&gt;%
-  group_by(year_built) %&gt;%
+mean_netcost_pctpell &lt;- scorecard %&gt;%
+  mutate(pctpell = round(pctpell, digits = 2)) %&gt;%
+  group_by(pctpell) %&gt;%
   summarise(
     n = n(),
-    mean_price = mean(price),
-    sd_price = sd(price)
-    )
+    mean_netcost = mean(netcost),
+    sd_netcost = sd(netcost)
+  ) %&gt;%
+  drop_na(mean_netcost)
 
-mean_price_year
+mean_netcost_pctpell
 ```
 
 ```
-## # A tibble: 44 × 4
-##    year_built     n mean_price sd_price
-##         &lt;dbl&gt; &lt;int&gt;      &lt;dbl&gt;    &lt;dbl&gt;
-##  1       1923     1     285000      NA 
-##  2       1934     1     600000      NA 
-##  3       1938     1     265000      NA 
-##  4       1940     1     105000      NA 
-##  5       1941     2     432500   28284.
-##  6       1945     2     525000  530330.
-##  7       1951     2     567500  258094.
-##  8       1952     2     531250  469165.
-##  9       1953     2     575000   35355.
-## 10       1954     4     600000   33912.
-## # … with 34 more rows
+## # A tibble: 64 × 4
+##    pctpell     n mean_netcost sd_netcost
+##      &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt;      &lt;dbl&gt;
+##  1    0.03     1       15684         NA 
+##  2    0.05     1       43234         NA 
+##  3    0.07     2       13170       9528.
+##  4    0.09     3       33766.      3630.
+##  5    0.1      4       32919       8896.
+##  6    0.11    19       31169.      7642.
+##  7    0.12     8       26704.      8346.
+##  8    0.13    18       32806.      7044.
+##  9    0.15    14       25664.      7696.
+## 10    0.17    22       28346.     10684.
+## # … with 54 more rows
 ```
 
 ---
@@ -794,11 +773,11 @@ mean_price_year
 
 
 ```r
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_line()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-46-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -806,11 +785,11 @@ ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
 
 
 ```r
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_area()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -818,11 +797,11 @@ ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
 
 
 ```r
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_step()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-49-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -836,21 +815,20 @@ Describe how this plot is constructed and what the points and the lines (error b
 .panel[.panel-name[Code]
 
 ```r
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_point() +
-  geom_errorbar(aes(ymin = mean_price - sd_price,
-                    ymax = mean_price + sd_price))
+  geom_errorbar(aes(
+    ymin = mean_netcost - sd_netcost,
+    ymax = mean_netcost + sd_netcost
+  ))
 ```
 ]
 .panel[.panel-name[Plot]
-&lt;img src="index_files/figure-html/unnamed-chunk-49-1.png" width="60%" style="display: block; margin: auto;" /&gt;
-]
-.panel[.panel-name[Discuss]
-&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-50-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 ]
 
-<div class="countdown" id="timer_624369b9" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62437290" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -874,16 +852,16 @@ library(scales)
 &lt;div class="panel-name"&gt;Code&lt;/div&gt;
 
 ```r
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(alpha = 0.6, size = 2, color = "#012169") +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(alpha = 0.4, size = 2, color = "#012169") +
   scale_x_continuous(labels = label_number(big.mark = ",")) +
-  scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
+  scale_y_continuous(labels = label_dollar()) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    title = "Sale prices of homes in Duke Forest",
-    subtitle = "As of November 2020",
-    caption = "Source: Zillow.com"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    title = "Test scores and net cost of attendance in US universities",
+    subtitle = "2018-19",
+    caption = "Source: College Scorecard"
   )
 ```
 
@@ -894,7 +872,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 &lt;div class="panel"&gt;
 &lt;div class="panel-name"&gt;Plot&lt;/div&gt;
 
-&lt;img src="index_files/figure-html/unnamed-chunk-52-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-53-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 &lt;/div&gt;
 ]
@@ -910,9 +888,9 @@ class: inverse, middle
 ## Homework 1
 
 .task[
-- Locate your Homework 1 repo, clone it in RStudio (using the containers provided for you)
-- Put your name in the YAML of `hw-01.Rmd`, knit, commit (with a meaningful message), push
-- Skim the README to get a sense of the instructions and use the remaining tome to ask any clarifying questions and to get started on the first question
+- Locate your Homework 1 repo, clone it in RStudio
+- Put your name in the YAML of `homework-01.Rmd`, knit, commit (with a meaningful message), push
+- Skim the README to get a sense of the instructions and use the remaining time to ask any clarifying questions and to get started on the first question
 - Make sure you know how to ask a question on the course discussion forum, and set up notifications
 ]
 
@@ -920,15 +898,12 @@ class: inverse, middle
 
 ## Homework 1 tips
 
-- Focus on Questions 1-4 before Monday
-
-- During Monday's lab you'll get a chance to work on Question 5
+- You can go in order or jump around between exercises. If you get stuck
+  on a specific exercise, feel free to switch to a different one.
 
 - But, of course, do what feels right for you in terms of pace, ordering, etc.!
 
 - And ask questions on the course discussion forum
-
-
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

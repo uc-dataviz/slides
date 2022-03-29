@@ -9,11 +9,19 @@ output: rcfss::xaringan_wide
 library(xaringanthemer)
 rcfss::xaringan_theme()
 
+# source in the default knitr options
 source(here::here("R", "slide-opts.R"))
 
+# enable panelsets and default theme
 xaringanExtra::use_panelset()
-ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
+# make out width 60% to accommodate panelsets
+knitr::opts_chunk$set(
+  out.width = "60%"
+)
+
+# load basic packages
 library(knitr)
 library(here)
 library(countdown)
@@ -30,12 +38,12 @@ class: middle, inverse
 - HW 1 is posted:
   - Go to the course GitHub org and look for a repo named `homework-01-YOUR_GITHUB_NAME`
   - Instructions are in the README
-  - All work must be completed in `hw-01.Rmd` document, knit, and submitted along with the output `hw-01.md`
-  - Due Wednesday, 8 Sep, by 12pm
+  - All work must be completed in `homework-01.Rmd` document, knit, and submitted along with the output `homework-01.md`
+  - Due Tuesday, Apr 12, by 11am
   - At the deadline you'll lose push access to your repo, if you want to submit late, email me to enable late submission
   - Post questions on the discussion forum
 
-- Check email before lab on Monday for your team assignments, sit with your teams in class on Monday
+- Check email before class on Tuesday for your team assignments, sit with your teams in class on Tuesday
 
 ---
 
@@ -50,7 +58,8 @@ class: middle, inverse
 ```{r}
 # load packages
 library(tidyverse)
-library(openintro)
+# remotes::install_github("uc-cfss/rcfss)
+library(rcfss)
 ```
 
 ---
@@ -71,14 +80,14 @@ For more on including figures in R Markdown documents with the right size, resol
 - [R for Data Science - Graphics for communication](https://r4ds.had.co.nz/graphics-for-communication.html)
 - [Tips and tricks for working with images and figures in R Markdown documents](https://www.zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/)
 
-```{r}
+```{r eval = FALSE}
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8,     # 8"
-  fig.asp = 0.618,   # the golden ratio
-  fig.retina = 3,    # dpi multiplier for displaying HTML output on retina
-  dpi = 300,         # higher dpi, sharper image
-  out.width = "60%"
+  fig.width = 8, # 8"
+  fig.asp = 0.618, # the golden ratio
+  fig.retina = 3, # dpi multiplier for displaying HTML output on retina
+  dpi = 300, # higher dpi, sharper image
+  out.width = "70%"
 )
 ```
 
@@ -89,19 +98,12 @@ knitr::opts_chunk$set(
 From last class...
 
 ```{r}
-duke_forest <- duke_forest %>%
-  mutate(
-    decade_built = (year_built %/% 10) * 10,
-    decade_built_cat = case_when(
-      decade_built <= 1940 ~ "1940 or before",
-      decade_built >= 1990 ~ "1990 or after",
-      TRUE                 ~ as.character(decade_built)
-    ),
-    decade_built_cat = factor(decade_built_cat, ordered = TRUE)
-  )
+scorecard <- scorecard %>%
+  mutate(pctpell_cat = cut_interval(x = pctpell, n = 6)) %>%
+  drop_na(pctpell_cat)
 
-duke_forest %>%
-  select(year_built, decade_built, decade_built_cat)
+scorecard %>%
+  count(pctpell_cat)
 ```
 
 ---
@@ -111,11 +113,11 @@ duke_forest %>%
 From last class...
 
 ```{r}
-mean_area_decade <- duke_forest %>%
-  group_by(decade_built_cat) %>%
-  summarise(mean_area = mean(area))
+mean_netcost_pctpell <- scorecard %>%
+  group_by(pctpell_cat) %>%
+  summarise(mean_netcost = mean(netcost, na.rm = TRUE))
 
-mean_area_decade
+mean_netcost_pctpell
 ```
 
 ---
@@ -142,27 +144,20 @@ class: middle, inverse
 Do you expect the following plots to be the same or different? If different, how? Discuss in a pair (or group) without running the code and sketch the resulting plots based on what you think the code will produce.
 ]
 
-.panelset[
-.panel[.panel-name[Plots]
 ```{r fig.show = "hide"}
 # Plot A
-ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 
 # Plot B
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(aes(color = decade_built_cat), alpha = 0.7) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(aes(color = pctpell_cat), alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
-]
-.panel[.panel-name[Discuss]
-<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
-]
-]
 
-```{r echo = FALSE}
-countdown(minutes = 5, bottom = 0)
+```{r echo = FALSE, cache = FALSE}
+countdown(minutes = 3, bottom = 0)
 ```
 
 ---
@@ -173,26 +168,19 @@ countdown(minutes = 5, bottom = 0)
 Do you expect the following plots to be the same or different? If different, how? Discuss in a pair (or group) without running the code and sketch the resulting plots based on what you think the code will produce.
 ]
 
-.panelset[
-.panel[.panel-name[Plots]
 ```{r fig.show = "hide"}
 # Plot A
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(aes(color = decade_built_cat))
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(aes(color = pctpell_cat))
 
 # Plot B
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point(color = "blue")
 
 # Plot C
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point(color = "#a493ba")
 ```
-]
-.panel[.panel-name[Discuss]
-<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
-]
-]
 
 ```{r echo = FALSE}
 countdown(minutes = 3, bottom = 0)
@@ -240,7 +228,7 @@ Always use "typewriter text" (monospace font) when writing function names, and f
 ## `geom_bar()`
 
 ```{r}
-ggplot(duke_forest, aes(x = decade_built_cat)) +
+ggplot(scorecard, aes(x = pctpell_cat)) +
   geom_bar()
 ```
 
@@ -249,7 +237,7 @@ ggplot(duke_forest, aes(x = decade_built_cat)) +
 ## `geom_bar()`
 
 ```{r}
-ggplot(duke_forest, aes(y = decade_built_cat)) +
+ggplot(scorecard, aes(y = pctpell_cat)) +
   geom_bar()
 ```
 
@@ -258,7 +246,7 @@ ggplot(duke_forest, aes(y = decade_built_cat)) +
 ## `geom_histogram()`
 
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_histogram()
 ```
 
@@ -267,28 +255,28 @@ ggplot(duke_forest, aes(x = price)) +
 ## `geom_histogram()` and `binwidth`
 
 .panelset[
+.panel[.panel-name[2K]
+```{r}
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 2000)
+```
+]
+.panel[.panel-name[5K]
+```{r}
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 5000)
+```
+]
+.panel[.panel-name[10K]
+```{r}
+ggplot(scorecard, aes(x = netcost)) +
+  geom_histogram(binwidth = 10000)
+```
+]
 .panel[.panel-name[20K]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_histogram(binwidth = 20000)
-```
-]
-.panel[.panel-name[50K]
-```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 50000)
-```
-]
-.panel[.panel-name[100K]
-```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 100000)
-```
-]
-.panel[.panel-name[200K]
-```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_histogram(binwidth = 200000)
 ```
 ]
 ]
@@ -298,7 +286,7 @@ ggplot(duke_forest, aes(x = price)) +
 ## `geom_density()`
 
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density()
 ```
 
@@ -309,26 +297,26 @@ ggplot(duke_forest, aes(x = price)) +
 .panelset[
 .panel[.panel-name[1]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(bw = 1)
+```
+]
+.panel[.panel-name[100]
+```{r}
+ggplot(scorecard, aes(x = netcost)) +
+  geom_density(bw = 100)
 ```
 ]
 .panel[.panel-name[1000]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(bw = 1000)
 ```
 ]
-.panel[.panel-name[50000]
+.panel[.panel-name[10000]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_density(bw = 50000)
-```
-]
-.panel[.panel-name[500000]
-```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_density(bw = 500000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_density(bw = 10000)
 ```
 ]
 ]
@@ -340,25 +328,25 @@ ggplot(duke_forest, aes(x = price)) +
 .panelset[
 .panel[.panel-name[full]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "full")
 ```
 ]
 .panel[.panel-name[both]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "both")
 ```
 ]
 .panel[.panel-name[upper]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "upper")
 ```
 ]
 .panel[.panel-name[lower]
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
+ggplot(scorecard, aes(x = netcost)) +
   geom_density(outline.type = "lower")
 ```
 ]
@@ -372,19 +360,12 @@ ggplot(duke_forest, aes(x = price)) +
 What does each point represent? How are their locations determined? What do the x and y axes represent?
 ]
 
-.panelset[
-.panel[.panel-name[Plot]
-```{r fig.asp = 0.4, fig.width = 12}
-ggplot(duke_forest, aes(x = price)) +
-  geom_dotplot(binwidth = 50000)
+```{r fig.asp = 0.4, fig.width = 12, out.width = "80%"}
+ggplot(scorecard, aes(x = netcost)) +
+  geom_dotplot(binwidth = 418)
 ```
-]
-.panel[.panel-name[Discuss]
-<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
-]
-]
 
-```{r echo = FALSE}
+```{r echo = FALSE, cache = FALSE}
 countdown(minutes = 3, bottom = 0)
 ```
 
@@ -393,8 +374,8 @@ countdown(minutes = 3, bottom = 0)
 ## `geom_freqpoly()`
 
 ```{r}
-ggplot(duke_forest, aes(x = price)) +
-  geom_freqpoly(binwidth = 50000)
+ggplot(scorecard, aes(x = netcost)) +
+  geom_freqpoly(binwidth = 1000)
 ```
 
 ---
@@ -404,14 +385,14 @@ ggplot(duke_forest, aes(x = price)) +
 .panelset[
 .panel[.panel-name[Histogram]
 ```{r}
-ggplot(duke_forest, aes(x = price, fill = decade_built_cat)) +
-  geom_histogram(binwidth = 100000)
+ggplot(scorecard, aes(x = netcost, fill = pctpell_cat)) +
+  geom_histogram(binwidth = 5000)
 ```
 ]
 .panel[.panel-name[Frequency polygon]
 ```{r}
-ggplot(duke_forest, aes(x = price, color = decade_built_cat)) +
-  geom_freqpoly(binwidth = 100000, size = 1)
+ggplot(scorecard, aes(x = netcost, color = pctpell_cat)) +
+  geom_freqpoly(binwidth = 5000, size = 1)
 ```
 ]
 ]
@@ -431,7 +412,7 @@ ggplot(duke_forest, aes(x = price, color = decade_built_cat)) +
 ## `geom_rug()`
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug()
 ```
@@ -441,7 +422,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_rug()` on the outside
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug(outside = TRUE) +
   coord_cartesian(clip = "off")
@@ -452,7 +433,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_rug()` on the outside, but better
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_point() +
   geom_rug(outside = TRUE, sides = "tr") +
   coord_cartesian(clip = "off") +
@@ -464,8 +445,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_text()`
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(aes(label = bed))
+sample_n(scorecard, size = 50) %>%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type))
 ```
 
 
@@ -474,8 +456,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_text()` and more
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(aes(label = bed, size = bed, color = bed))
+sample_n(scorecard, size = 50) %>%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type, color = type))
 ```
 
 ---
@@ -483,9 +466,9 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_text()` and even more
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_text(
-    aes(label = bed, size = bed, color = bed),
+sample_n(scorecard, size = 50) %>%
+  ggplot(aes(x = satavg, y = netcost)) +
+  geom_text(aes(label = type, color = type),
     show.legend = FALSE
   )
 ```
@@ -503,7 +486,7 @@ ggplot(duke_forest, aes(x = area, y = price)) +
 ## `geom_hex()`
 
 ```{r}
-ggplot(duke_forest, aes(x = area, y = price)) +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_hex()
 ```
 
@@ -547,28 +530,25 @@ How are the following three plots different?
 .panelset[
 .panel[.panel-name[Plot A]
 ```{r fig.asp = 0.4}
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_point()
 ```
 ]
 .panel[.panel-name[Plot B]
 ```{r fig.asp = 0.4}
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 ]
 .panel[.panel-name[Plot C]
 ```{r fig.asp = 0.4}
-ggplot(duke_forest, aes(x = bed, y = price)) +
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 ]
-.panel[.panel-name[Discuss]
-<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
-]
 ]
 
-```{r echo = FALSE}
+```{r echo = FALSE, cache = FALSE}
 countdown(minutes = 3, bottom = 0)
 ```
 
@@ -579,15 +559,22 @@ countdown(minutes = 3, bottom = 0)
 .panelset[
 .panel[.panel-name[Plot A]
 ```{r fig.asp = 0.5}
-set.seed(1234)
-ggplot(duke_forest, aes(x = bed, y = price)) +
+set.seed(123)
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 ]
 .panel[.panel-name[Plot B]
 ```{r fig.asp = 0.5}
-set.seed(1234)
-ggplot(duke_forest, aes(x = bed, y = price)) +
+set.seed(123)
+ggplot(scorecard, aes(x = type, y = netcost)) +
+  geom_jitter()
+```
+]
+.panel[.panel-name[Plot C]
+```{r fig.asp = 0.5}
+set.seed(234)
+ggplot(scorecard, aes(x = type, y = netcost)) +
   geom_jitter()
 ```
 ]
@@ -609,22 +596,24 @@ ggplot(duke_forest, aes(x = bed, y = price)) +
   - `geom_pointrange()`: vertical line with center
 
 - Spatial
-  - `geom_map()`: fast version of `geom_polygon()` for map data (more on this later...)
+  - `geom_sf()`: for map data (more on this later...)
 
 ---
 
-## Average price per year built
+## Average net cost per Pell grant recipient
 
 ```{r}
-mean_price_year <- duke_forest %>%
-  group_by(year_built) %>%
+mean_netcost_pctpell <- scorecard %>%
+  mutate(pctpell = round(pctpell, digits = 2)) %>%
+  group_by(pctpell) %>%
   summarise(
     n = n(),
-    mean_price = mean(price),
-    sd_price = sd(price)
-    )
+    mean_netcost = mean(netcost),
+    sd_netcost = sd(netcost)
+  ) %>%
+  drop_na(mean_netcost)
 
-mean_price_year
+mean_netcost_pctpell
 ```
 
 ---
@@ -632,7 +621,7 @@ mean_price_year
 ## `geom_line()`
 
 ```{r}
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_line()
 ```
 
@@ -641,7 +630,7 @@ ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
 ## `geom_area()`
 
 ```{r}
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_area()
 ```
 
@@ -650,7 +639,7 @@ ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
 ## `geom_step()`
 
 ```{r}
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_step()
 ```
 
@@ -665,22 +654,22 @@ Describe how this plot is constructed and what the points and the lines (error b
 .panelset[
 .panel[.panel-name[Code]
 ```{r errorbar, fig.show = "hide"}
-ggplot(mean_price_year, aes(x = year_built, y = mean_price)) +
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
   geom_point() +
-  geom_errorbar(aes(ymin = mean_price - sd_price,
-                    ymax = mean_price + sd_price))
+  geom_errorbar(aes(
+    ymin = mean_netcost - sd_netcost,
+    ymax = mean_netcost + sd_netcost
+  ))
 ```
 ]
 .panel[.panel-name[Plot]
 ```{r ref.label = "errorbar", echo = FALSE}
+
 ```
-]
-.panel[.panel-name[Discuss]
-<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
 ]
 ]
 
-```{r echo = FALSE}
+```{r echo = FALSE, cache = FALSE}
 countdown(minutes = 3, bottom = 0)
 ```
 
@@ -700,16 +689,16 @@ library(scales)
 
 .panelset[
 ```{r panelset = c(output = "Plot", source = "Code"), fig.show = "hold"}
-ggplot(duke_forest, aes(x = area, y = price)) +
-  geom_point(alpha = 0.6, size = 2, color = "#012169") +
+ggplot(scorecard, aes(x = satavg, y = netcost)) +
+  geom_point(alpha = 0.4, size = 2, color = "#012169") +
   scale_x_continuous(labels = label_number(big.mark = ",")) +
-  scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
+  scale_y_continuous(labels = label_dollar()) +
   labs(
-    x = "Area (square feet)",
-    y = "Sale price (USD)",
-    title = "Sale prices of homes in Duke Forest",
-    subtitle = "As of November 2020",
-    caption = "Source: Zillow.com"
+    x = "Average SAT score",
+    y = "Net cost of attendance (USD)",
+    title = "Test scores and net cost of attendance in US universities",
+    subtitle = "2018-19",
+    caption = "Source: College Scorecard"
   )
 ```
 ]
@@ -725,9 +714,9 @@ class: inverse, middle
 ## Homework 1
 
 .task[
-- Locate your Homework 1 repo, clone it in RStudio (using the containers provided for you)
-- Put your name in the YAML of `hw-01.Rmd`, knit, commit (with a meaningful message), push
-- Skim the README to get a sense of the instructions and use the remaining tome to ask any clarifying questions and to get started on the first question
+- Locate your Homework 1 repo, clone it in RStudio
+- Put your name in the YAML of `homework-01.Rmd`, knit, commit (with a meaningful message), push
+- Skim the README to get a sense of the instructions and use the remaining time to ask any clarifying questions and to get started on the first question
 - Make sure you know how to ask a question on the course discussion forum, and set up notifications
 ]
 
@@ -735,12 +724,9 @@ class: inverse, middle
 
 ## Homework 1 tips
 
-- Focus on Questions 1-4 before Monday
-
-- During Monday's lab you'll get a chance to work on Question 5
+- You can go in order or jump around between exercises. If you get stuck
+  on a specific exercise, feel free to switch to a different one.
 
 - But, of course, do what feels right for you in terms of pace, ordering, etc.!
 
 - And ask questions on the course discussion forum
-
-
