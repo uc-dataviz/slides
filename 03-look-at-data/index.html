@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Grammar of graphics</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link href="index_files/countdown/countdown.css" rel="stylesheet" />
+    <script src="index_files/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Grammar of graphics
+### MACS 40700 <br /> University of Chicago
+
+---
+
+
+
+
+
+
+class: middle, inverse
+
+# Announcements
+
+---
+
+## Announcements
+
+- Thank you for completing RQ 1 -- review of challenging topics in lecture today
+
+- COVID updates:
+  - Lectures: Planning to continue in person, recordings posted on Duke Capture, linked from course website
+  - Labs: Not recorded, plan for teamwork in place
+  - Regularly check email for any updates
+
+- Any questions from lab?
+
+---
+
+## Midori
+
+&lt;img src="images/midori.jpeg" title="Photo of my cat Midori" alt="Photo of my cat Midori" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: middle, inverse
+
+# A/B testing
+
+---
+
+## Data: Sale prices of houses in Duke Forest
+
+.pull-left[
+- Data on houses that were sold in the Duke Forest neighborhood of Durham, NC around November 2020
+
+- Scraped from Zillow
+
+- Source: `openintro::duke_forest`
+]
+.pull-right[
+&lt;img src="images/duke_forest_home.jpg" title="Home in Duke Forest" alt="Home in Duke Forest" width="100%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+
+---
+
+## `openintro::duke_forest`
+
+
+```r
+library(tidyverse)
+library(openintro)
+
+glimpse(duke_forest)
+```
+
+```
+## Rows: 98
+## Columns: 13
+## $ address    &lt;chr&gt; "1 Learned Pl, Durham, NC 27705", "1616 Pinecrest Rd, Durha…
+## $ price      &lt;dbl&gt; 1520000, 1030000, 420000, 680000, 428500, 456000, 1270000, …
+## $ bed        &lt;dbl&gt; 3, 5, 2, 4, 4, 3, 5, 4, 4, 3, 4, 4, 3, 5, 4, 5, 3, 4, 4, 3,…
+## $ bath       &lt;dbl&gt; 4.0, 4.0, 3.0, 3.0, 3.0, 3.0, 5.0, 3.0, 5.0, 2.0, 3.0, 3.0,…
+## $ area       &lt;dbl&gt; 6040, 4475, 1745, 2091, 1772, 1950, 3909, 2841, 3924, 2173,…
+## $ type       &lt;chr&gt; "Single Family", "Single Family", "Single Family", "Single …
+## $ year_built &lt;dbl&gt; 1972, 1969, 1959, 1961, 2020, 2014, 1968, 1973, 1972, 1964,…
+## $ heating    &lt;chr&gt; "Other, Gas", "Forced air, Gas", "Forced air, Gas", "Heat p…
+## $ cooling    &lt;fct&gt; central, central, central, central, central, central, centr…
+## $ parking    &lt;chr&gt; "0 spaces", "Carport, Covered", "Garage - Attached, Covered…
+## $ lot        &lt;dbl&gt; 0.97, 1.38, 0.51, 0.84, 0.16, 0.45, 0.94, 0.79, 0.53, 0.73,…
+## $ hoa        &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ url        &lt;chr&gt; "https://www.zillow.com/homedetails/1-Learned-Pl-Durham-NC-…
+```
+
+---
+
+## A simple visualization
+
+.panelset[
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Code&lt;/div&gt;
+
+```r
+ggplot(duke_forest, aes(x = area, y = price)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.7) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    title = "Price and area of houses in Duke Forest"
+  )
+```
+
+
+
+&lt;/div&gt;
+
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Plot&lt;/div&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+&lt;/div&gt;
+]
+
+---
+
+## New variable: `decade_built`
+
+
+```r
+duke_forest &lt;- duke_forest %&gt;%
+  mutate(decade_built = (year_built %/% 10) * 10)
+
+duke_forest %&gt;%
+  select(year_built, decade_built)
+```
+
+```
+## # A tibble: 98 × 2
+##    year_built decade_built
+##         &lt;dbl&gt;        &lt;dbl&gt;
+##  1       1972         1970
+##  2       1969         1960
+##  3       1959         1950
+##  4       1961         1960
+##  5       2020         2020
+##  6       2014         2010
+##  7       1968         1960
+##  8       1973         1970
+##  9       1972         1970
+## 10       1964         1960
+## # … with 88 more rows
+```
+
+---
+
+## Distribution of `decade_built`
+
+
+```r
+duke_forest &lt;- duke_forest %&gt;%
+  mutate(
+    decade_built = (year_built %/% 10) * 10
+  )
+
+duke_forest %&gt;%
+  count(decade_built)
+```
+
+```
+## # A tibble: 11 × 2
+##    decade_built     n
+##           &lt;dbl&gt; &lt;int&gt;
+##  1         1920     1
+##  2         1930     2
+##  3         1940     5
+##  4         1950    26
+##  5         1960    32
+##  6         1970    11
+##  7         1980    13
+##  8         1990     1
+##  9         2000     1
+## 10         2010     5
+## 11         2020     1
+```
+
+---
+
+## New variable: `decade_built_cat`
+
+
+```r
+duke_forest &lt;- duke_forest %&gt;%
+  mutate(
+    decade_built_cat = case_when(
+      decade_built &lt;= 1940 ~ "1940 or before",
+      decade_built &gt;= 1990 ~ "1990 or after",
+      TRUE                 ~ as.character(decade_built)
+    )
+  )
+
+duke_forest %&gt;%
+  count(decade_built_cat)
+```
+
+```
+## # A tibble: 6 × 2
+##   decade_built_cat     n
+##   &lt;chr&gt;            &lt;int&gt;
+## 1 1940 or before       8
+## 2 1950                26
+## 3 1960                32
+## 4 1970                11
+## 5 1980                13
+## 6 1990 or after        8
+```
+
+---
+
+## A slightly more complex visualization
+
+.panelset[
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Code&lt;/div&gt;
+
+```r
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  )
+```
+
+
+
+&lt;/div&gt;
+
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Plot&lt;/div&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+&lt;/div&gt;
+]
+
+---
+
+class: middle
+
+.task[
+In the next two slides, the same plots are created with different "cosmetic" choices. Examine the plots two given (Plot A and Plot B), and indicate your preference by voting for one of them in the Vote tab.
+]
+
+---
+
+## Test 1
+
+.panelset[
+.panel[.panel-name[Plot A]
+&lt;img src="index_files/figure-html/test-1-a-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Plot B]
+&lt;img src="index_files/figure-html/test-1-b-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Vote]
+&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
+]
+]
+
+---
+
+## Test 2
+
+.panelset[
+.panel[.panel-name[Plot A]
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Plot B]
+&lt;img src="index_files/figure-html/test-2-b-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Vote]
+&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
+]
+]
+
+---
+
+class: middle
+
+.large[
+.hand[
+a deeper look at the plotting code...
+]
+]
+
+---
+
+## Minimal theme + viridis scale, default option
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  ) +
+* theme_minimal(base_size = 16) +
+* scale_color_viridis_d(end = 0.9)
+```
+]
+]
+
+---
+
+## Viridis scale, option A (magma)
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.5, size = 2, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  ) +
+* scale_color_viridis_d(end = 0.8, option = "A")
+```
+]
+]
+
+---
+
+## Dark theme + further theme customization
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest",
+  ) +
+* theme_dark(base_size = 16) +
+* scale_color_manual(values = c("yellow", "blue", "orange", "red", "green", "white")) +
+* theme(
+*   text = element_text(color = "red", face = "bold.italic"),
+*   plot.background = element_rect(fill = "yellow")
+* )
+```
+]
+]
+
+---
+
+class: middle, inverse
+
+# What makes bad figures bad?
+
+---
+
+## Bad taste
+
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Data-to-ink ratio
+
+.pull-left-wide[
+Tufte strongly recommends maximizing the **data-to-ink ratio** this in the Visual Display of Quantitative Information (Tufte, 1983).
+
+&gt; Graphical excellence is the well-designed presentation of interesting data—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space … [It] is nearly always multivariate … And graphical excellence requires telling the truth about the data. (Tufte, 1983, p. 51).
+
+]
+.pull-right-narrow[
+&lt;img src="images/tufte-visual-display-cover.png" title="Cover of Visual Display of Quantitative Information, Tufte (1983)." alt="Cover of Visual Display of Quantitative Information, Tufte (1983)." width="100%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+
+---
+
+## Review: RQ 1
+
+.task[
+**Question 8.** Which of the following is **FALSE** about the data-to-ink ratio?
+]
+
+a. Data-to-ink ratio can be increased by removing content-free decoration. (TRUE)
+
+b. **Data-to-ink ratio can be increased by choosing a more accessible color palette.** **(FALSE)**
+
+c. Visualizations with high data-to-ink ratio can be cognitively difficult for viewers to interpret. (TRUE)
+
+d. Visualizations with excessive 'chart junk' tend to have low data-to-ink ratio. (TRUE)
+
+.footnote[
+Error on quiz: Question asked for TRUE when it should have asked for FALSE. Everyone will get a point for this question regardless of their answer.
+]
+
+---
+
+.task[
+Which of the plots has higher data-to-ink ratio?
+]
+
+
+
+.panelset[
+.panel[.panel-name[Plot A]
+&lt;img src="index_files/figure-html/mean-area-decade-a-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Plot B]
+&lt;img src="index_files/figure-html/mean-area-decade-b-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Vote]
+&lt;iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"&gt;&lt;/iframe&gt;
+]
+]
+
+---
+
+class: middle
+
+.large[
+.hand[
+a deeper look at the plotting code...
+]
+]
+
+---
+
+## Summary statistics
+
+
+```r
+mean_area_decade &lt;- duke_forest %&gt;%
+  group_by(decade_built_cat) %&gt;%
+  summarise(mean_area = mean(area))
+
+mean_area_decade
+```
+
+```
+## # A tibble: 6 × 2
+##   decade_built_cat mean_area
+##   &lt;chr&gt;                &lt;dbl&gt;
+## 1 1940 or before       2072.
+## 2 1950                 2545.
+## 3 1960                 2873.
+## 4 1970                 3413.
+## 5 1980                 2889.
+## 6 1990 or after        2822.
+```
+
+---
+
+## Barplot
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+* geom_col() +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+]
+
+
+---
+
+## Scatterplot
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+* geom_point(size = 4) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+]
+
+---
+
+## Lollipop plot -- a happy medium?
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/mean-area-decade-lollipop-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+* geom_segment(
+*   aes(
+*     x = 0, xend = mean_area,
+*     y = decade_built_cat, yend = decade_built_cat
+*   )
+* ) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+]
+
+---
+
+## Activity: Napoleon’s retreat
+
+.pull-left-wide[
+.task[
+.small[
+This is Minard’s visualization of Napoleon’s retreat. Discuss in a pair (or group) the features of the following visualization. What are the variables plotted? Which aesthetics are they mapped to? Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+]
+]
+]
+
+&lt;img src="images/minard.jpg" title="Minard’s visualization of Napoleon’s retreat" alt="Minard’s visualization of Napoleon’s retreat" width="83%" style="display: block; margin: auto;" /&gt;
+
+
+```r
+countdown(minutes = 5, top = 0)
+```
+
+<div class="countdown" id="timer_624351ea" style="top:0;right:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+## Bad data
+
+.panelset[
+.panel[.panel-name[Original]
+&lt;img src="images/healy-democracy-nyt-version.png" title="A crisis of faith in democracy? New York Times." alt="A crisis of faith in democracy? New York Times." width="50%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Improved]
+&lt;img src="images/healy-democracy-voeten-version-2.png" title="A crisis of faith in democracy? New York Times." alt="A crisis of faith in democracy? New York Times." width="50%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+.footnote[
+Healy, Data Visualization: A practical introduction. [Chapter 1](https://socviz.co/lookatdata.html). Figures 1.8 and 1.9.
+]
+
+---
+
+## Bad perception
+
+&lt;img src="images/healy-perception-curves.png" title="Aspect ratios affect our perception of rates of change, modeled after an example by William S. Cleveland." alt="Aspect ratios affect our perception of rates of change, modeled after an example by William S. Cleveland." width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Healy, Data Visualization: A practical introduction. [Chapter 1](https://socviz.co/lookatdata.html). Figure 1.12.
+]
+
+---
+
+class: middle, inverse
+
+# Aesthetic mappings in ggplot2
+
+---
+
+## A second look: lollipop plot
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/mean-area-decade-lollipop-layer-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+  geom_segment(aes(
+    x = 0, xend = mean_area,
+    y = decade_built_cat, yend = decade_built_cat
+  )) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+]
+
+---
+
+## Activity: Spot the difference I
+
+.task[
+Can you spot the differences between the code here and the one provided in the previous slide? Are there any differences in the resulting plot? Work in a pair (or group) to answer. Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+]
+
+.panelset[
+.panel[.panel-name[Plot]
+&lt;img src="index_files/figure-html/mean-area-decade-lollipop-global-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Code]
+
+```r
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+  geom_segment(aes(
+    xend = 0,
+    yend = decade_built_cat
+  )) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+]
+
+<div class="countdown" id="timer_6243538b" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+## Global vs. layer-specific aesthetics
+
+- Aesthetic mappings can be supplied in the initial `ggplot()` call, in individual layers, or in some combination of both.
+
+- Within each layer, you can add, override, or remove mappings.
+
+- If you only have one layer in the plot, the way you specify aesthetics doesn’t make any difference. However, the distinction is important when you start adding additional layers.
+
+---
+
+## Wrap up
+
+.task[
+Think back to all the plots you saw in the lecture, without flipping back through the slides. Which plot first comes to mind? Describe it in words.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlighStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

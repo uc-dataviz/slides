@@ -1,0 +1,577 @@
+---
+title: "Looking at data"
+author: "MACS 40700 <br /> University of Chicago"
+output: rcfss::xaringan_wide
+---
+
+```{r setup, include = FALSE, cache = FALSE}
+# generate CSS file
+library(xaringanthemer)
+rcfss::xaringan_theme()
+
+source(here::here("R", "slide-opts.R"))
+
+xaringanExtra::use_panelset()
+ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
+```
+
+```{r pkgs, include = FALSE}
+library(knitr)
+library(here)
+library(countdown)
+```
+
+
+class: middle, inverse
+
+# A/B testing
+
+---
+
+## Data: Sale prices of houses in Duke Forest
+
+.pull-left[
+- Data on houses that were sold in the Duke Forest neighborhood of Durham, NC around November 2020
+
+- Scraped from Zillow
+
+- Source: `openintro::duke_forest`
+]
+.pull-right[
+```{r echo=FALSE, out.width = "100%", fig.align = "right", fig.alt = "Home in Duke Forest"}
+knitr::include_graphics("images/duke_forest_home.jpg")
+```
+]
+
+---
+
+## `openintro::duke_forest`
+
+```{r}
+library(tidyverse)
+library(openintro)
+
+glimpse(duke_forest)
+```
+
+---
+
+## A simple visualization
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+ggplot(duke_forest, aes(x = area, y = price)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.7) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    title = "Price and area of houses in Duke Forest"
+  )
+```
+]
+
+---
+
+## New variable: `decade_built`
+
+```{r}
+duke_forest <- duke_forest %>%
+  mutate(decade_built = (year_built %/% 10) * 10)
+
+duke_forest %>%
+  select(year_built, decade_built)
+```
+
+---
+
+## Distribution of `decade_built`
+
+```{r}
+duke_forest <- duke_forest %>%
+  mutate(
+    decade_built = (year_built %/% 10) * 10
+  )
+
+duke_forest %>%
+  count(decade_built)
+```
+
+---
+
+## New variable: `decade_built_cat`
+
+```{r}
+duke_forest <- duke_forest %>%
+  mutate(
+    decade_built_cat = case_when(
+      decade_built <= 1940 ~ "1940 or before",
+      decade_built >= 1990 ~ "1990 or after",
+      TRUE                 ~ as.character(decade_built)
+    )
+  )
+
+duke_forest %>%
+  count(decade_built_cat)
+```
+
+---
+
+## A slightly more complex visualization
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "90%", fig.asp = 0.5, fig.width = 10}
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  )
+```
+]
+
+---
+
+class: middle
+
+.task[
+In the next two slides, the same plots are created with different "cosmetic" choices. Examine the plots two given (Plot A and Plot B), and indicate your preference by voting for one of them in the Vote tab.
+]
+
+---
+
+## Test 1
+
+.panelset[
+.panel[.panel-name[Plot A]
+```{r test-1-a, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest",
+  ) +
+  theme_dark(base_size = 16) + #<<
+  scale_color_manual(values = c("yellow", "blue", "orange", "red", "green", "white")) + #<<
+  theme( #<<
+    text = element_text(color = "red", face = "bold.italic"), #<<
+    plot.background = element_rect(fill = "yellow") #<<
+  ) #<<
+```
+]
+.panel[.panel-name[Plot B]
+```{r test-1-b, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  ) +
+  theme_minimal(base_size = 16) +  #<<
+  scale_color_viridis_d(end = 0.9)  #<<
+```
+]
+.panel[.panel-name[Vote]
+<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
+]
+]
+
+---
+
+## Test 2
+
+.panelset[
+.panel[.panel-name[Plot A]
+```{r ref.label = "test-1-b", echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
+```
+]
+.panel[.panel-name[Plot B]
+```{r test-2-b, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
+ggplot(duke_forest, aes(x = area, y = price, color = decade_built_cat)) +
+  geom_point(alpha = 0.5, size = 2, show.legend = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
+  facet_wrap(~decade_built_cat) +
+  labs(
+    x = "Area (square feet)",
+    y = "Sale price (USD)",
+    color = "Decade built",
+    title = "Price and area of houses in Duke Forest"
+  ) +
+  scale_color_viridis_d(end = 0.8, option = "A") #<<
+```
+]
+.panel[.panel-name[Vote]
+<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
+]
+]
+
+---
+
+class: middle
+
+.large[
+.hand[
+a deeper look at the plotting code...
+]
+]
+
+---
+
+## Minimal theme + viridis scale, default option
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r ref.label = "test-1-b", out.width = "90%", fig.asp = 0.5, fig.width = 10, echo = FALSE}
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "test-1-b", fig.show = 'hide'}
+```
+]
+]
+
+---
+
+## Viridis scale, option A (magma)
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r ref.label = "test-2-b", out.width = "90%", fig.asp = 0.5, fig.width = 10, echo = FALSE}
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "test-2-b", fig.show = 'hide'}
+```
+]
+]
+
+---
+
+## Dark theme + further theme customization
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r ref.label = "test-1-a", out.width = "90%", fig.asp = 0.5, fig.width = 10, echo = FALSE}
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "test-1-a", fig.show = 'hide'}
+```
+]
+]
+
+---
+
+class: middle, inverse
+
+# What makes bad figures bad?
+
+---
+
+## Bad taste
+
+```{r ref.label = "test-1-a", echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
+```
+
+---
+
+## Data-to-ink ratio
+
+.pull-left-wide[
+Tufte strongly recommends maximizing the **data-to-ink ratio** this in the Visual Display of Quantitative Information (Tufte, 1983).
+
+> Graphical excellence is the well-designed presentation of interesting data—a matter of substance, of statistics, and of design … [It] consists of complex ideas communicated with clarity, precision, and efficiency. … [It] is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space … [It] is nearly always multivariate … And graphical excellence requires telling the truth about the data. (Tufte, 1983, p. 51).
+
+]
+.pull-right-narrow[
+```{r echo=FALSE, out.width = "100%", fig.align = "right", fig.alt = "Cover of Visual Display of Quantitative Information, Tufte (1983)."}
+knitr::include_graphics("images/tufte-visual-display-cover.png")
+```
+]
+
+---
+
+## Review: RQ 1
+
+.task[
+**Question 8.** Which of the following is **FALSE** about the data-to-ink ratio?
+]
+
+a. Data-to-ink ratio can be increased by removing content-free decoration. (TRUE)
+
+b. **Data-to-ink ratio can be increased by choosing a more accessible color palette.** **(FALSE)**
+
+c. Visualizations with high data-to-ink ratio can be cognitively difficult for viewers to interpret. (TRUE)
+
+d. Visualizations with excessive 'chart junk' tend to have low data-to-ink ratio. (TRUE)
+
+.footnote[
+Error on quiz: Question asked for TRUE when it should have asked for FALSE. Everyone will get a point for this question regardless of their answer.
+]
+
+---
+
+.task[
+Which of the plots has higher data-to-ink ratio?
+]
+
+```{r mean-area-decade-summary, echo = FALSE, results = "hide"}
+mean_area_decade <- duke_forest %>%
+  group_by(decade_built_cat) %>%
+  summarise(mean_area = mean(area))
+
+mean_area_decade
+```
+
+.panelset[
+.panel[.panel-name[Plot A]
+```{r mean-area-decade-a, out.width = "70%", echo = FALSE}
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_col() + #<<
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+.panel[.panel-name[Plot B]
+```{r mean-area-decade-b, out.width = "70%", echo = FALSE}
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) + #<<
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+.panel[.panel-name[Vote]
+<iframe src="https://app.sli.do/event/rxg9buzy" height="100%" width="100%" frameBorder="0" style="min-height: 560px;" title="Slido"></iframe>
+]
+]
+
+---
+
+class: middle
+
+.large[
+.hand[
+a deeper look at the plotting code...
+]
+]
+
+---
+
+## Summary statistics
+
+```{r ref.label = "mean-area-decade-summary"}
+```
+
+---
+
+## Barplot
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r ref.label = "mean-area-decade-a", out.width = "70%", echo = FALSE}
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "mean-area-decade-a", out.width = "70%", fig.show = "hide"}
+```
+]
+]
+
+
+---
+
+## Scatterplot
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r ref.label = "mean-area-decade-b", out.width = "70%", echo = FALSE}
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "mean-area-decade-b", fig.show = "hide"}
+```
+]
+]
+
+---
+
+## Lollipop plot -- a happy medium?
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r mean-area-decade-lollipop, out.width = "70%", echo = FALSE}
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+  geom_segment( #<<
+    aes( #<<
+      x = 0, xend = mean_area, #<<
+      y = decade_built_cat, yend = decade_built_cat #<<
+    ) #<<
+  ) + #<<
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "mean-area-decade-lollipop", fig.show = "hide"}
+```
+]
+]
+
+---
+
+## Activity: Napoleon’s retreat
+
+.pull-left-wide[
+.task[
+.small[
+This is Minard’s visualization of Napoleon’s retreat. Discuss in a pair (or group) the features of the following visualization. What are the variables plotted? Which aesthetics are they mapped to? Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+]
+]
+]
+
+```{r echo=FALSE, out.width = "83%", fig.align = "center", fig.alt = "Minard’s visualization of Napoleon’s retreat"}
+knitr::include_graphics("images/minard.jpg")
+```
+
+```{r}
+countdown(minutes = 5, top = 0)
+```
+
+---
+
+## Bad data
+
+.panelset[
+.panel[.panel-name[Original]
+```{r echo = FALSE, fig.alt = "A crisis of faith in democracy? New York Times.", out.width = "50%"}
+knitr::include_graphics("images/healy-democracy-nyt-version.png")
+```
+]
+.panel[.panel-name[Improved]
+```{r echo = FALSE, fig.alt = "A crisis of faith in democracy? New York Times.", out.width = "50%"}
+knitr::include_graphics("images/healy-democracy-voeten-version-2.png")
+```
+]
+]
+
+.footnote[
+Healy, Data Visualization: A practical introduction. [Chapter 1](https://socviz.co/lookatdata.html). Figures 1.8 and 1.9.
+]
+
+---
+
+## Bad perception
+
+```{r echo = FALSE, fig.alt = "Aspect ratios affect our perception of rates of change, modeled after an example by William S. Cleveland.", out.width = "80%"}
+knitr::include_graphics("images/healy-perception-curves.png")
+```
+
+.footnote[
+Healy, Data Visualization: A practical introduction. [Chapter 1](https://socviz.co/lookatdata.html). Figure 1.12.
+]
+
+---
+
+class: middle, inverse
+
+# Aesthetic mappings in ggplot2
+
+---
+
+## A second look: lollipop plot
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r mean-area-decade-lollipop-layer, out.width = "70%", echo = FALSE}
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+  geom_segment(aes(
+    x = 0, xend = mean_area,
+    y = decade_built_cat, yend = decade_built_cat
+  )) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "mean-area-decade-lollipop-layer", fig.show = "hide"}
+```
+]
+]
+
+---
+
+## Activity: Spot the difference I
+
+.task[
+Can you spot the differences between the code here and the one provided in the previous slide? Are there any differences in the resulting plot? Work in a pair (or group) to answer. Click [here](https://app.sli.do/event/rxg9buzy) to submit summary of discussion.
+]
+
+.panelset[
+.panel[.panel-name[Plot]
+```{r mean-area-decade-lollipop-global, out.width = "50%", echo = FALSE}
+ggplot(mean_area_decade, aes(y = decade_built_cat, x = mean_area)) +
+  geom_point(size = 4) +
+  geom_segment(aes(
+    xend = 0,
+    yend = decade_built_cat
+  )) +
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  ) +
+  theme_minimal(base_size = 16)
+```
+]
+.panel[.panel-name[Code]
+```{r ref.label = "mean-area-decade-lollipop-global", fig.show = "hide"}
+```
+]
+]
+
+```{r echo = FALSE}
+countdown(minutes = 3, bottom = 0)
+```
+
+---
+
+## Global vs. layer-specific aesthetics
+
+- Aesthetic mappings can be supplied in the initial `ggplot()` call, in individual layers, or in some combination of both.
+
+- Within each layer, you can add, override, or remove mappings.
+
+- If you only have one layer in the plot, the way you specify aesthetics doesn’t make any difference. However, the distinction is important when you start adding additional layers.
+
+---
+
+## Wrap up
+
+.task[
+Think back to all the plots you saw in the lecture, without flipping back through the slides. Which plot first comes to mind? Describe it in words.
+]
