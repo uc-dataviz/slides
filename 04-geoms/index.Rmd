@@ -705,6 +705,69 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 ---
 
+class: middle, inverse
+
+# geoms
+
+---
+
+## Three variables
+
+- `geom_tile()`: tile the plane with rectangles
+- `geom_raster()`: fast version of `geom_tile()` for equal sized tiles
+
+---
+
+## `geom_tile()`
+
+```{r}
+ggplot(scorecard, aes(x = type, y = locale)) +
+ geom_tile(aes(fill = netcost))
+```
+
+---
+
+## Another look at smooth-ish surface
+
+.panelset[
+.panel[.panel-name[Summarize]
+.small[
+```{r}
+mean_netcost_type_locale <- scorecard %>%
+  group_by(type, locale) %>%
+  summarize(mean_netcost = mean(netcost, na.rm = TRUE), .groups = "drop")
+
+mean_netcost_type_locale
+```
+]
+]
+.panel[.panel-name[Plot]
+```{r}
+ggplot(mean_netcost_type_locale, aes(x = type, y = locale)) +
+  geom_point(aes(color = mean_netcost), size = 40, pch = "square")
+```
+]
+]
+
+---
+
+## Activity: Pick a geom
+
+.task[
+For each of the following problems, suggest a useful geom:
+
+1. Display how the value of variable has changed over time
+1. Show the detailed distribution of a single continuous variable
+1. Focus attention on the overall relationship between two variables in a large dataset
+1. Label outlying points in a single variable
+]
+
+```{r echo = FALSE, cache = FALSE}
+countdown(minutes = 3, bottom = 0)
+```
+
+---
+
 class: inverse, middle
 
 # Homework 1

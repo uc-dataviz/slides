@@ -184,7 +184,7 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
 
-<div class="countdown" id="timer_624371fe" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6244a8dc" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -449,7 +449,7 @@ ggplot(scorecard, aes(x = netcost)) +
 
 &lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
-<div class="countdown" id="timer_62437092" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6244aa36" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -672,7 +672,7 @@ ggplot(scorecard, aes(x = type, y = netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_62437330" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6244a7d8" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -828,7 +828,7 @@ ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_62437290" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6244a71e" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -876,6 +876,93 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 &lt;/div&gt;
 ]
+
+---
+
+class: middle, inverse
+
+# geoms
+
+---
+
+## Three variables
+
+- `geom_tile()`: tile the plane with rectangles
+- `geom_raster()`: fast version of `geom_tile()` for equal sized tiles
+
+---
+
+## `geom_tile()`
+
+
+```r
+ggplot(scorecard, aes(x = type, y = locale)) +
+ geom_tile(aes(fill = netcost))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-54-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Another look at smooth-ish surface
+
+.panelset[
+.panel[.panel-name[Summarize]
+.small[
+
+```r
+mean_netcost_type_locale &lt;- scorecard %&gt;%
+  group_by(type, locale) %&gt;%
+  summarize(mean_netcost = mean(netcost, na.rm = TRUE), .groups = "drop")
+
+mean_netcost_type_locale
+```
+
+```
+## # A tibble: 11 × 3
+##    type                locale mean_netcost
+##    &lt;fct&gt;               &lt;fct&gt;         &lt;dbl&gt;
+##  1 Public              City         13852.
+##  2 Public              Suburb       15620.
+##  3 Public              Town         14689.
+##  4 Public              Rural        13260.
+##  5 Private, nonprofit  City         23894.
+##  6 Private, nonprofit  Suburb       22750.
+##  7 Private, nonprofit  Town         21270.
+##  8 Private, nonprofit  Rural        22700.
+##  9 Private, for-profit City         27580.
+## 10 Private, for-profit Suburb       26787.
+## 11 Private, for-profit Town         13232
+```
+]
+]
+.panel[.panel-name[Plot]
+
+```r
+ggplot(mean_netcost_type_locale, aes(x = type, y = locale)) +
+  geom_point(aes(color = mean_netcost), size = 40, pch = "square")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-56-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+
+## Activity: Pick a geom
+
+.task[
+For each of the following problems, suggest a useful geom:
+
+1. Display how the value of variable has changed over time
+1. Show the detailed distribution of a single continuous variable
+1. Focus attention on the overall relationship between two variables in a large dataset
+1. Label outlying points in a single variable
+]
+
+<div class="countdown" id="timer_6244aa3e" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
 
 ---
 
