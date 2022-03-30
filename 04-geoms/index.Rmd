@@ -85,8 +85,8 @@ For more on including figures in R Markdown documents with the right size, resol
 knitr::opts_chunk$set(
   fig.width = 8, # 8"
   fig.asp = 0.618, # the golden ratio
-  fig.retina = 3, # dpi multiplier for displaying HTML output on retina
-  dpi = 300, # higher dpi, sharper image
+  fig.retina = 2, # dpi multiplier for displaying HTML output on retina
+  dpi = 150, # higher dpi, sharper image
   out.width = "70%"
 )
 ```
