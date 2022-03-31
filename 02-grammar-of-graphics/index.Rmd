@@ -624,7 +624,7 @@ Commonly used characteristics of plotting characters that can be **mapped to a s
 
 ---
 
-## color
+## Color
 
 .pull-left[
 ```{r color, fig.show = "hide", warning = FALSE}
@@ -1019,7 +1019,7 @@ staff_long %>%
 ## Some improvement...
 
 .small[
-```{r fig.height=2}
+```{r out.width = "60%"}
 staff_long %>%
   ggplot(aes(x = percentage, y = year, fill = faculty_type)) +
   geom_col()
