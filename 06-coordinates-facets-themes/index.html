@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Deep dive: coordinates + facets + themes</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Deep dive: coordinates + facets + themes
+### MACS 40700 <br /> University of Chicago
+
+---
+
+
+
+
+class: middle, inverse
+
+# Welcome
+
+---
+
+## Announcements
+
+- HW 1 feedback is posted
+  - Review issue posted on your repo
+  - Close it or if you have questions follow up on the issue and/or come to office hours
+  - Issue must be closed by the time you submit your next HW
+
+- HW 2 is posted
+  - Pay attention to code style
+  - Keep your work organized
+  - Label your chunks!
+  - Aside: What's a chunk option?
+
+- Project proposals due today at 5pm
+
+- Guest lecture on Wednesday -- come with questions!
+
+---
+
+
+## Agenda for today
+
+- Wrap up: Quiz 2 recap
+
+- Coordinate systems
+
+- Facets
+
+- Themes
+
+---
+
+## Setup
+
+.midi[
+
+```r
+# load packages
+library(tidyverse)
+library(knitr)
+library(openintro)
+library(palmerpenguins)
+library(ggrepel)
+library(waffle)
+library(broom)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618, fig.retina = 3,
+  dpi = 300, out.width = "60%"
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 6, dplyr.print_min = 6)
+```
+]
+
+---
+
+## Quiz 2 recap
+
+.panelset[
+.panel[.panel-name[Plot]
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_smooth(method = "lm", fullrange = TRUE, se = FALSE)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Same slopes]
+
+```r
+lm(body_mass_g ~ flipper_length_mm + species, data = penguins) %&gt;% tidy()
+```
+
+```
+## # A tibble: 4 × 5
+##   term              estimate std.error statistic  p.value
+##   &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)        -4031.     584.       -6.90 2.55e-11
+## 2 flipper_length_mm     40.7      3.07     13.3  1.40e-32
+## 3 speciesChinstrap    -207.      57.7      -3.58 3.98e- 4
+## 4 speciesGentoo        267.      95.3       2.80 5.39e- 3
+```
+]
+.panel[.panel-name[Different slopes]
+
+```r
+lm(body_mass_g ~ flipper_length_mm * species, data = penguins) %&gt;% tidy()
+```
+
+```
+## # A tibble: 6 × 5
+##   term                               estimate std.error statistic  p.value
+##   &lt;chr&gt;                                 &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)                        -2536.      879.      -2.88  4.19e- 3
+## 2 flipper_length_mm                     32.8       4.63     7.10  7.69e-12
+## 3 speciesChinstrap                    -501.     1523.      -0.329 7.42e- 1
+## 4 speciesGentoo                      -4251.     1427.      -2.98  3.11e- 3
+## 5 flipper_length_mm:speciesChinstrap     1.74      7.86     0.222 8.25e- 1
+## 6 flipper_length_mm:speciesGentoo       21.8       6.94     3.14  1.84e- 3
+```
+]
+]
+
+
+---
+
+class: middle, inverse
+
+# Coordinate systems
+
+---
+
+## Coordinate systems: purpose
+
+- Combine the two position aesthetics (`x` and `y`) to produce a 2d position on the plot:
+  - linear coordinate system: horizontal and vertical coordinates 
+  - polar coordinate system: angle and radius
+  - maps: latitude and longitude
+
+- Draw axes and panel backgrounds in coordination with the faceter coordinate systems
+
+---
+
+## Coordinate systems: types
+
+1. **Linear coordinate systems:** preserve the shape of geoms
+
+  - `coord_cartesian()`: the default Cartesian coordinate system, where the 2d position of an element is given by the combination of the x and y positions.
+  - `coord_flip()`: Cartesian coordinate system with x and y axes flipped *(won't be using much now that geoms can take aesthetic mappings in x and y axes)*
+  - `coord_fixed()`: Cartesian coordinate system with a fixed aspect ratio. *(useful only in limited circumstances)*
+
+--
+2. **Non-linear coordinate systems:** can change the shapes -- a straight line may no longer be straight. The closest distance between two points may no longer be a straight line.
+
+  - `coord_trans()`: Apply arbitrary transformations to x and y positions, after the data has been processed by the stat
+  - `coord_polar()`: Polar coordinates
+  - `coord_map()` / `coord_quickmap()` / `coord_sf()`: Map projections
+
+---
+
+## Setting limits: what the plots say
+
+.small[
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+  labs(title = "Plot 1")
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* scale_x_continuous(limits = c(190, 220)) + scale_y_continuous(limits = c(4000, 5000)) +
+  labs(title = "Plot 2")
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* xlim(190, 220) + ylim(4000, 5000) +
+  labs(title = "Plot 3")
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* coord_cartesian(xlim = c(190,220), ylim = c(4000, 5000)) +
+  labs(title = "Plot 4")
+```
+
+&lt;img src="index_files/figure-html/set-limits-1.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/set-limits-2.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/set-limits-3.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/set-limits-4.png" width="25%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Setting limits: what the warnings say
+
+.tiny[
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+  labs(title = "Plot 1")
+```
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* scale_x_continuous(limits = c(190, 220)) + scale_y_continuous(limits = c(4000, 5000)) +
+  labs(title = "Plot 2")
+```
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* xlim(190, 220) + ylim(4000, 5000) +
+  labs(title = "Plot 3")
+```
+
+```r
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + geom_smooth() +
+* coord_cartesian(xlim = c(190,220), ylim = c(4000, 5000)) +
+  labs(title = "Plot 4")
+```
+]
+
+---
+
+## Setting limits
+
+- Setting scale limits: Any data outside the limits is thrown away
+  - `scale_*_continuous()`, `xlim` and `ylim` arguments
+  - `xlim()` and `ylim()`
+
+- Setting coordinate system limits: Use all the data, but only display a small region of the plot (zooming in)
+  - `coord_cartesian()`, `xlim` and `ylim` arguments
+
+---
+
+## Fixing aspect ratio with `coord_fixed()`
+
+Useful when having an aspect ratio of 1 makes sense, e.g. scores on two tests (reading and writing) on the same scale (0 to 100 points)
+
+.small[
+
+```r
+ggplot(hsb2, aes(x = read, y = write)) +
+  geom_point() + geom_smooth(method = "lm") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
+  labs(title = "Not fixed")
+
+ggplot(hsb2, aes(x = read, y = write)) +
+  geom_point() + geom_smooth(method = "lm") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray") +
+* coord_fixed() +
+  labs(title = "Fixed")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="40%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-6-2.png" width="40%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Transformations
+
+.small[
+
+```r
+ggplot(penguins, aes(x = bill_depth_mm, y = body_mass_g)) +
+  geom_point() + geom_smooth(method = "lm") +
+  labs(title = "Plot 1")
+
+ggplot(penguins, aes(x = bill_depth_mm, y = body_mass_g)) +
+  geom_point() + geom_smooth(method = "lm") +
+* scale_x_log10() + scale_y_log10() +
+  labs(title = "Plot 2")
+
+ggplot(penguins, aes(x = bill_depth_mm, y = body_mass_g)) +
+  geom_point() + geom_smooth(method = "lm") +
+* coord_trans(x = "log10", y = "log10") +
+  labs(title = "Plot 3")
+
+*ggplot(penguins, aes(x = log(bill_depth_mm, base = 10), y = log(body_mass_g, base = 10))) +
+  geom_point() + geom_smooth(method = "lm") +
+  labs(title = "Plot 4")
+```
+
+&lt;img src="index_files/figure-html/transformations-1.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/transformations-2.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/transformations-3.png" width="25%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/transformations-4.png" width="25%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Pie charts and bullseye charts with `coord_polar()`
+
+.small[
+
+```r
+ggplot(penguins, aes(x = 1, fill = species)) +
+  geom_bar() +
+  labs(title = "Stacked bar chart")
+
+ggplot(penguins, aes(x = 1, fill = species)) +
+  geom_bar() +
+* coord_polar(theta = "y") +
+  labs(title = "Pie chart")
+
+ggplot(penguins, aes(x = 1, fill = species)) +
+  geom_bar() +
+  coord_polar(theta = "x") +
+* labs(title = "Bullseye chart")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="30%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-7-2.png" width="30%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-7-3.png" width="30%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+class: middle
+
+.large[.hand[aside: about pie charts...]]
+
+---
+
+## Pie charts
+
+.task[
+What do you know about pie charts and data visualization best practices? Love 'em or lose 'em?
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="45%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-8-2.png" width="45%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Pie charts: when to love 'em, when to lose 'em
+
+.pull-left-narrow[
+❤️ For categorical variables with few levels, bar charts can work well
+]
+.pull-right-wide[
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-9-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-left-narrow[
+💔 For categorical variables with many levels, bar charts are difficult to read
+]
+.pull-right-wide[
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-10-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Waffle charts
+
+- Like with pie charts, work best when the number of levels represented is low
+- Unlike pie charts, easier to compare proportions that represent non-simple fractions
+
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-11-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Waffle charts: making of
+
+.panelset[
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Code&lt;/div&gt;
+
+```r
+penguins %&gt;%
+  count(species) %&gt;%
+  ggplot(aes(fill = species, values = n)) +
+* geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE) +
+  labs(fill = NULL, title = "Penguin species")
+```
+
+
+
+&lt;/div&gt;
+
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Plot&lt;/div&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+&lt;/div&gt;
+]
+
+---
+
+## Waffle charts: enhanced theme
+
+.panelset[
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Code&lt;/div&gt;
+
+```r
+penguins %&gt;%
+  count(species) %&gt;%
+  ggplot(aes(fill = species, values = n)) +
+  geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE) +
+  labs(fill = NULL, title = "Penguin species") +
+* theme_enhance_waffle()
+```
+
+
+
+&lt;/div&gt;
+
+&lt;div class="panel"&gt;
+&lt;div class="panel-name"&gt;Plot&lt;/div&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+&lt;/div&gt;
+]
+
+---
+
+class: middle
+
+.large[.hand[back to coordinate systems...]]
+
+---
+
+## `coord_quickmap()`
+
+.pull-left-narrow[
+- Approximation that sets the aspect ratio to ensure that 1m of latitude and 1m of longitude are the same distance in the middle of the plot
+- Reasonable for smaller regions
+- Fast
+]
+.pull-right-wide[
+.panelset[
+.panel[.panel-name[Cartesian]
+
+```r
+ggplot(map_data("italy"), aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "#008c45") +
+  labs(x = NULL, y = NULL)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Quickmap]
+
+```r
+ggplot(map_data("italy"), aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "#008c45") +
+  labs(x = NULL, y = NULL) +
+  coord_quickmap()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+]
+]
+]
+
+---
+
+## `coord_map()`
+
+.pull-left-narrow[
+- Uses the [**mapproj**](https://cran.r-project.org/package=mapproj) package
+- Uses [Mercator projection](https://en.wikipedia.org/wiki/Mercator_projection) by default, with many other options via  `mapproj::mapproject() `
+- Slower than `coord_quickmap()`
+]
+.pull-right-wide[
+.panelset[
+.panel[.panel-name[Cartesian]
+
+```r
+ggplot(map_data("state"), aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "#3c3b6e") +
+  labs(x = NULL, y = NULL)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Mercator]
+
+```r
+ggplot(map_data("state"), aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "#3c3b6e") +
+  labs(x = NULL, y = NULL) +
+  coord_map()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+]
+.panel[.panel-name[Stereographic]
+
+```r
+ggplot(map_data("state"), aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "#3c3b6e") +
+  labs(x = NULL, y = NULL) +
+  coord_map(projection = "stereographic")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+]
+]
+]
+
+---
+
+class: middle, inverse
+
+# Facets
+
+---
+
+## `facet_*()`
+
+.pull-left[
+- `facet_wrap()` 
+  - "wraps" a 1d ribbon of panels into 2d
+  - generally for faceting by a single variable
+- `facet_grid()` for faceting 
+  - produces a 2d grid of panels defined by variables which form the rows and columns
+  - generally for faceting by two variables
+- `facet_null()`: a single plot, the default
+]
+.pull-right[
+&lt;img src="images/grammar-of-graphics.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Free the scales!
+
+.small[
+
+```r
+p &lt;- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+
+p + 
+  facet_wrap(~species) + 
+  labs(title = "Same scales")
+p + 
+  facet_wrap(~species, scales = "free") +
+  labs(title = "Free scales")
+```
+
+&lt;img src="index_files/figure-html/free-all-scales-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/free-all-scales-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Free some scales
+
+.small[
+
+```r
+p +
+  facet_wrap(~species, scales = "free_x") +
+  labs(title = "Free x scale")
+p +
+  facet_wrap(~species, scales = "free_y") +
+  labs(title = "Free x scale")
+```
+
+&lt;img src="index_files/figure-html/free-some-scales-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/free-some-scales-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.task[
+Freeing the y scale improves the display, but it's still not satisfying. What's wrong with it?
+]
+
+.small[
+
+```r
+ggplot(penguins, aes(y = species, x = body_mass_g, fill = species)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_grid(island ~ .) +
+  labs(title = "Same scale and spacing")
+
+ggplot(penguins, aes(y = species, x = body_mass_g, fill = species)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_grid(island ~ ., scales = "free_y") +
+  labs(title = "Free y scale, same spacing")
+```
+
+&lt;img src="index_files/figure-html/free-scales-not-spaces-1.png" width="50%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/free-scales-not-spaces-2.png" width="50%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Free spaces
+
+
+```r
+ggplot(penguins, aes(y = species, x = body_mass_g, fill = species)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_grid(island ~ ., scales = "free_y", space = "free") +
+  labs(title = "Free y scale and spacing")
+```
+
+&lt;img src="index_files/figure-html/free-spaces-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Highlighting across facets
+
+
+```r
+penguins_sans_species &lt;- penguins %&gt;% select(-species)
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(data = penguins_sans_species, color = "gray") +
+  geom_point(aes(color = species)) +
+  facet_wrap(~species)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: middle, inverse
+
+# Themes
+
+---
+
+## Complete themes
+
+
+```r
+p + theme_gray() + labs(title = "Gray")
+p + theme_void() + labs(title = "Void")
+p + theme_dark() + labs(title = "Dark")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="33%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-21-2.png" width="33%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-21-3.png" width="33%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Themes from ggthemes
+
+
+```r
+library(ggthemes)
+
+p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
+p + theme_economist() + labs(title = "Economist")
+p + theme_wsj() + labs(title = "Wall Street Journal")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="33%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-22-2.png" width="33%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-22-3.png" width="33%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Themes and color scales from ggthemes
+
+
+```r
+p + 
+  aes(color = species) +
+  scale_color_wsj() +
+  theme_wsj() + 
+  labs(title = "Wall Street Journal")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Modifying theme elements
+
+
+```r
+p + 
+  labs(title = "Palmer penguins") +
+  theme(
+    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
+    plot.background = element_rect(color = "red", fill = "mistyrose")
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlighStyle": "solarized-light",
+"highlightLanguage": "r",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
