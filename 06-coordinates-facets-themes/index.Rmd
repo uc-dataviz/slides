@@ -11,6 +11,7 @@ rcfss::xaringan_theme()
 
 # source in the default knitr options
 source(here::here("R", "slide-opts.R"))
+knitr::opts_chunk$set(fig.align = "default")
 
 # enable panelsets and default theme
 xaringanExtra::use_panelset()
@@ -20,6 +21,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 library(knitr)
 library(here)
 library(countdown)
+library(patchwork)
 ```
 
 class: middle, inverse
@@ -28,29 +30,7 @@ class: middle, inverse
 
 ---
 
-## Announcements
-
-- HW 1 feedback is posted
-  - Review issue posted on your repo
-  - Close it or if you have questions follow up on the issue and/or come to office hours
-  - Issue must be closed by the time you submit your next HW
-
-- HW 2 is posted
-  - Pay attention to code style
-  - Keep your work organized
-  - Label your chunks!
-  - Aside: What's a chunk option?
-
-- Project proposals due today at 5pm
-
-- Guest lecture on Wednesday -- come with questions!
-
----
-
-
 ## Agenda for today
-
-- Wrap up: Quiz 2 recap
 
 - Coordinate systems
 
@@ -63,7 +43,7 @@ class: middle, inverse
 ## Setup
 
 .midi[
-```{r message = FALSE}
+```{r message = FALSE, cache = FALSE}
 # load packages
 library(tidyverse)
 library(knitr)
@@ -78,38 +58,14 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3,
-  dpi = 300, out.width = "60%"
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2,
+  dpi = 150, out.width = "60%"
 )
 
 # dplyr print min and max
 options(dplyr.print_max = 6, dplyr.print_min = 6)
 ```
 ]
-
----
-
-## Quiz 2 recap
-
-.panelset[
-.panel[.panel-name[Plot]
-```{r warning = FALSE, message = FALSE}
-ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-  geom_smooth(method = "lm", fullrange = TRUE, se = FALSE)
-```
-]
-.panel[.panel-name[Same slopes]
-```{r}
-lm(body_mass_g ~ flipper_length_mm + species, data = penguins) %>% tidy()
-```
-]
-.panel[.panel-name[Different slopes]
-```{r}
-lm(body_mass_g ~ flipper_length_mm * species, data = penguins) %>% tidy()
-```
-]
-]
-
 
 ---
 
@@ -149,7 +105,7 @@ class: middle, inverse
 
 ## Setting limits: what the plots say
 
-.small[
+.tiny[
 ```{r set-limits, out.width = "25%", fig.width = 6, fig.show = "hold", warning = FALSE, message = FALSE}
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
   geom_point() + geom_smooth() +
@@ -177,7 +133,7 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
 ## Setting limits: what the warnings say
 
 .tiny[
-```{r ref.label = "set-limits", fig.show = "hide", message = FALSE}
+```{r ref.label = "set-limits", fig.show = "hide", message = FALSE, warning = TRUE, collapse = TRUE}
 ```
 ]
 
@@ -198,7 +154,7 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
 
 Useful when having an aspect ratio of 1 makes sense, e.g. scores on two tests (reading and writing) on the same scale (0 to 100 points)
 
-.small[
+.tiny[
 ```{r out.width = "40%", fig.show = "hold", message = FALSE}
 ggplot(hsb2, aes(x = read, y = write)) +
   geom_point() + geom_smooth(method = "lm") +
@@ -217,7 +173,7 @@ ggplot(hsb2, aes(x = read, y = write)) +
 
 ## Transformations
 
-.small[
+.tiny[
 ```{r transformations, out.width = "25%", fig.width = 6, fig.show = "hold", warning = FALSE, message = FALSE}
 ggplot(penguins, aes(x = bill_depth_mm, y = body_mass_g)) +
   geom_point() + geom_smooth(method = "lm") +
@@ -356,7 +312,7 @@ loans %>%
 loans %>%
   count(homeownership) %>%
   ggplot(aes(fill = homeownership, values = n)) +
-  geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE) +
+  geom_waffle(color = "white", flip = TRUE, make_proportional = TRUE) +
   labs(fill = NULL, title = "Homeownership") +
   scale_fill_openintro("hot") +
   coord_equal() +
@@ -366,7 +322,7 @@ loans %>%
 loans %>%
   count(loan_status) %>%
   ggplot(aes(fill = loan_status, values = n)) +
-  geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE)  +
+  geom_waffle(color = "white", flip = TRUE, make_proportional = TRUE)  +
   labs(fill = NULL, title = "Loan status") +
   scale_fill_openintro("four") +
   coord_equal() +
@@ -380,13 +336,19 @@ loans %>%
 ## Waffle charts: making of
 
 .panelset[
-```{r panelset = c(source = "Code", output = "Plot")}
+.panel[.panel-name[Code]
+```{r ref.label = "waffle-penguin", echo = TRUE, fig.show = "hide"}
+```
+]
+.panel[.panel-name[Plot]
+```{r waffle-penguin, echo = FALSE}
 penguins %>%
   count(species) %>%
   ggplot(aes(fill = species, values = n)) +
-  geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE) + #<<
+  geom_waffle(color = "white", flip = TRUE, make_proportional = TRUE) + #<<
   labs(fill = NULL, title = "Penguin species")
 ```
+]
 ]
 
 ---
@@ -394,14 +356,20 @@ penguins %>%
 ## Waffle charts: enhanced theme
 
 .panelset[
-```{r panelset = c(source = "Code", output = "Plot")}
+.panel[.panel-name[Code]
+```{r ref.label = "waffle-penguin-theme", echo = TRUE, fig.show = "hide"}
+```
+]
+.panel[.panel-name[Plot]
+```{r waffle-penguin-theme, echo = FALSE}
 penguins %>%
   count(species) %>%
   ggplot(aes(fill = species, values = n)) +
-  geom_waffle(colour = "white", flip = TRUE, make_proportional = TRUE) +
+  geom_waffle(color = "white", flip = TRUE, make_proportional = TRUE) +
   labs(fill = NULL, title = "Penguin species") +
   theme_enhance_waffle() #<<
 ```
+]
 ]
 
 ---
@@ -511,10 +479,10 @@ p <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point()
 
 p + 
-  facet_wrap(~species) + 
+  facet_wrap(vars(species)) + 
   labs(title = "Same scales")
 p + 
-  facet_wrap(~species, scales = "free") +
+  facet_wrap(vars(species), scales = "free") +
   labs(title = "Free scales")
 ```
 ]
@@ -526,10 +494,10 @@ p +
 .small[
 ```{r free-some-scales, out.width = "50%", fig.asp = 0.5, fig.width = 8, fig.show = "hold", warning = FALSE, message = FALSE}
 p +
-  facet_wrap(~species, scales = "free_x") +
+  facet_wrap(vars(species), scales = "free_x") +
   labs(title = "Free x scale")
 p +
-  facet_wrap(~species, scales = "free_y") +
+  facet_wrap(vars(species), scales = "free_y") +
   labs(title = "Free x scale")
 ```
 ]
@@ -575,7 +543,7 @@ penguins_sans_species <- penguins %>% select(-species)
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point(data = penguins_sans_species, color = "gray") +
   geom_point(aes(color = species)) +
-  facet_wrap(~species)
+  facet_wrap(vars(species))
 ```
 
 ---

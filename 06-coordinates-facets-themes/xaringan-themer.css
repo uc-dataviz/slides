@@ -312,10 +312,22 @@ h3 {
   margin-block-start: 0.4rem;
   margin-block-end: 0.4rem;
 }
+.tiny {
+  font-size: 70%;
+}
 .small {
   font-size: 90%;
 }
 .midi {
+  font-size: 150%;
+}
+.tiny .remark-code {
+  font-size: 70%;
+}
+.small .remark-code {
+  font-size: 90%;
+}
+.midi .remark-code {
   font-size: 150%;
 }
 .large {
@@ -323,6 +335,11 @@ h3 {
 }
 .xlarge {
   font-size: 600%;
+}
+.huge {
+  font-size: 400%;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
 }
 .hand {
   font-family: 'Gochi Hand', cursive;
