@@ -146,12 +146,12 @@ Do you expect the following plots to be the same or different? If different, how
 
 ```{r fig.show = "hide"}
 # Plot A
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 
 # Plot B
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(aes(color = pctpell_cat), alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
@@ -170,15 +170,15 @@ Do you expect the following plots to be the same or different? If different, how
 
 ```{r fig.show = "hide"}
 # Plot A
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(aes(color = pctpell_cat))
 
 # Plot B
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(color = "blue")
 
 # Plot C
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(color = "#a493ba")
 ```
 
@@ -412,9 +412,9 @@ ggplot(scorecard, aes(x = netcost, color = pctpell_cat)) +
 ## `geom_rug()`
 
 ```{r}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug()
+  geom_rug(alpha = 0.1)
 ```
 
 ---
@@ -422,9 +422,9 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 ## `geom_rug()` on the outside
 
 ```{r}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug(outside = TRUE) +
+  geom_rug(alpha = 0.1, outside = TRUE) +
   coord_cartesian(clip = "off")
 ```
 
@@ -433,9 +433,9 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 ## `geom_rug()` on the outside, but better
 
 ```{r}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug(outside = TRUE, sides = "tr") +
+  geom_rug(alpha = 0.1, outside = TRUE, sides = "tr") +
   coord_cartesian(clip = "off") +
   theme(plot.margin = margin(1, 1, 1, 1, "cm"))
 ```
@@ -446,7 +446,7 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 ```{r}
 sample_n(scorecard, size = 50) %>%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type))
 ```
 
@@ -457,7 +457,7 @@ sample_n(scorecard, size = 50) %>%
 
 ```{r}
 sample_n(scorecard, size = 50) %>%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type, color = type))
 ```
 
@@ -467,7 +467,7 @@ sample_n(scorecard, size = 50) %>%
 
 ```{r}
 sample_n(scorecard, size = 50) %>%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type, color = type),
     show.legend = FALSE
   )
@@ -486,7 +486,7 @@ sample_n(scorecard, size = 50) %>%
 ## `geom_hex()`
 
 ```{r}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_hex()
 ```
 
@@ -689,12 +689,12 @@ library(scales)
 
 .panelset[
 ```{r panelset = c(output = "Plot", source = "Code"), fig.show = "hold"}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(alpha = 0.4, size = 2, color = "#012169") +
   scale_x_continuous(labels = label_number(big.mark = ",")) +
   scale_y_continuous(labels = label_dollar()) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     title = "Test scores and net cost of attendance in US universities",
     subtitle = "2018-19",

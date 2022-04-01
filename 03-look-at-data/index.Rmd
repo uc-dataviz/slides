@@ -255,11 +255,11 @@ glimpse(scorecard)
 
 .panelset[
 ```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(alpha = 0.5, size = 2) +
   geom_smooth(method = "lm", se = FALSE, size = 0.7) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     title = "Test scores and net cost of attendance in US universities"
   )
@@ -298,15 +298,15 @@ scorecard %>%
 
 .panelset[
 ```{r panelset = c(output = "Plot", source = "Code"), out.width = "90%", fig.asp = 0.5, fig.width = 10}
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
   facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     color = "Percentage of Pell grant recipients",
-    title = "Test scores and net cost of attendance in US universities"
+    title = "Faculty salaries and net cost of attendance in US universities"
   )
 ```
 ]
@@ -326,12 +326,12 @@ In the next two slides, the same plots are created with different "cosmetic" cho
 .panelset[
 .panel[.panel-name[Plot A]
 ```{r test-1-a, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
   facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     color = "Percentage of Pell grant recipients",
     title = "Test scores and net cost of attendance in US universities"
@@ -346,12 +346,12 @@ ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
 ]
 .panel[.panel-name[Plot B]
 ```{r test-1-b, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
   facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     color = "Percentage of Pell grant recipients",
     title = "Test scores and net cost of attendance in US universities"
@@ -373,12 +373,12 @@ ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
 ]
 .panel[.panel-name[Plot B]
 ```{r test-2-b, echo = FALSE, out.width = "90%", fig.asp = 0.5, fig.width = 10}
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.5, show.legend = FALSE) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5, show.legend = FALSE) +
   facet_wrap(vars(pctpell_cat)) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     color = "Percentage of Pell grant recipients",
     title = "Test scores and net cost of attendance in US universities"

@@ -172,19 +172,19 @@ Do you expect the following plots to be the same or different? If different, how
 
 ```r
 # Plot A
-ggplot(scorecard, aes(x = satavg, y = netcost, color = pctpell_cat)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost, color = pctpell_cat)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
 
 ```r
 # Plot B
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(aes(color = pctpell_cat), alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
 
-<div class="countdown" id="timer_6244b2ff" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62471f99" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -199,19 +199,19 @@ Do you expect the following plots to be the same or different? If different, how
 
 ```r
 # Plot A
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(aes(color = pctpell_cat))
 ```
 
 ```r
 # Plot B
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(color = "blue")
 ```
 
 ```r
 # Plot C
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(color = "#a493ba")
 ```
 
@@ -449,7 +449,7 @@ ggplot(scorecard, aes(x = netcost)) +
 
 &lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
-<div class="countdown" id="timer_6244b20e" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62471ff4" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -506,9 +506,9 @@ ggplot(scorecard, aes(x = netcost, color = pctpell_cat)) +
 
 
 ```r
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug()
+  geom_rug(alpha = 0.1)
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -519,9 +519,9 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 
 ```r
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug(outside = TRUE) +
+  geom_rug(alpha = 0.1, outside = TRUE) +
   coord_cartesian(clip = "off")
 ```
 
@@ -533,9 +533,9 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 
 ```r
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point() +
-  geom_rug(outside = TRUE, sides = "tr") +
+  geom_rug(alpha = 0.1, outside = TRUE, sides = "tr") +
   coord_cartesian(clip = "off") +
   theme(plot.margin = margin(1, 1, 1, 1, "cm"))
 ```
@@ -549,7 +549,7 @@ ggplot(scorecard, aes(x = satavg, y = netcost)) +
 
 ```r
 sample_n(scorecard, size = 50) %&gt;%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type))
 ```
 
@@ -563,7 +563,7 @@ sample_n(scorecard, size = 50) %&gt;%
 
 ```r
 sample_n(scorecard, size = 50) %&gt;%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type, color = type))
 ```
 
@@ -576,7 +576,7 @@ sample_n(scorecard, size = 50) %&gt;%
 
 ```r
 sample_n(scorecard, size = 50) %&gt;%
-  ggplot(aes(x = satavg, y = netcost)) +
+  ggplot(aes(x = avgfacsal, y = netcost)) +
   geom_text(aes(label = type, color = type),
     show.legend = FALSE
   )
@@ -598,7 +598,7 @@ sample_n(scorecard, size = 50) %&gt;%
 
 
 ```r
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_hex()
 ```
 
@@ -672,7 +672,7 @@ ggplot(scorecard, aes(x = type, y = netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_6244b036" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62471fa2" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -828,7 +828,7 @@ ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_6244b00d" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6247228b" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -852,12 +852,12 @@ library(scales)
 &lt;div class="panel-name"&gt;Code&lt;/div&gt;
 
 ```r
-ggplot(scorecard, aes(x = satavg, y = netcost)) +
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_point(alpha = 0.4, size = 2, color = "#012169") +
   scale_x_continuous(labels = label_number(big.mark = ",")) +
   scale_y_continuous(labels = label_dollar()) +
   labs(
-    x = "Average SAT score",
+    x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
     title = "Test scores and net cost of attendance in US universities",
     subtitle = "2018-19",
@@ -960,7 +960,7 @@ For each of the following problems, suggest a useful geom:
 1. Label outlying points in a single variable
 ]
 
-<div class="countdown" id="timer_6244b2c5" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62472125" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
