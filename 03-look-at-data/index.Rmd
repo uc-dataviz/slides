@@ -23,6 +23,199 @@ library(countdown)
 
 class: middle, inverse
 
+# Take a sad plot, and make it better
+
+---
+
+The American Association of 
+University Professors (AAUP) is a nonprofit membership association of faculty 
+and other academic professionals. 
+[This report](https://www.aaup.org/sites/default/files/files/AAUP_Report_InstrStaff-75-11_apr2013.pdf) 
+by the AAUP shows trends in instructional staff employees between 1975 
+and 2011, and contains an image very similar to the one given below.
+
+```{r echo=FALSE,out.width="80%",fig.align="center"}
+include_graphics("images/staff-employment.png")
+```
+
+---
+
+Each row in this dataset represents a faculty type, and the columns are the years for which we have data. 
+The values are percentage of hires of that type of faculty for each year.
+
+```{r load-data-staff, message=FALSE}
+staff <- read_csv("data/instructional-staff.csv")
+staff
+```
+
+---
+
+## Recreate the visualization
+
+In order to recreate this visualization we need to first reshape the data to have one variable for faculty type and one variable for year. In other words, we will convert the data from the long format to wide format. 
+
+But before we do so... 
+
+.task[
+If the long data will have a row for each year/faculty type combination, and there are 5 faculty types and 11 years of data, how many rows will the data have?
+]
+
+---
+
+class: center, middle
+
+```{r echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("images/pivot.gif")
+```
+
+---
+
+## `pivot_*()` function
+
+```{r echo=FALSE, out.width = "50%"}
+include_graphics("https://github.com/gadenbuie/tidyexplain/raw/main/images/tidyr-pivoting.gif")
+```
+
+---
+
+## `pivot_longer()`
+
+```{r eval=FALSE}
+pivot_longer(data, cols, names_to = "name", values_to = "value")
+```
+
+- The first argument is `data` as usual.
+- The second argument, `cols`, is where you specify which columns to pivot 
+into longer format -- in this case all columns except for the `faculty_type` 
+- The third argument, `names_to`, is a string specifying the name of the column to create from the data stored in the column names of data -- in this case `year`
+- The fourth argument, `values_to`, is a string specifying the name of the column to create from the data stored in cell values, in this case `percentage`
+
+---
+
+## Pivot instructor data
+
+.small[
+```{r}
+library(tidyverse)
+
+staff_long <- staff %>%
+  pivot_longer(cols = -faculty_type, names_to = "year", 
+               values_to = "percentage") %>%
+  mutate(percentage = as.numeric(percentage))
+
+staff_long
+```
+]
+
+---
+
+.question[
+This doesn't look quite right, how would you fix it?
+]
+
+```{r out.width = "70%"}
+staff_long %>%
+  ggplot(aes(x = percentage, y = year, color = faculty_type)) +
+  geom_col(position = "dodge")
+```
+
+---
+
+.small[
+```{r fig.height=2}
+staff_long %>%
+  ggplot(aes(x = percentage, y = year, fill = faculty_type)) +
+  geom_col(position = "dodge")
+```
+]
+
+---
+
+## Some improvement...
+
+.small[
+```{r out.width = "60%"}
+staff_long %>%
+  ggplot(aes(x = percentage, y = year, fill = faculty_type)) +
+  geom_col()
+```
+]
+
+---
+
+## More improvement
+
+.small[
+```{r out.width = "100%", fig.asp = 0.4, fig.width = 7}
+staff_long %>%
+  ggplot(aes(x = year, y = percentage, group = faculty_type, 
+             color = faculty_type)) +
+  geom_line() +
+  theme_minimal()
+```
+]
+
+---
+
+## Goal: even more improvement!
+
+.task[
+I want to achieve the following look but I have no idea how!
+]
+
+```{r instructor-lines-for-show, echo = FALSE, out.width = "70%"}
+include_graphics("images/sketch.png")
+```
+
+---
+
+## Asking good questions
+
+- Describe what you want
+- Describe where you are
+- Create a minimal **repr**oducible **ex**ample: `reprex::reprex()`
+
+---
+
+.panelset[
+.panel[.panel-name[Plot]
+
+```{r instructor-lines, echo = FALSE, fig.width = 7, out.width = "100%", fig.asp = 0.5}
+library(scales)
+
+staff_long %>%
+  mutate( #<<
+    part_time = if_else(faculty_type == "Part-Time Faculty", #<<
+                        "Part-Time Faculty", "Other Faculty"), #<<
+    year = as.numeric(year) #<<
+    ) %>% #<<
+  ggplot(aes(x = year, y = percentage/100, group = faculty_type, 
+             color = part_time)) +
+  geom_line() +
+  scale_color_manual(values = c("gray", "red")) + #<<
+  scale_y_continuous(labels = label_percent(accuracy = 1)) + #<<
+  theme_minimal() +
+  labs(
+    title = "Instructional staff employment trends",
+    x = "Year", y = "Percentage", color = NULL
+  ) +
+  theme(legend.position = "bottom") #<<
+```
+
+]
+
+.panel[.panel-name[Code]
+
+```{r ref.label = "instructor-lines", fig.show = "hide"}
+```
+
+]
+]
+
+---
+
+class: middle, inverse
+
 # A/B testing
 
 ---
