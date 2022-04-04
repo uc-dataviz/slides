@@ -13,7 +13,7 @@ rcfss::xaringan_theme()
 source(here::here("R", "slide-opts.R"))
 knitr::opts_chunk$set(
   echo = FALSE
-  )
+)
 
 # enable panelsets and default theme
 xaringanExtra::use_panelset()
@@ -51,30 +51,36 @@ theme_set(theme_minimal())
 # map theme
 theme_map <- function(base_size, ...) {
   theme_minimal(base_size = base_size) +
-  theme(
-    text = element_text(family = "Ubuntu Regular", color = "#22211d"),
-    axis.line = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
-    panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
-    panel.grid.minor = element_blank(),
-    plot.background = element_rect(fill = "#f5f5f2", color = NA), 
-    panel.background = element_rect(fill = "#f5f5f2", color = NA), 
-    legend.background = element_rect(fill = "#f5f5f2", color = NA),
-    panel.border = element_blank(),
-    ...
-  )
+    theme(
+      text = element_text(family = "Ubuntu Regular", color = "#22211d"),
+      axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
+      panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+      panel.grid.minor = element_blank(),
+      plot.background = element_rect(fill = "#f5f5f2", color = NA),
+      panel.background = element_rect(fill = "#f5f5f2", color = NA),
+      legend.background = element_rect(fill = "#f5f5f2", color = NA),
+      panel.border = element_blank(),
+      ...
+    )
 }
 
 set.seed(123)
 theme_set(theme_minimal(base_size = rcfss::base_size - 2))
 ```
 
+class: inverse, middle, center
+
 # What to color by
+
+---
+
+# Selecting a color palette
 
 ```{r}
 # get unemployment data and wrangle
@@ -98,16 +104,28 @@ states_sf <- get_urbn_map("states", sf = TRUE)
 unemp_sf <- left_join(states_sf, unemp)
 ```
 
-```{r}
+.panelset[
+.panel[
+.panel-name[Plot A]
+```{r out.width = "70%"}
 # create choropleth for 2010
 choropleth <- unemp_sf %>%
   filter(year == 2010) %>%
   ggplot(mapping = aes(fill = unemp)) +
   geom_sf(color = "white") +
   scale_fill_viridis_c(labels = scales::percent, option = "magma") +
-  labs(fill = "2010") +
-  theme_map(base_size = rcfss::base_size - 2)
+  labs(
+    title = "US unemployment rate",
+    fill = "2010"
+  ) +
+  theme_map(base_size = 16)
+choropleth
+```
+]
 
+.panel[
+.panel-name[Plot B]
+```{r out.width = "70%"}
 # create line chart highlighting Texas and New York
 line_chart <- ggplot(data = unemp, mapping = aes(x = year, y = unemp, group = state_fips)) +
   geom_line(alpha = 0.1) +
@@ -121,29 +139,41 @@ line_chart <- ggplot(data = unemp, mapping = aes(x = year, y = unemp, group = st
   scale_y_continuous(labels = scales::percent) +
   scale_color_brewer(type = "qual") +
   labs(
+    title = "US unemployment rate",
     x = "Year",
     y = NULL,
     color = NULL
   ) +
-  theme_minimal(base_size = rcfss::base_size - 2) +
+  theme_minimal(base_size = 16) +
   theme(
     strip.text.x = element_blank(),
     strip.background = element_rect(color = "white", fill = "white"),
     legend.position = c(.8, .92)
   )
-
-choropleth + line_chart +
-  plot_annotation(title = "US unemployment rate")
+line_chart
 ```
+]
+]
 
 ---
 
 # Categorical color scales
 
+.panelset[
+.panel[
+.panel-name[Type of legislation]
 ```{r}
 include_graphics(path = "images/hue-example.png")
+```
+]
+
+.panel[
+.panel-name[Political party]
+```{r}
 include_graphics(path = "images/hue-example2.png")
 ```
+]
+]
 
 .footnote[Sources: FiveThirtyEight, The Economist]
 
@@ -151,10 +181,21 @@ include_graphics(path = "images/hue-example2.png")
 
 # Sequential color scales
 
+.panelset[
+.panel[
+.panel-name[Percent uninsured]
 ```{r}
 include_graphics(path = "images/seq-class-ex.png")
+```
+]
+
+.panel[
+.panel-name[Life expectancy]
+```{r}
 include_graphics(path = "images/seq-unclass-ex.png")
 ```
+]
+]
 
 .footnote[Sources: New York Times, Datawrapper]
 
@@ -162,10 +203,21 @@ include_graphics(path = "images/seq-unclass-ex.png")
 
 # Diverging color scales
 
+.panelset[
+.panel[
+.panel-name[Classed]
 ```{r}
 include_graphics(path = "images/div-class-ex.png")
+```
+]
+
+.panel[
+.panel-name[Unclassed]
+```{r}
 include_graphics(path = "images/div-unclass-ex.png")
 ```
+]
+]
 
 .footnote[Sources: Axios, Opportunity Atlas]
 
@@ -173,13 +225,29 @@ include_graphics(path = "images/div-unclass-ex.png")
 
 # Highlighting/de-emphasizing
 
+.panelset[
+.panel[
+.panel-name[Highlight zero]
 ```{r}
 include_graphics(path = "images/highlight-zero.png")
-include_graphics(path = "images/deemphasize-cat.png")
+```
+]
+
+.panel[
+.panel-name[NAs]
+```{r}
 include_graphics(path = "images/bin-grad-na.png")
 ```
+]
+]
 
 .footnote[Sources: The Guardian, The Pudding, Bloomberg]
+
+---
+
+class: inverse, center, middle
+
+# Choosing a color scale
 
 ---
 
@@ -283,7 +351,7 @@ library(colorblindr)
 cvd_grid(plot = pen_fig)
 ```
 
-```{r}
+```{r out.width = "70%"}
 {
   pen_fig +
     theme_minimal(base_size = 11)
@@ -323,22 +391,27 @@ gg_color_gradient(n = 200) +
 
 # Inspecting for color deficiency
 
+
+.pull-left-narrow[
+```{r}
+choropleth +
+  ggtitle("Original graph") +
+  theme_void(base_size = 24) +
+  theme(legend.position = "none")
+```
+]
+
+.pull-right-wide[
 ```{r}
 {
   choropleth +
+    ggtitle(NULL) +
     theme_void() +
     theme(legend.position = "none")
-} +
-  {
-    {
-      choropleth +
-        theme_void() +
-        theme(legend.position = "none")
-    } %>%
-      cvd_grid()
-  } +
-  plot_layout(widths = c(30, 70))
+} %>%
+  cvd_grid()
 ```
+]
 
 ---
 
@@ -380,75 +453,6 @@ include_graphics(path = "images/likert.png")
 include_graphics(path = "images/treemap.png")
 ```
 
-
----
-
-# Overcomplicating graphs
-
-```{r}
-include_graphics(path = "images/treemap-third-var.png")
-```
-
----
-
-# Overcomplicating graphs
-
-```{r}
-# import Few dataset
-few_df <- read_csv(file = "data/data-AYui0.csv") %>%
-  rename(state = X.1) %>%
-  pivot_longer(cols = -state, names_to = "quarter", values_to = "var_to_plan") %>%
-  mutate(
-    state = factor(state, levels = c("California", "New Jersey", "Louisiana", "Montana")), ,
-    var_to_plan = var_to_plan / 100
-  )
-
-# recreate the plot
-ggplot(data = few_df, mapping = aes(x = quarter, y = var_to_plan, fill = state)) +
-  geom_col(position = "dodge") +
-  scale_y_continuous(labels = scales::percent) +
-  scale_fill_brewer(direction = -1) +
-  labs(
-    title = "Manufacturing production: Variance to plan",
-    x = NULL,
-    y = NULL,
-    fill = NULL
-  ) +
-  theme(legend.position = "bottom")
-```
-
----
-
-# Correcting the graph
-
-```{r}
-ggplot(data = few_df, mapping = aes(x = quarter, y = var_to_plan, group = state, color = state)) +
-  geom_line() +
-  ggrepel::geom_text_repel(
-    data = few_df %>% filter(quarter == "Q4"),
-    mapping = aes(label = state), direction = "y", nudge_x = .3, size = 6
-  ) +
-  scale_y_continuous(labels = scales::percent) +
-  scale_color_brewer(palette = "Set1") +
-  labs(
-    title = "Manufacturing production: Variance to plan",
-    x = NULL,
-    y = NULL,
-    fill = NULL
-  ) +
-  theme(legend.position = "none")
-```
-
----
-
-# Encoding a new variable
-
-```{r}
-include_graphics(path = "images/google-algorithm.png")
-```
-
-.footnote[Graphic detail page "Google's algorithm" in The Economist from June 8th, 2019]
-
 ---
 
 # Double-encoded line chart
@@ -475,36 +479,40 @@ include_graphics(path = "images/hues-single.png")
 
 ---
 
+class: inverse, center, middle
+
+# Implementing optimal color palettes in R
+
+---
+
 # Implementing optimal color palettes in R
 
 - [`RColorBrewer`](https://colorbrewer2.org/)
+- [`colorspace`](https://colorspace.r-forge.r-project.org/)
 - [`viridis`](https://sjmgarnier.github.io/viridis/)
 
 ---
 
 # Color Brewer
 
-## Sequential palettes
-
+.panelset[
+.panel[.panel-name[Sequential palettes]
 ```{r}
 display.brewer.all(type = "seq")
 ```
-
----
-
-# Color Brewer
-
-## Qualitative palettes
-
+]
+.panel[.panel-name[Qualitative palettes]
 ```{r}
 display.brewer.all(type = "qual")
 ```
+]
+]
 
 ---
 
 # `gss`
 
-```{r}
+```{r echo = TRUE}
 data(gss, package = "poliscidata")
 gss <- as_tibble(gss)
 gss
@@ -518,62 +526,110 @@ gss
 gss_polviews <- drop_na(gss, polviews)
 ```
 
-```{r echo = TRUE, fig.height = 6}
+.panelset[
+.panel[.panel-name[Output]
+```{r ref.label = "brewer-seq", echo = FALSE, fig.show = "show", out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r brewer-seq, echo = TRUE, fig.show = "hide"}
 ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
   geom_bar() +
-  scale_fill_brewer(type = "seq")
+  scale_fill_brewer(type = "seq") #<<
 ```
+]
+]
 
 ---
 
 # `scale_*_brewer()`
 
-```{r, include = FALSE}
-gss_polviews <- drop_na(gss, polviews)
+.panelset[
+.panel[.panel-name[Output]
+```{r ref.label = "brewer-seq-no-guide", echo = FALSE, fig.show = "show", out.width = "70%"}
 ```
+]
 
-```{r echo = TRUE, fig.height = 6}
+.panel[.panel-name[Code]
+```{r brewer-seq-no-guide, echo = TRUE, fig.show = "hide"}
 ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
   geom_bar() +
-  scale_fill_brewer(type = "seq", guide = FALSE)
+  scale_fill_brewer(
+    type = "seq",
+    guide = "none" #<<
+  )
 ```
+]
+]
 
 ---
 
 # Sequential palette
 
-```{r echo = TRUE, fig.height = 6}
+.panelset[
+.panel[.panel-name[Output]
+```{r ref.label = "brewer-seq-red", echo = FALSE, fig.show = "show", out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r brewer-seq-red, echo = TRUE, fig.show = "hide"}
 ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
   geom_bar() +
-  scale_fill_brewer(palette = "OrRd", guide = FALSE)
+  scale_fill_brewer(
+    palette = "OrRd", #<<
+    guide = "none"
+  )
 ```
+]
+]
 
 ---
 
 # Qualitative palette
 
-```{r include = FALSE}
+.panelset[
+.panel[.panel-name[Output]
+```{r ref.label = "brewer-qual-incorrect", echo = FALSE, fig.show = "show", out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r brewer-qual-incorrect, echo = TRUE, fig.show = "hide"}
 gss_relig <- drop_na(gss, relig) %>%
   mutate(relig = str_to_title(relig) %>%
     fct_lump_n(n = 7, other_level = "Other") %>%
     fct_infreq())
-```
 
-```{r echo = TRUE, fig.height = 6}
 ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
   geom_bar() +
-  scale_fill_brewer(guide = FALSE)
+  scale_fill_brewer(guide = "none")
 ```
+]
+]
 
 ---
 
 # Qualitative palette
 
-```{r echo = TRUE, fig.height = 6}
+.panelset[
+.panel[.panel-name[Output]
+```{r ref.label = "brewer-qual", echo = FALSE, fig.show = "show", out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r brewer-qual, echo = TRUE, fig.show = "hide"}
 ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
   geom_bar() +
-  scale_fill_brewer(type = "qual", guide = FALSE)
+  scale_fill_brewer(
+    type = "qual", #<<
+    guide = "none"
+  )
 ```
+]
+]
 
 ---
 
@@ -664,12 +720,12 @@ img(dichromat(rev(magma(n_col)), "protan"), "magma")
 # Desaturated
 
 ```{r}
-par(mfrow=c(7, 1), mar=rep(1, 4))
+par(mfrow = c(7, 1), mar = rep(1, 4))
 img(desaturate(rev(rainbow(n_col))), "rainbow")
 img(desaturate(rev(heat.colors(n_col))), "heat")
-img(desaturate(rev(seq_gradient_pal(low = "#132B43", high = "#56B1F7", space = "Lab")(seq(0, 1, length=n_col)))), "ggplot default")
-img(desaturate(gradient_n_pal(brewer_pal(type="seq")(9))(seq(0, 1, length=n_col))), "brewer blues")
-img(desaturate(gradient_n_pal(brewer_pal(type="seq", palette = "YlGnBu")(9))(seq(0, 1, length=n_col))), "brewer yellow-green-blue")
+img(desaturate(rev(seq_gradient_pal(low = "#132B43", high = "#56B1F7", space = "Lab")(seq(0, 1, length = n_col)))), "ggplot default")
+img(desaturate(gradient_n_pal(brewer_pal(type = "seq")(9))(seq(0, 1, length = n_col))), "brewer blues")
+img(desaturate(gradient_n_pal(brewer_pal(type = "seq", palette = "YlGnBu")(9))(seq(0, 1, length = n_col))), "brewer yellow-green-blue")
 img(desaturate(rev(viridis(n_col))), "viridis")
 img(desaturate(rev(magma(n_col))), "magma")
 ```
@@ -701,7 +757,7 @@ ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
 ```{r echo = TRUE, fig.height = 6}
 ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
   geom_bar() +
-  scale_fill_viridis_d(guide = FALSE)
+  scale_fill_viridis_d(guide = "none")
 ```
 
 ---
@@ -817,7 +873,7 @@ include_graphics(path = "images/births-seq.png")
 ```{r echo = TRUE, fig.height = 6}
 ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
   geom_bar() +
-  scale_fill_brewer(type = "div", guide = FALSE)
+  scale_fill_brewer(type = "div", guide = "none")
 ```
 
 ---
@@ -1113,11 +1169,15 @@ unemp_oct21 %>%
 .pull-left[
 
 ```{r quart, echo = TRUE, eval = FALSE}
-ggplot(data = unemp_oct21,
-       mapping = aes(fill = unemp)) +
+ggplot(
+  data = unemp_oct21,
+  mapping = aes(fill = unemp)
+) +
   geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(n.breaks = 3,
-                       nice.breaks = FALSE)
+  scale_fill_viridis_b(
+    n.breaks = 3,
+    nice.breaks = FALSE
+  )
 ```
 
 ]
@@ -1125,6 +1185,7 @@ ggplot(data = unemp_oct21,
 .pull-right[
 
 ```{r quart-out, ref.label = "quart", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1136,11 +1197,15 @@ ggplot(data = unemp_oct21,
 .pull-left[
 
 ```{r quint, echo = TRUE, eval = FALSE}
-ggplot(data = unemp_oct21,
-       mapping = aes(fill = unemp)) +
+ggplot(
+  data = unemp_oct21,
+  mapping = aes(fill = unemp)
+) +
   geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(n.breaks = 4,
-                       nice.breaks = FALSE)
+  scale_fill_viridis_b(
+    n.breaks = 4,
+    nice.breaks = FALSE
+  )
 ```
 
 ]
@@ -1148,6 +1213,7 @@ ggplot(data = unemp_oct21,
 .pull-right[
 
 ```{r quint-out, ref.label = "quint", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1159,11 +1225,15 @@ ggplot(data = unemp_oct21,
 .pull-left[
 
 ```{r dec, echo = TRUE, eval = FALSE}
-ggplot(data = unemp_oct21,
-       mapping = aes(fill = unemp)) +
+ggplot(
+  data = unemp_oct21,
+  mapping = aes(fill = unemp)
+) +
   geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(n.breaks = 9,
-                       nice.breaks = FALSE)
+  scale_fill_viridis_b(
+    n.breaks = 9,
+    nice.breaks = FALSE
+  )
 ```
 
 ]
@@ -1171,6 +1241,7 @@ ggplot(data = unemp_oct21,
 .pull-right[
 
 ```{r dec-out, ref.label = "dec", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1194,6 +1265,7 @@ unemp_oct21 %>%
 .pull-right[
 
 ```{r quart-man-out, ref.label = "quart-man", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1217,6 +1289,7 @@ unemp_oct21 %>%
 .pull-right[
 
 ```{r quint-man-out, ref.label = "quint-man", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1240,6 +1313,7 @@ unemp_oct21 %>%
 .pull-right[
 
 ```{r dec-man-out, ref.label = "dec-man", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -1255,8 +1329,9 @@ library(classInt)
 
 # calculate intervals
 unemp_classes <- classIntervals(unemp_oct21$unemp,
-                                n = 5,
-                                style = "jenks")
+  n = 5,
+  style = "jenks"
+)
 
 unemp_oct21 %>%
   # apply to variable
@@ -1275,6 +1350,7 @@ unemp_oct21 %>%
 .pull-right[
 
 ```{r nat-break-out, ref.label = "nat-break", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
