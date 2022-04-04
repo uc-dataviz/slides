@@ -39,7 +39,8 @@ library(rnaturalearth)
 library(tidycensus)
 library(scales)
 library(RColorBrewer)
-library(countdown)
+library(ggrepel)
+library(cowplot)
 
 # useful on MacOS to speed up rendering of geom_sf() objects
 if (!identical(getOption("bitmapType"), "cairo") && isTRUE(capabilities()[["cairo"]])) {
@@ -74,174 +75,546 @@ set.seed(123)
 theme_set(theme_minimal(base_size = rcfss::base_size - 2))
 ```
 
-class: inverse, middle, center
+# Uses of color in data visualization
 
-# What to color by
+--
+
+<table style = "border: none; line-height: 2.5;">
+<tr style = "background: white;">
+<td style = "text-align: left; width: 50%;">
+1. Distinguish categories (qualitative)
+</td>
+<td>
+<img src = "images/qualitative.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+</table>
 
 ---
 
-# Selecting a color palette
+# Qualitative scale example
 
-```{r}
-# get unemployment data and wrangle
-unemp_month <- read_excel(path = "data/bls-unemployment.xlsx", skip = 3) %>%
-  # extract state_fips code
-  mutate(state_fips = str_sub(string = `Series ID`, start = 6L, end = 7L)) %>%
-  # tidy into long form
-  select(state_fips, everything(), -`Series ID`) %>%
-  pivot_longer(cols = -state_fips, names_to = "month_year", values_to = "unemp") %>%
-  separate(col = month_year, into = c("month", "year"), convert = TRUE)
+```{r popgrowth-vs-popsize-colored, out.width = "70%"}
+US_census <- read_csv("data/US_census.csv")
+US_regions <- read_csv("data/US_regions.csv")
 
-unemp <- unemp_month %>%
-  # aggregate to annual
-  group_by(state_fips, year) %>%
-  summarize(unemp = mean(unemp, na.rm = TRUE) / 100)
+popgrowth <- left_join(US_census, US_regions) %>%
+    group_by(region, division, state) %>%
+    summarize(
+      pop2000 = sum(pop2000, na.rm = TRUE),
+      pop2010 = sum(pop2010, na.rm = TRUE),
+      popgrowth = (pop2010-pop2000)/pop2000
+    ) %>%
+    arrange(popgrowth) %>%
+    ungroup() %>%
+    mutate(
+      #state = factor(state, levels = state),
+      region = factor(region, levels = c("West", "South", "Midwest", "Northeast"))
+    )
 
-# get US shapefile
-states_sf <- get_urbn_map("states", sf = TRUE)
+region_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442")
 
-# combine
-unemp_sf <- left_join(states_sf, unemp)
+labeled_states <- c(
+  "Alaska", "Arizona", "California", "Florida", "Wisconsin", 
+  "Louisiana", "Nevada", "Michigan", "Montana", "New Mexico",
+  "Pennsylvania", "New York", "Oregon", "Rhode Island",
+  "Tennessee", "Texas", "Utah", "Vermont"
+)
+
+df_repel <- select(popgrowth, x = pop2000, y = popgrowth, state) %>%
+  mutate(label = ifelse(state %in% labeled_states, as.character(state), ""))
+
+p_pop <- ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region, fill = region)) +
+  geom_text_repel(
+    data = df_repel,
+    aes(x, y, label = label),
+    segment.alpha = 0.5, point.padding = 0.25,
+    box.padding = .8,
+    force = 1,
+    min.segment.length = 0.1,
+    max.overlaps = 1000,
+    size = 10/.pt,
+    seed = 7586,
+    inherit.aes = FALSE
+  ) +
+  geom_point(size = 4, color = "white") +
+  geom_point(size = 3, shape = 21) +
+  scale_x_log10(
+    breaks = c(1e6, 3e6, 1e7, 3e7),
+    labels = expression(10^6, 3 %*% 10^6, 10^7, 3 %*% 10^7)
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  xlab("population size in 2000") +
+  ylab("population growth, 2000 to 2010") +
+  theme_minimal_grid(14)
+
+p_pop +  
+  scale_fill_manual(values = region_colors) +
+  scale_color_manual(values = darken(region_colors, .3))
+
 ```
 
-.panelset[
-.panel[
-.panel-name[Plot A]
-```{r out.width = "70%"}
-# create choropleth for 2010
-choropleth <- unemp_sf %>%
-  filter(year == 2010) %>%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white") +
-  scale_fill_viridis_c(labels = scales::percent, option = "magma") +
-  labs(
-    title = "US unemployment rate",
-    fill = "2010"
-  ) +
-  theme_map(base_size = 16)
-choropleth
-```
-]
+Palette name: Okabe-Ito
 
-.panel[
-.panel-name[Plot B]
-```{r out.width = "70%"}
-# create line chart highlighting Texas and New York
-line_chart <- ggplot(data = unemp, mapping = aes(x = year, y = unemp, group = state_fips)) +
-  geom_line(alpha = 0.1) +
-  geom_line(
-    data = unemp %>%
-      filter(state_fips %in% c(48, 36)) %>%
-      mutate(state_fips = factor(state_fips, levels = c(36, 48), labels = c("New York", "Texas"))),
-    mapping = aes(color = state_fips),
-    size = 1
-  ) +
-  scale_y_continuous(labels = scales::percent) +
-  scale_color_brewer(type = "qual") +
-  labs(
-    title = "US unemployment rate",
-    x = "Year",
-    y = NULL,
-    color = NULL
-  ) +
-  theme_minimal(base_size = 16) +
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Qualitative scale example
+
+```{r popgrowth-vs-popsize-colored2, out.width = "70%"}
+
+region_colors <- RColorBrewer::brewer.pal(4, "Set1")
+
+p_pop +  
+  scale_fill_manual(values = region_colors) +
+  scale_color_manual(values = darken(region_colors, .3))
+
+```
+
+Palette name: ColorBrewer Set1
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Qualitative scale example
+
+```{r popgrowth-vs-popsize-colored3, out.width = "70%"}
+
+region_colors <- RColorBrewer::brewer.pal(4, "Set3")
+
+p_pop +  
+  scale_fill_manual(values = region_colors) +
+  scale_color_manual(values = darken(region_colors, .3))
+
+```
+
+Palette name: ColorBrewer Set3
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Uses of color in data visualization
+
+<table style = "border: none; line-height: 2.5;">
+<tr style = "background: white;">
+<td style = "text-align: left; width: 50%;">
+1. Distinguish categories (qualitative)
+</td>
+<td>
+<img src = "images/qualitative.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+2. Represent numeric values (sequential)
+</td>
+<td>
+<img src = "images/sequential.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+</table>
+
+
+---
+
+# Sequential scale example
+
+```{r four-locations-temps-by-month, fig.width = 9, fig.asp = .3}
+temps_months <- read_csv("data/tempnormals.csv") %>%
+  group_by(location, month_name) %>%
+  summarize(mean = mean(temperature)) %>%
+  mutate(
+    month = factor(
+      month_name,
+      levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+    ),
+    location = factor(
+      location, levels = c("Death Valley", "Houston", "San Diego", "Chicago")
+    )
+  ) %>%
+  select(-month_name)
+
+p <- ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = .95, height = 0.95) + 
+  scale_y_discrete(name = NULL) +
+  coord_fixed(expand = FALSE) +
+  theme_half_open() +
   theme(
-    strip.text.x = element_blank(),
-    strip.background = element_rect(color = "white", fill = "white"),
-    legend.position = c(.8, .92)
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    legend.title = element_text(size = 12)
   )
-line_chart
+
+p + scale_fill_viridis_c(
+    option = "D",
+    name = "temperature (°F)"
+  )
 ```
-]
-]
+
+Palette name: Viridis
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
 
 ---
 
-# Categorical color scales
+# Sequential scale example
 
-.panelset[
-.panel[
-.panel-name[Type of legislation]
-```{r}
-include_graphics(path = "images/hue-example.png")
+```{r four-locations-temps-by-month2, fig.width = 9, fig.asp = .3}
+p + scale_fill_viridis_c(
+    option = "B", begin = 0.15, end = 0.98,
+    name = "temperature (°F)"
+  )
 ```
-]
 
-.panel[
-.panel-name[Political party]
-```{r}
-include_graphics(path = "images/hue-example2.png")
-```
-]
-]
+Palette name: Inferno
 
-.footnote[Sources: FiveThirtyEight, The Economist]
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
 
 ---
 
-# Sequential color scales
+# Sequential scale example
 
-.panelset[
-.panel[
-.panel-name[Percent uninsured]
-```{r}
-include_graphics(path = "images/seq-class-ex.png")
+```{r four-locations-temps-by-month3, fig.width = 9, fig.asp = .3}
+p + scale_fill_viridis_c(
+    option = "E",
+    name = "temperature (°F)"
+  )
 ```
-]
 
-.panel[
-.panel-name[Life expectancy]
-```{r}
-include_graphics(path = "images/seq-unclass-ex.png")
-```
-]
-]
+Palette name: Cividis
 
-.footnote[Sources: New York Times, Datawrapper]
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
 
 ---
 
-# Diverging color scales
+# Uses of color in data visualization
 
-.panelset[
-.panel[
-.panel-name[Classed]
-```{r}
-include_graphics(path = "images/div-class-ex.png")
-```
-]
+<table style = "border: none; line-height: 2.5;">
+<tr style = "background: white;">
+<td style = "text-align: left; width: 50%;">
+1. Distinguish categories (qualitative)
+</td>
+<td>
+<img src = "images/qualitative.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
 
-.panel[
-.panel-name[Unclassed]
-```{r}
-include_graphics(path = "images/div-unclass-ex.png")
-```
-]
-]
+<tr style = "background: white;">
+<td style = "text-align: left;">
+2. Represent numeric values (sequential)
+</td>
+<td>
+<img src = "images/sequential.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
 
-.footnote[Sources: Axios, Opportunity Atlas]
+<tr style = "background: white;">
+<td style = "text-align: left;">
+3. Represent numeric values (diverging)
+</td>
+<td>
+<img src = "images/diverging.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+</table>
 
 ---
 
-# Highlighting/de-emphasizing
+# Diverging scale example
 
-.panelset[
-.panel[
-.panel-name[Highlight zero]
-```{r}
-include_graphics(path = "images/highlight-zero.png")
+```{r forensic-correlations1, fig.asp = 1, fig.width = 4, out.width = "40%"}
+forensic_glass <- read_csv("data/forensic_glass.csv")
+
+cm <- cor(select(forensic_glass, -type, -RI, -Si))
+df_wide <- as.data.frame(cm)
+df_long <- stack(df_wide)
+names(df_long) <- c("cor", "var1")
+df_long <- cbind(df_long, var2 = rep(rownames(cm), length(rownames(cm))))
+clust <- hclust(as.dist(1-cm), method="average") 
+levels <- clust$labels[clust$order]
+df_long$var1 <- factor(df_long$var1, levels = levels)
+df_long$var2 <- factor(df_long$var2, levels = levels)
+
+p <- ggplot(filter(df_long, as.integer(var1) < as.integer(var2)),
+       aes(var1, var2, fill=cor)) + 
+  geom_tile(color = "white", size = 1) + 
+  scale_x_discrete(position = "top", name = NULL, expand = c(0, 0)) +
+  scale_y_discrete(name = NULL, expand = c(0, 0)) +
+  guides(
+    fill = guide_colorbar(
+      direction = "horizontal",
+      label.position = "bottom",
+      title.position = "top",
+      barwidth = grid::unit(140, "pt"),
+      barheight = grid::unit(17.5, "pt"),
+      ticks.linewidth = 1
+    )
+  ) +
+  coord_fixed() +
+  theme_half_open(rel_small = 1) +
+  theme(
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.ticks.length = grid::unit(3, "pt"),
+    legend.position = c(.97, .0),
+    legend.justification = c(1, 0),
+    legend.title.align = 0.5
+  )
+p + scale_fill_distiller(
+  name = "correlation",
+  limits = c(-.5, .5),
+  breaks = c(-.5, 0, .5),
+  labels = c("–0.5", "0.0", "0.5"),
+  type = "div",
+  palette = "PiYG",
+  direction = 1
+)
 ```
-]
 
-.panel[
-.panel-name[NAs]
-```{r}
-include_graphics(path = "images/bin-grad-na.png")
+Palette name: ColorBrewer PiYG
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Diverging scale example
+
+```{r forensic-correlations2, fig.asp = 1, fig.width = 4, out.width = "40%"}
+p + scale_fill_continuous_divergingx(
+  name = "correlation",
+  limits = c(-.5, .5),
+  breaks = c(-.5, 0, .5),
+  labels = c("–0.5", "0.0", "0.5"),
+  palette = "Earth",
+  rev = FALSE
+)
 ```
-]
-]
 
-.footnote[Sources: The Guardian, The Pudding, Bloomberg]
+Palette name: Carto Earth
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Diverging scale example
+
+```{r forensic-correlations3, fig.asp = 1, fig.width = 4, out.width = "40%"}
+p + scale_fill_continuous_diverging(
+  name = "correlation",
+  limits = c(-.5, .5),
+  breaks = c(-.5, 0, .5),
+  labels = c("–0.5", "0.0", "0.5"),
+  palette = "Blue-Red",
+  rev = TRUE
+)
+```
+
+Palette name: Blue-Red
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Uses of color in data visualization
+
+<table style = "border: none; line-height: 2.5;">
+<tr style = "background: white;">
+<td style = "text-align: left; width: 50%;">
+1. Distinguish categories (qualitative)
+</td>
+<td>
+<img src = "images/qualitative.png" width = 100% style = "text-align: right; vertical-align: middle;"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+2. Represent numeric values (sequential)
+</td>
+<td>
+<img src = "images/sequential.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+3. Represent numeric values (diverging)
+</td>
+<td>
+<img src = "images/diverging.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+4. Highlight
+</td>
+<td>
+<img src = "images/highlight.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+</table>
+
+---
+
+# Highlight example
+
+```{r Aus-athletes-track, out.width = "70%"}
+male_Aus <- ggridges::Aus_athletes %>%
+  filter(sex == "m") %>%
+  filter(
+    sport %in% c("basketball", "field", "swimming", "track (400m)", "track (sprint)", "water polo")
+  ) %>%
+  mutate(
+    sport = 
+      case_when(
+        sport == "track (400m)" ~ "track",
+        sport == "track (sprint)" ~ "track",
+        TRUE ~ sport
+      ),
+    sport = factor(
+      sport,
+      levels = c("track", "field", "water polo", "basketball", "swimming")
+    )
+  )
+
+p <- ggplot(male_Aus, aes(x=height, y=pcBfat, shape=sport, color = sport, fill = sport)) +
+  geom_point(size = 3) +
+  scale_shape_manual(values = 21:25) +
+  xlab("height (cm)") +
+  ylab("% body fat") +
+  theme_minimal_grid(14)
+
+colors <- c("#BD3828", rep("#808080", 4))
+fills <- c(
+  alpha(colors[1], .815),
+  alpha(colors[2:5], .5)
+)
+
+p + 
+  scale_color_manual(values = colors) +
+  scale_fill_manual(values = fills)
+```
+
+Palette name: Grays with accents
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Highlight example
+
+```{r Aus-athletes-track2, out.width = "70%"}
+
+accent_OkabeIto <- c("#E69F00", "#56B4E9", "#CC79A7", "#F0E442", "#0072B2", "#009E73", "#D55E00")
+accent_OkabeIto[1:4] <- desaturate(lighten(accent_OkabeIto[1:4], .4), .8)
+accent_OkabeIto[5:7] <- darken(accent_OkabeIto[5:7], .3)
+
+colors <- c(accent_OkabeIto[5], darken(accent_OkabeIto[1:4], .2))
+fills <- c(
+  alpha(accent_OkabeIto[5], .7),
+  alpha(accent_OkabeIto[1:4], .7)
+)
+
+p + 
+  scale_color_manual(values = colors) +
+  scale_fill_manual(values = fills)
+```
+
+Palette name: Okabe-Ito accent
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Highlight example
+
+```{r Aus-athletes-track3, out.width = "70%"}
+
+accent_Brewer <- RColorBrewer::brewer.pal(7, name = "Accent")[c(7, 1:4)]
+
+colors <- darken(accent_Brewer, .2)
+fills <- c(accent_Brewer[1], alpha(accent_Brewer[2:5], .7))
+
+p + 
+  scale_color_manual(values = colors) +
+  scale_fill_manual(values = fills)
+```
+
+Palette name: ColorBrewer accent
+
+???
+
+Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
+
+---
+
+# Uses of color in data visualization
+
+<table style = "border: none; line-height: 2.5;">
+<tr style = "background: white;">
+<td style = "text-align: left; width: 50%;">
+1. Distinguish categories (qualitative)
+</td>
+<td>
+<img src = "images/qualitative.png" width = 100% style = "text-align: right; vertical-align: middle;"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+2. Represent numeric values (sequential)
+</td>
+<td>
+<img src = "images/sequential.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+3. Represent numeric values (diverging)
+</td>
+<td>
+<img src = "images/diverging.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+
+<tr style = "background: white;">
+<td style = "text-align: left;">
+4. Highlight
+</td>
+<td>
+<img src = "images/highlight.png" width = 100% style = "text-align: right; vertical-align: middle"></img>
+</td>
+</tr>
+</table>
 
 ---
 
@@ -274,37 +647,8 @@ wrap_plots(plots)
 # Suboptimal default choices
 
 ```{r}
-# get state-level median household income and region
-state_inc <- get_acs(
-  geography = "state",
-  variables = c(medincome = "B19013_001"),
-  year = 2019
-)
-
-state_inc <- left_join(states_sf, state_inc, by = c("state_fips" = "GEOID", "state_name" = "NAME"))
-```
-
-```{r}
-cut_interval_format <- function(x, n = NULL, length = NULL, ...) {
-  kimisc::cut_format(x, ggplot2:::breaks(x, "width", n, length),
-    include.lowest = TRUE,
-    ...
-  )
-}
-
-state_inc %>%
-  mutate(estimate_cut = cut_interval_format(estimate, 5,
-    dig.lab = 3,
-    format_fun = scales::dollar
-  )) %>%
-  ggplot() +
-  geom_sf(aes(fill = estimate_cut)) +
-  labs(
-    title = "Median household income",
-    caption = "Source: 2019 American Community Survey",
-    fill = NULL
-  ) +
-  theme_map(base_size = rcfss::base_size - 6)
+# default color palette
+p_pop
 ```
 
 ---
@@ -389,32 +733,6 @@ gg_color_gradient(n = 200) +
 
 ---
 
-# Inspecting for color deficiency
-
-
-.pull-left-narrow[
-```{r}
-choropleth +
-  ggtitle("Original graph") +
-  theme_void(base_size = 24) +
-  theme(legend.position = "none")
-```
-]
-
-.pull-right-wide[
-```{r}
-{
-  choropleth +
-    ggtitle(NULL) +
-    theme_void() +
-    theme(legend.position = "none")
-} %>%
-  cvd_grid()
-```
-]
-
----
-
 # When to use quantitative or qualitative color scales?
 
 ```{r}
@@ -423,7 +741,7 @@ include_graphics(path = "images/quant-qual.png")
 
 ---
 
-# Use hues for nominal variables
+# Use qualitative for nominal variables
 
 ```{r}
 include_graphics(path = "images/unordered.png")
@@ -431,7 +749,7 @@ include_graphics(path = "images/unordered.png")
 
 ---
 
-# Use hues for nominal variables
+# Use qualitative for nominal variables
 
 ```{r}
 include_graphics(path = "images/unemp-best.png")
@@ -482,6 +800,405 @@ include_graphics(path = "images/hues-single.png")
 class: inverse, center, middle
 
 # Implementing optimal color palettes in R
+
+---
+
+## **ggplot2** color scale functions are a bit of a mess
+
+--
+
+.small.center[
+
+Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Palette type
+:-----------              | :----------  | :------------ | :------------
+`scale_color_hue()` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | `color` | discrete  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | qualitative &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]
+
+---
+
+## **ggplot2** color scale functions are a bit of a mess
+
+.small.center[
+
+Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Palette type
+:-----------              | :----------  | :------------ | :------------
+`scale_color_hue()` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | `color` | discrete  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | qualitative &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`scale_fill_hue()`        | `fill `      | discrete      | qualitative
+]
+
+---
+
+## **ggplot2** color scale functions are a bit of a mess
+
+.small.center[
+
+Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Palette type
+:-----------              | :----------  | :------------ | :------------
+`scale_color_hue()` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | `color` | discrete  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | qualitative &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`scale_fill_hue()`        | `fill `      | discrete      | qualitative
+`scale_color_gradient()`  | `color`      | continuous    | sequential
+]
+
+---
+
+## **ggplot2** color scale functions are a bit of a mess
+
+.small.center[
+
+Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Palette type
+:-----------              | :----------  | :------------ | :------------
+`scale_color_hue()` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | `color` | discrete  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | qualitative &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`scale_fill_hue()`        | `fill `      | discrete      | qualitative
+`scale_color_gradient()`  | `color`      | continuous    | sequential
+`scale_color_gradient2()` | `color`      | continuous    | diverging
+]
+
+---
+
+## **ggplot2** color scale functions are a bit of a mess
+
+.small.center[
+
+Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Palette type
+:-----------              | :----------  | :------------ | :------------
+`scale_color_hue()` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | `color` | discrete  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | qualitative &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`scale_fill_hue()`        | `fill `      | discrete      | qualitative
+`scale_color_gradient()`  | `color`      | continuous    | sequential
+`scale_color_gradient2()` | `color`      | continuous    | diverging
+`scale_fill_viridis_c()`   | `color`      | continuous    | sequential
+`scale_fill_viridis_d()`   | `fill`       | discrete      | sequential
+`scale_color_brewer()`    | `color`      | discrete      | qualitative, diverging, sequential
+`scale_fill_brewer()`     | `fill`       | discrete      | qualitative, diverging, sequential
+`scale_color_distiller()` | `color`      | continuous    | qualitative, diverging, sequential
+]
+
+... and there are many many more
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles1-out, ref.label = "temps-tiles1", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles1, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic()
+  # no fill scale defined, default is scale_fill_gradient()
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles2-out, ref.label = "temps-tiles2", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles2, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_gradient() #<<
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles3-out, ref.label = "temps-tiles3", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles3, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_viridis_c() #<<
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles4-out, ref.label = "temps-tiles4", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles4, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_viridis_c(option = "B", begin = 0.15) #<<
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles5-out, ref.label = "temps-tiles5", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles5, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_distiller(palette = "YlGnBu") #<<
+```
+]
+]
+
+---
+
+## The `colorspace` package creates some order
+
+Scale name: `scale_<aesthetic>_<datatype>_<colorscale>()`
+
+--
+
+- `<aesthetic>`: name of the aesthetic (`fill`, `color`, `colour`)
+- `<datatype>`: type of variable plotted (`discrete`, `continuous`, `binned`)
+- `<colorscale>`: type of the color scale (`qualitative`, `sequential`, `diverging`, `divergingx`)
+
+--
+
+Scale function                       | Aesthetic &nbsp;&nbsp;&nbsp; | Data type  | Palette type &nbsp;&nbsp;&nbsp;
+:-----------                         | :--------  | :--------- | :------------
+`scale_color_discrete_qualitative()` | `color`    | discrete   | qualitative
+`scale_fill_continuous_sequential()` | `fill`     | continuous | sequential
+`scale_colour_continous_divergingx()` | `colour`   | continuous | diverging
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles6-out, ref.label = "temps-tiles6", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles6, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_continuous_sequential(palette = "YlGnBu", rev = FALSE) #<<
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles7-out, ref.label = "temps-tiles7", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles7, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_continuous_sequential(palette = "Viridis", rev = FALSE) #<<
+```
+]
+]
+
+---
+
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r temps-tiles8-out, ref.label = "temps-tiles8", echo = FALSE, fig.asp = .3, dev = "svg"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r temps-tiles8, eval = FALSE, echo = TRUE}
+ggplot(temps_months, aes(x = month, y = location, fill = mean)) + 
+  geom_tile(width = 0.95, height = 0.95) + 
+  coord_fixed(expand = FALSE) +
+  theme_classic() +
+  scale_fill_continuous_sequential(palette = "Inferno", begin = 0.15, rev = FALSE) #<<
+```
+]
+]
+
+---
+
+```{r colorspace-palettes-seq, echo = TRUE}
+colorspace::hcl_palettes(type = "sequential", plot = TRUE) # all sequential palettes
+```
+
+---
+
+```{r colorspace-palettes-div, echo = TRUE}
+colorspace::hcl_palettes(type = "diverging", plot = TRUE, n = 9) # all diverging palettes
+```
+
+---
+
+```{r colorspace-palettes-divx, echo = TRUE}
+colorspace::divergingx_palettes(plot = TRUE, n = 9) # all divergingx palettes
+```
+
+
+---
+
+class: inverse, center, middle
+
+# Setting colors manually for discrete, qualitative scales
+
+---
+
+## Discrete, qualitative scales are best set manually
+
+.panelset[
+.panel[.panel-name[Output]
+```{r qual-scales-example1-out, ref.label = "qual-scales-example1", echo = FALSE, out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r qual-scales-example1, eval = FALSE, echo = TRUE}
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point() +
+  scale_x_log10()
+  # no color scale defined, default is scale_color_hue()
+```
+]
+]
+
+---
+
+## Discrete, qualitative scales are best set manually
+
+.panelset[
+.panel[.panel-name[Output]
+```{r qual-scales-example2-out, ref.label = "qual-scales-example2", echo = FALSE, out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r qual-scales-example2, eval = FALSE, echo = TRUE}
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_color_hue() #<<
+```
+]
+]
+
+---
+
+## Discrete, qualitative scales are best set manually
+
+.panelset[
+.panel[.panel-name[Output]
+```{r qual-scales-example3-out, ref.label = "qual-scales-example3", echo = FALSE, out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r qual-scales-example3, eval = FALSE, echo = TRUE}
+library(ggthemes)  # for scale_color_colorblind()
+
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point() +
+  scale_x_log10() +
+  # uses Okabe-Ito colors
+  scale_color_colorblind() #<<
+```
+]
+]
+
+---
+
+## Discrete, qualitative scales are best set manually
+
+.panelset[
+.panel[.panel-name[Output]
+```{r qual-scales-example4-out, ref.label = "qual-scales-example4", echo = FALSE, out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r qual-scales-example4, eval = FALSE, echo = TRUE}
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_color_manual( #<<
+    values = c( #<<
+      West = "#E69F00", South = "#56B4E9", #<<
+      Midwest = "#009E73", Northeast = "#F0E442" #<<
+    ) #<<
+  ) #<<
+```
+]
+]
+
+---
+
+## Okabe-Ito RGB codes
+
+.center[
+<img src = "https://clauswilke.com/dataviz/pitfalls_of_color_use_files/figure-html/palette-Okabe-Ito-1.png", width = 100%></img>
+]
+
+.tiny-font[
+Name           | Hex code &nbsp;&nbsp; | R, G, B (0-255)
+:----------    | :-------  | :--------
+orange         | #E69F00   | 230, 159, 0
+sky blue	     | #56B4E9   | 86, 180, 233
+bluish green   | #009E73   | 0, 158, 115
+yellow	       | #F0E442   | 240, 228, 66
+blue	         | #0072B2   | 0, 114, 178
+vermilion	     | #D55E00   | 213, 94, 0
+reddish purple | #CC79A7   | 204, 121, 167
+black	         | #000000   | 0, 0, 0
+]
+
+???
+
+Figure from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.](https://clauswilke.com/dataviz)
 
 ---
 
@@ -598,6 +1315,7 @@ ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
 .panel[.panel-name[Code]
 ```{r brewer-qual-incorrect, echo = TRUE, fig.show = "hide"}
 gss_relig <- drop_na(gss, relig) %>%
+  # collapse low frequency categories to "Other"
   mutate(relig = str_to_title(relig) %>%
     fct_lump_n(n = 7, other_level = "Other") %>%
     fct_infreq())
@@ -630,31 +1348,6 @@ ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
 ```
 ]
 ]
-
----
-
-# Quantitative color brewer palettes
-
-```{r include = FALSE}
-unemp_20 <- unemp_sf %>%
-  filter(year == 2020)
-```
-
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_distiller()
-```
-
----
-
-# Quantitative color brewer palettes
-
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_distiller(palette = "YlGn")
-```
 
 ---
 
@@ -734,21 +1427,10 @@ img(desaturate(rev(magma(n_col))), "magma")
 
 # `viridis` - continuous
 
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_viridis_c()
-```
 
 ---
 
 # `viridis` - continuous
-
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_viridis_c(option = "magma")
-```
 
 ---
 
@@ -880,21 +1562,11 @@ ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
 
 # Implementing diverging palettes
 
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_distiller(type = "div")
-```
 
 ---
 
 # Implementing diverging palettes
 
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = unemp_20, mapping = aes(fill = unemp)) +
-  geom_sf() +
-  scale_fill_viridis_c(option = "turbo")
-```
 
 ---
 
@@ -943,6 +1615,9 @@ unemp_oct21 <- read_csv(file = "data/unemp-oct-20.csv") %>%
 county_sf <- get_urbn_map(map = "counties", sf = TRUE)
 
 unemp_oct21 <- inner_join(county_sf, unemp_oct21)
+
+# get US shapefile
+states_sf <- get_urbn_map("states", sf = TRUE)
 ```
 
 ```{r}
