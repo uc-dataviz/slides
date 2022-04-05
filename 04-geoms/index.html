@@ -32,14 +32,14 @@ class: middle, inverse
 ## Announcements
 
 - HW 1 is posted:
-  - Go to the course GitHub org and look for a repo named `homework-01-YOUR_GITHUB_NAME`
+  - Go to the course GitHub org and look for a repo named `hw01-YOUR_GITHUB_NAME`
   - Instructions are in the README
   - All work must be completed in `homework-01.Rmd` document, knit, and submitted along with the output `homework-01.md`
-  - Due Tuesday, Apr 12, by 11am
+  - Due Tuesday, Apr 12, by 11:59pm
   - At the deadline you'll lose push access to your repo, if you want to submit late, email me to enable late submission
   - Post questions on the discussion forum
 
-- Check email before class on Tuesday for your team assignments, sit with your teams in class on Tuesday
+- Check Canvas before class on Tuesday for your team assignments, sit with your teams in class
 
 ---
 
@@ -184,7 +184,7 @@ ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   geom_smooth(method = "lm", se = FALSE, size = 0.5)
 ```
 
-<div class="countdown" id="timer_624c5f43" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624c82cd" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -449,7 +449,7 @@ ggplot(scorecard, aes(x = netcost)) +
 
 &lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
-<div class="countdown" id="timer_624c620c" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624c80d6" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -672,7 +672,7 @@ ggplot(scorecard, aes(x = type, y = netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_624c62c7" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624c8416" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -828,7 +828,7 @@ ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_624c6173" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624c83b7" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -859,7 +859,7 @@ ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   labs(
     x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
-    title = "Test scores and net cost of attendance in US universities",
+    title = "Faculty salaries and net cost of attendance in US universities",
     subtitle = "2018-19",
     caption = "Source: College Scorecard"
   )
@@ -940,7 +940,7 @@ mean_netcost_type_locale
 
 ```r
 ggplot(mean_netcost_type_locale, aes(x = type, y = locale)) +
-  geom_point(aes(color = mean_netcost), size = 40, pch = "square")
+  geom_point(aes(color = mean_netcost), size = 30, pch = "square")
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-56-1.png" width="60%" style="display: block; margin: auto;" /&gt;
@@ -960,7 +960,7 @@ For each of the following problems, suggest a useful geom:
 1. Label outlying points in a single variable
 ]
 
-<div class="countdown" id="timer_624c62e7" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_624c82dd" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 

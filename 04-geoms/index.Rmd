@@ -36,14 +36,14 @@ class: middle, inverse
 ## Announcements
 
 - HW 1 is posted:
-  - Go to the course GitHub org and look for a repo named `homework-01-YOUR_GITHUB_NAME`
+  - Go to the course GitHub org and look for a repo named `hw01-YOUR_GITHUB_NAME`
   - Instructions are in the README
   - All work must be completed in `homework-01.Rmd` document, knit, and submitted along with the output `homework-01.md`
-  - Due Tuesday, Apr 12, by 11am
+  - Due Tuesday, Apr 12, by 11:59pm
   - At the deadline you'll lose push access to your repo, if you want to submit late, email me to enable late submission
   - Post questions on the discussion forum
 
-- Check email before class on Tuesday for your team assignments, sit with your teams in class on Tuesday
+- Check Canvas before class on Tuesday for your team assignments, sit with your teams in class
 
 ---
 
@@ -696,7 +696,7 @@ ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
   labs(
     x = "Average faculty salary (USD)",
     y = "Net cost of attendance (USD)",
-    title = "Test scores and net cost of attendance in US universities",
+    title = "Faculty salaries and net cost of attendance in US universities",
     subtitle = "2018-19",
     caption = "Source: College Scorecard"
   )
@@ -744,7 +744,7 @@ mean_netcost_type_locale
 .panel[.panel-name[Plot]
 ```{r}
 ggplot(mean_netcost_type_locale, aes(x = type, y = locale)) +
-  geom_point(aes(color = mean_netcost), size = 40, pch = "square")
+  geom_point(aes(color = mean_netcost), size = 30, pch = "square")
 ```
 ]
 ]
