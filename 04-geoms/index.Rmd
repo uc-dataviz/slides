@@ -58,7 +58,7 @@ class: middle, inverse
 ```{r}
 # load packages
 library(tidyverse)
-# remotes::install_github("uc-cfss/rcfss)
+# remotes::install_github("uc-cfss/rcfss")
 library(rcfss)
 ```
 
