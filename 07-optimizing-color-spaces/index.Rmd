@@ -803,7 +803,7 @@ class: inverse, center, middle
 
 ---
 
-## **ggplot2** color scale functions are a bit of a mess
+## **ggplot2** color scale functions
 
 --
 
@@ -1080,16 +1080,21 @@ colorspace::hcl_palettes(type = "diverging", plot = TRUE, n = 9) # all diverging
 colorspace::divergingx_palettes(plot = TRUE, n = 9) # all divergingx palettes
 ```
 
-
 ---
 
 class: inverse, center, middle
 
-# Setting colors manually for discrete, qualitative scales
+# Setting colors for discrete, qualitative scales
 
 ---
 
-## Discrete, qualitative scales are best set manually
+```{r colorspace-palettes-qual, echo = TRUE}
+colorspace::hcl_palettes(type = "qualitative", plot = TRUE) # all qualitative palettes
+```
+
+---
+
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -1100,7 +1105,7 @@ class: inverse, center, middle
 .panel[.panel-name[Code]
 ```{r qual-scales-example1, eval = FALSE, echo = TRUE}
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10()
   # no color scale defined, default is scale_color_hue()
 ```
@@ -1109,7 +1114,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -1120,7 +1125,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 .panel[.panel-name[Code]
 ```{r qual-scales-example2, eval = FALSE, echo = TRUE}
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
   scale_color_hue() #<<
 ```
@@ -1129,7 +1134,28 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+```{r qual-scales-example3a-out, ref.label = "qual-scales-example3a", echo = FALSE, out.width = "70%"}
+```
+]
+
+.panel[.panel-name[Code]
+```{r qual-scales-example3a, eval = FALSE, echo = TRUE}
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point(size = 4) +
+  scale_x_log10() +
+  # uses Pastel 1
+  scale_color_discrete_qualitative(palette = "Dark 2") #<<
+```
+]
+]
+
+---
+
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -1142,7 +1168,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 library(ggthemes)  # for scale_color_colorblind()
 
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
   # uses Okabe-Ito colors
   scale_color_colorblind() #<<
@@ -1152,7 +1178,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -1163,7 +1189,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 .panel[.panel-name[Code]
 ```{r qual-scales-example4, eval = FALSE, echo = TRUE}
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
   scale_color_manual( #<<
     values = c( #<<
@@ -1202,840 +1228,8 @@ Figure from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.
 
 ---
 
-# Implementing optimal color palettes in R
+## Apply it!
 
-- [`RColorBrewer`](https://colorbrewer2.org/)
-- [`colorspace`](https://colorspace.r-forge.r-project.org/)
-- [`viridis`](https://sjmgarnier.github.io/viridis/)
-
----
-
-# Color Brewer
-
-.panelset[
-.panel[.panel-name[Sequential palettes]
-```{r}
-display.brewer.all(type = "seq")
-```
-]
-.panel[.panel-name[Qualitative palettes]
-```{r}
-display.brewer.all(type = "qual")
-```
-]
-]
-
----
-
-# `gss`
-
-```{r echo = TRUE}
-data(gss, package = "poliscidata")
-gss <- as_tibble(gss)
-gss
-```
-
----
-
-# `scale_*_brewer()`
-
-```{r, include = FALSE}
-gss_polviews <- drop_na(gss, polviews)
-```
-
-.panelset[
-.panel[.panel-name[Output]
-```{r ref.label = "brewer-seq", echo = FALSE, fig.show = "show", out.width = "70%"}
-```
-]
-
-.panel[.panel-name[Code]
-```{r brewer-seq, echo = TRUE, fig.show = "hide"}
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(type = "seq") #<<
-```
-]
-]
-
----
-
-# `scale_*_brewer()`
-
-.panelset[
-.panel[.panel-name[Output]
-```{r ref.label = "brewer-seq-no-guide", echo = FALSE, fig.show = "show", out.width = "70%"}
-```
-]
-
-.panel[.panel-name[Code]
-```{r brewer-seq-no-guide, echo = TRUE, fig.show = "hide"}
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(
-    type = "seq",
-    guide = "none" #<<
-  )
-```
-]
-]
-
----
-
-# Sequential palette
-
-.panelset[
-.panel[.panel-name[Output]
-```{r ref.label = "brewer-seq-red", echo = FALSE, fig.show = "show", out.width = "70%"}
-```
-]
-
-.panel[.panel-name[Code]
-```{r brewer-seq-red, echo = TRUE, fig.show = "hide"}
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(
-    palette = "OrRd", #<<
-    guide = "none"
-  )
-```
-]
-]
-
----
-
-# Qualitative palette
-
-.panelset[
-.panel[.panel-name[Output]
-```{r ref.label = "brewer-qual-incorrect", echo = FALSE, fig.show = "show", out.width = "70%"}
-```
-]
-
-.panel[.panel-name[Code]
-```{r brewer-qual-incorrect, echo = TRUE, fig.show = "hide"}
-gss_relig <- drop_na(gss, relig) %>%
-  # collapse low frequency categories to "Other"
-  mutate(relig = str_to_title(relig) %>%
-    fct_lump_n(n = 7, other_level = "Other") %>%
-    fct_infreq())
-
-ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
-  geom_bar() +
-  scale_fill_brewer(guide = "none")
-```
-]
-]
-
----
-
-# Qualitative palette
-
-.panelset[
-.panel[.panel-name[Output]
-```{r ref.label = "brewer-qual", echo = FALSE, fig.show = "show", out.width = "70%"}
-```
-]
-
-.panel[.panel-name[Code]
-```{r brewer-qual, echo = TRUE, fig.show = "hide"}
-ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
-  geom_bar() +
-  scale_fill_brewer(
-    type = "qual", #<<
-    guide = "none"
-  )
-```
-]
-]
-
----
-
-# `viridis`
-
-```{r}
-library(viridis)
-library(scales)
-library(colorspace)
-library(dichromat)
-
-n_col <- 128
-img <- function(obj, nam) {
-  image(1:length(obj), 1, as.matrix(1:length(obj)),
-    col = obj,
-    main = nam, ylab = "", xaxt = "n", yaxt = "n", bty = "n"
-  )
-}
-
-par(mfrow = c(8, 1), mar = rep(1, 4))
-img(rev(viridis(n_col)), "viridis")
-img(rev(magma(n_col)), "magma")
-img(rev(plasma(n_col)), "plasma")
-img(rev(inferno(n_col)), "inferno")
-img(rev(cividis(n_col)), "cividis")
-img(rev(mako(n_col)), "mako")
-img(rev(rocket(n_col)), "rocket")
-img(rev(turbo(n_col)), "turbo")
-```
-
----
-
-# Comparison of palettes
-
-```{r}
-par(mfrow = c(7, 1), mar = rep(1, 4))
-img(rev(rainbow(n_col)), "rainbow")
-img(rev(heat.colors(n_col)), "heat")
-img(rev(seq_gradient_pal(low = "#132B43", high = "#56B1F7", space = "Lab")(seq(0, 1, length = n_col))), "ggplot default")
-img(gradient_n_pal(brewer_pal(type = "seq")(9))(seq(0, 1, length = n_col)), "brewer blues")
-img(gradient_n_pal(brewer_pal(type = "seq", palette = "YlGnBu")(9))(seq(0, 1, length = n_col)), "brewer yellow-green-blue")
-img(rev(viridis(n_col)), "viridis")
-img(rev(magma(n_col)), "magma")
-```
-
----
-
-# Green-Blind (Deuteranopia)
-
-```{r}
-par(mfrow = c(7, 1), mar = rep(1, 4))
-img(dichromat(rev(rainbow(n_col)), "protan"), "rainbow")
-img(dichromat(rev(heat.colors(n_col)), "protan"), "heat")
-img(dichromat(rev(seq_gradient_pal(low = "#132B43", high = "#56B1F7", space = "Lab")(seq(0, 1, length = n_col))), "protan"), "ggplot default")
-img(dichromat(gradient_n_pal(brewer_pal(type = "seq")(9))(seq(0, 1, length = n_col)), "protan"), "brewer blues")
-img(dichromat(gradient_n_pal(brewer_pal(type = "seq", palette = "YlGnBu")(9))(seq(0, 1, length = n_col)), "protan"), "brewer yellow-green-blue")
-img(dichromat(rev(viridis(n_col)), "protan"), "viridis")
-img(dichromat(rev(magma(n_col)), "protan"), "magma")
-```
-
----
-
-# Desaturated
-
-```{r}
-par(mfrow = c(7, 1), mar = rep(1, 4))
-img(desaturate(rev(rainbow(n_col))), "rainbow")
-img(desaturate(rev(heat.colors(n_col))), "heat")
-img(desaturate(rev(seq_gradient_pal(low = "#132B43", high = "#56B1F7", space = "Lab")(seq(0, 1, length = n_col)))), "ggplot default")
-img(desaturate(gradient_n_pal(brewer_pal(type = "seq")(9))(seq(0, 1, length = n_col))), "brewer blues")
-img(desaturate(gradient_n_pal(brewer_pal(type = "seq", palette = "YlGnBu")(9))(seq(0, 1, length = n_col))), "brewer yellow-green-blue")
-img(desaturate(rev(viridis(n_col))), "viridis")
-img(desaturate(rev(magma(n_col))), "magma")
-```
-
----
-
-# `viridis` - continuous
-
-
----
-
-# `viridis` - continuous
-
----
-
-# `viridis` - discrete
-
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_viridis_d(guide = "none")
-```
-
----
-
-class: middle, center, inverse
-
-# Exercise on implementing palettes
-
-```{r cache = FALSE}
-countdown(minutes = 8)
-```
-
----
-
-# When to use sequential or diverging color scales?
-
-```{r}
-include_graphics(path = "images/seq-div.png")
-```
-
----
-
-# Except when you shouldn't!
-
-- Meaningful middle point
-- Emphasize extremes
-- See more differences
-
----
-
-# Meaningful middle point
-
-```{r}
-include_graphics(path = "images/div-palette.png")
-```
-
-- Zero
-- 50%
-- Average
-- Agreed threshold
-- A target
-
----
-
-# WTF?
-
-```{r}
-include_graphics(path = "images/pepmusic.png")
-```
-
----
-
-# Emphasize highest values
-
-```{r}
-# get internet usage data file
-internet_use <- read_csv(file = "data/internet-consumption.csv") %>%
-  rename(usage = `internet usage`) %>%
-  mutate(usage = usage / 100)
-
-# get global shapefile
-world <- ne_countries(scale = "medium", returnclass = "sf") %>%
-  filter(continent != "Antarctica")
-
-# join together
-internet_sf <- left_join(x = world, y = internet_use, by = c("iso_a3" = "code"))
-```
-
-```{r}
-internet_plot <- ggplot(data = internet_sf, mapping = aes(fill = usage)) +
-  geom_sf(color = "white") +
-  coord_sf(crs = "+proj=robin") +
-  labs(
-    title = "Share of individuals using the internet in the last 3 months",
-    subtitle = "2015",
-    fill = NULL
-  ) +
-  theme_map(base_size = rcfss::base_size - 4)
-
-internet_plot +
-  scale_fill_distiller(type = "seq", labels = scales::percent, direction = +1)
-```
-
----
-
-# Emphasize extremes
-
-```{r}
-internet_plot +
-  scale_fill_distiller(type = "div", labels = scales::percent)
-```
-
----
-
-# Increased range in scale
-
-```{r}
-include_graphics(path = "images/births-div.png")
-```
-
----
-
-# Increased range in scale
-
-```{r}
-include_graphics(path = "images/births-seq.png")
-```
-
----
-
-# Implementing diverging palettes
-
-```{r echo = TRUE, fig.height = 6}
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(type = "div", guide = "none")
-```
-
----
-
-# Implementing diverging palettes
-
-
----
-
-# Implementing diverging palettes
-
-
----
-
-class: center, middle, inverse
-
-# Exercise on diverging palettes
-
-```{r cache = FALSE}
-countdown(minutes = 8)
-```
-
----
-
-# When to use classed or unclassed color scales?
-
-```{r}
-include_graphics(path = "images/class-scale.png")
-```
-
----
-
-# Use a classed scale if the data is classed
-
-```{r}
-include_graphics(path = "images/class-continuous.png")
-```
-
----
-
-# Communicating statistical brackets
-
-```{r}
-# unemployment above or below the national average for March 2021 - 6%
-unemp_oct21 <- read_csv(file = "data/unemp-oct-20.csv") %>%
-  rename(
-    unemp = `unemployment rate`,
-    county_fips = fips
-  ) %>%
-  mutate(
-    us_avg = unemp >= 6.9,
-    unemp = unemp / 100,
-    # cap max unemp rate for demo purposes only
-    unemp_cap = if_else(unemp > 0.15, 0.15, unemp)
-  )
-
-county_sf <- get_urbn_map(map = "counties", sf = TRUE)
-
-unemp_oct21 <- inner_join(county_sf, unemp_oct21)
-
-# get US shapefile
-states_sf <- get_urbn_map("states", sf = TRUE)
-```
-
-```{r}
-unemp_class <- ggplot(data = unemp_oct21) +
-  geom_sf(mapping = aes(fill = us_avg), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_manual(values = c("grey", "maroon"), labels = c("< 6.9%", ">= 6.9%")) +
-  labs(title = "Counties with an unemployment rate above the\nnational average and below in October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4) +
-  theme(legend.position = "bottom")
-unemp_class
-```
-
----
-
-# Communicating general patterns
-
-```{r}
-unemp_unclass <- ggplot(data = unemp_oct21) +
-  geom_sf(mapping = aes(fill = unemp_cap), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_distiller(
-    palette = "PuOr",
-    values = scales::rescale(c(0.004, 0.06, 0.15)),
-    breaks = c(0.004, 0.06, 0.15),
-    labels = c("Lower", "National average", "Higher")
-  ) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4)
-unemp_unclass
-```
-
----
-
-# Increased classes for more nuance
-
-```{r}
-unemp_class6 <- unemp_oct21 %>%
-  mutate(unemp_cap = cut_number(unemp_cap, n = 6)) %>%
-  ggplot() +
-  geom_sf(mapping = aes(fill = unemp_cap), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_brewer(palette = "PuOr", direction = -1) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4)
-unemp_class6
-```
-
----
-
-# Assisting with interpretations
-
-```{r}
-{
-  unemp_unclass +
-    theme(legend.position = "none") +
-    coord_sf(xlim = c(-109, -91), ylim = c(39, 49), crs = 4326)
-} + {
-  unemp_class6 +
-    theme(legend.position = "none") +
-    coord_sf(xlim = c(-109, -91), ylim = c(39, 49), crs = 4326)
-}
-```
-
----
-
-# Directly encoding values
-
-```{r}
-{
-  unemp_unclass +
-    labs(title = NULL, subtitle = NULL) +
-    coord_sf(xlim = c(-109, -91), ylim = c(39, 49), crs = 4326) +
-    scale_fill_distiller(
-      palette = "PuOr",
-      values = scales::rescale(c(0.004, 0.06, 0.15)),
-      breaks = c(0.01, 0.03, 0.05, 0.069, 0.09, 0.11, 0.14),
-      labels = scales::percent
-    )
-} + {
-  unemp_oct21 %>%
-    mutate(unemp_cap = cut_interval(unemp_cap, n = 6) %>%
-      factor(labels = c("1-3%", "3-5%", "5-7.9%", "8-10%", "10-12.9%", "13-15%"))) %>%
-    ggplot() +
-    geom_sf(mapping = aes(fill = unemp_cap), color = "white", size = .1) +
-    geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-    scale_fill_brewer(palette = "PuOr", direction = -1) +
-    labs(fill = NULL) +
-    coord_sf(xlim = c(-109, -91), ylim = c(39, 49), crs = 4326) +
-    theme_map(base_size = rcfss::base_size - 4)
-}
-```
-
----
-
-# Choosing an interpolation
-
-- Linear
-- Quartiles, quantiles, deciles
-
----
-
-# Linear
-
-```{r}
-ggplot(data = unemp_oct21, mapping = aes(x = unemp, fill = ..x..)) +
-  geom_histogram() +
-  scale_x_continuous(labels = percent_format(accuracy = 1)) +
-  scale_fill_viridis_c(direction = -1, labels = percent_format(accuracy = 1)) +
-  labs(
-    title = "Unemployment rate",
-    subtitle = "By county",
-    x = "Unemployment rate",
-    y = NULL,
-    fill = NULL
-  ) +
-  theme(
-    legend.position = "bottom",
-    legend.key.width = unit(3, "cm")
-  )
-```
-
----
-
-# Linear
-
-```{r}
-ggplot(data = unemp_oct21, mapping = aes(fill = unemp)) +
-  geom_sf(mapping = aes(fill = unemp), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_viridis_c(direction = -1, labels = percent_format(accuracy = 1)) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4) +
-  theme(
-    legend.position = "bottom",
-    legend.key.width = unit(2, "cm")
-  )
-```
-
----
-
-# Quartiles
-
-```{r}
-ggplot(data = unemp_oct21, mapping = aes(fill = unemp)) +
-  geom_sf(mapping = aes(fill = unemp), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_viridis_b(direction = -1, labels = percent_format(accuracy = 1), n.breaks = 3, nice.breaks = FALSE) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4) +
-  theme(
-    legend.position = "bottom",
-    legend.key.width = unit(2, "cm")
-  )
-```
-
----
-
-# Quintiles
-
-```{r}
-ggplot(data = unemp_oct21, mapping = aes(fill = unemp)) +
-  geom_sf(mapping = aes(fill = unemp), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_viridis_b(direction = -1, labels = percent_format(accuracy = 1), n.breaks = 4, nice.breaks = FALSE) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4) +
-  theme(
-    legend.position = "bottom",
-    legend.key.width = unit(2, "cm")
-  )
-```
-
----
-
-# Deciles
-
-```{r}
-ggplot(data = unemp_oct21, mapping = aes(fill = unemp)) +
-  geom_sf(mapping = aes(fill = unemp), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_viridis_b(direction = -1, labels = percent_format(accuracy = 1), n.breaks = 9, nice.breaks = FALSE) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4) +
-  theme(
-    legend.position = "bottom",
-    legend.key.width = unit(3, "cm")
-  )
-```
-
----
-
-# Natural breaks
-
-```{r}
-library(classInt)
-
-unemp_classes <- classIntervals(unemp_oct21$unemp, n = 5, style = "jenks")
-
-unemp_oct21 %>%
-  mutate(unemp_cat = kimisc::cut_format(unemp, unemp_classes$brks,
-    include.lowest = TRUE,
-    format_fun = percent
-  )) %>%
-  ggplot(mapping = aes(fill = unemp_cat)) +
-  geom_sf(mapping = aes(fill = unemp_cat), color = "white", size = .1) +
-  geom_sf(data = states_sf, color = "white", fill = NA, size = .3) +
-  scale_fill_viridis_d(direction = -1) +
-  labs(title = "Unemployment rate", subtitle = "October 2020", fill = NULL) +
-  theme_map(base_size = rcfss::base_size - 4)
-```
-
----
-
-# Implementing breaks
-
-- Automatically with `scale_*_viridis_b()`
-- Manually with `cut_number()`
-
----
-
-# Quartiles
-
-.pull-left[
-
-```{r quart, echo = TRUE, eval = FALSE}
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 3,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-```{r quart-out, ref.label = "quart", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Quintiles
-
-.pull-left[
-
-```{r quint, echo = TRUE, eval = FALSE}
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 4,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-```{r quint-out, ref.label = "quint", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Deciles
-
-.pull-left[
-
-```{r dec, echo = TRUE, eval = FALSE}
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 9,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-```{r dec-out, ref.label = "dec", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-```{r quart-man, echo = TRUE, eval = FALSE}
-unemp_oct21 %>%
-  mutate(unemp = cut_number(unemp, n = 4)) %>%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-```{r quart-man-out, ref.label = "quart-man", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-```{r quint-man, echo = TRUE, eval = FALSE}
-unemp_oct21 %>%
-  mutate(unemp = cut_number(unemp, n = 5)) %>%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-```{r quint-man-out, ref.label = "quint-man", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-```{r dec-man, echo = TRUE, eval = FALSE}
-unemp_oct21 %>%
-  mutate(unemp = cut_number(unemp, n = 10)) %>%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-```{r dec-man-out, ref.label = "dec-man", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-# Natural breaks
-
-.pull-left[
-
-```{r nat-break, echo = TRUE, eval = FALSE}
-library(classInt)
-
-# calculate intervals
-unemp_classes <- classIntervals(unemp_oct21$unemp,
-  n = 5,
-  style = "jenks"
-)
-
-unemp_oct21 %>%
-  # apply to variable
-  mutate(unemp_cat = kimisc::cut_format(
-    x = unemp,
-    breaks = unemp_classes$brks,
-    include.lowest = TRUE,
-    format_fun = scales::percent
-  )) %>%
-  ggplot(mapping = aes(fill = unemp_cat)) +
-  geom_sf(color = "white", size = .1)
-```
-
-]
-
-.pull-right[
-
-```{r nat-break-out, ref.label = "nat-break", eval = TRUE, echo = FALSE, fig.width = 6}
-
-```
-
-]
-
----
-
-class: middle, center, inverse
-
-# Exercises on interpolating continuous variables
-
-```{r cache = FALSE}
-countdown(minutes = 7)
+```r
+usethis::use_course("uc-dataviz/choosing-colors")
 ```

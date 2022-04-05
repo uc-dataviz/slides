@@ -7,8 +7,6 @@
     <script src="index_files/header-attrs/header-attrs.js"></script>
     <link href="index_files/panelset/panelset.css" rel="stylesheet" />
     <script src="index_files/panelset/panelset.js"></script>
-    <link href="index_files/countdown/countdown.css" rel="stylesheet" />
-    <script src="index_files/countdown/countdown.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -458,7 +456,7 @@ class: inverse, center, middle
 
 ---
 
-## **ggplot2** color scale functions are a bit of a mess
+## **ggplot2** color scale functions
 
 --
 
@@ -744,16 +742,24 @@ colorspace::divergingx_palettes(plot = TRUE, n = 9) # all divergingx palettes
 
 &lt;img src="index_files/figure-html/colorspace-palettes-divx-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
-
 ---
 
 class: inverse, center, middle
 
-# Setting colors manually for discrete, qualitative scales
+# Setting colors for discrete, qualitative scales
 
 ---
 
-## Discrete, qualitative scales are best set manually
+
+```r
+colorspace::hcl_palettes(type = "qualitative", plot = TRUE) # all qualitative palettes
+```
+
+&lt;img src="index_files/figure-html/colorspace-palettes-qual-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -764,7 +770,7 @@ class: inverse, center, middle
 
 ```r
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10()
   # no color scale defined, default is scale_color_hue()
 ```
@@ -773,7 +779,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -784,7 +790,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ```r
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
 * scale_color_hue()
 ```
@@ -793,7 +799,28 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
+
+.panelset[
+.panel[.panel-name[Output]
+&lt;img src="index_files/figure-html/qual-scales-example3a-out-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Code]
+
+```r
+ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
+  geom_point(size = 4) +
+  scale_x_log10() +
+  # uses Pastel 1
+* scale_color_discrete_qualitative(palette = "Dark 2")
+```
+]
+]
+
+---
+
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -806,7 +833,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 library(ggthemes)  # for scale_color_colorblind()
 
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
   # uses Okabe-Ito colors
 * scale_color_colorblind()
@@ -816,7 +843,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ---
 
-## Discrete, qualitative scales are best set manually
+## Examples
 
 .panelset[
 .panel[.panel-name[Output]
@@ -827,7 +854,7 @@ ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
 
 ```r
 ggplot(popgrowth, aes(x = pop2000, y = popgrowth, color = region)) +
-  geom_point() +
+  geom_point(size = 4) +
   scale_x_log10() +
 * scale_color_manual(
 *   values = c(
@@ -866,607 +893,11 @@ Figure from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reilly, 2019.
 
 ---
 
-# Implementing optimal color palettes in R
-
-- [`RColorBrewer`](https://colorbrewer2.org/)
-- [`colorspace`](https://colorspace.r-forge.r-project.org/)
-- [`viridis`](https://sjmgarnier.github.io/viridis/)
-
----
-
-# Color Brewer
-
-.panelset[
-.panel[.panel-name[Sequential palettes]
-&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
-.panel[.panel-name[Qualitative palettes]
-&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
-]
-
----
-
-# `gss`
-
+## Apply it!
 
 ```r
-data(gss, package = "poliscidata")
-gss &lt;- as_tibble(gss)
-gss
+usethis::use_course("uc-dataviz/choosing-colors")
 ```
-
-```
-## # A tibble: 1,974 × 221
-##     year    id wrkstat     wrkslf wrkgvt marital  sibs childs   age educ  degree
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;       &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt; 
-##  1  2012     1 WORKING PA… SOMEO… PRIVA… Never …     1      0    22 4 ye… Bache…
-##  2  2012     2 WORKING PA… SOMEO… PRIVA… Never …     2      0    21 12th… HS    
-##  3  2012     3 WORKING FU… SOMEO… PRIVA… Married     1      2    42 12th… HS    
-##  4  2012     4 &lt;NA&gt;        SOMEO… PRIVA… Married     2      2    49 1 yr… HS    
-##  5  2012     5 RETIRED     SOMEO… GOVER… Separa…     0      3    70 4 ye… Bache…
-##  6  2012     6 &lt;NA&gt;        SOMEO… PRIVA… Widowed     4      2    50 7 ye… Bache…
-##  7  2012     7 KEEPING HO… SOMEO… PRIVA… Married     2      2    35 3 ye… Junio…
-##  8  2012     8 KEEPING HO… &lt;NA&gt;   &lt;NA&gt;   Separa…     2      3    24 11th… &lt;HS   
-##  9  2012     9 KEEPING HO… &lt;NA&gt;   &lt;NA&gt;   Married     2      2    28 9th … &lt;HS   
-## 10  2012    10 WORKING FU… SOMEO… PRIVA… Never …     0      0    28 5 ye… Bache…
-## # … with 1,964 more rows, and 210 more variables: sex &lt;fct&gt;, race &lt;fct&gt;,
-## #   polviews &lt;fct&gt;, partyid &lt;fct&gt;, mobile16 &lt;fct&gt;, born &lt;fct&gt;, income06 &lt;fct&gt;,
-## #   rincom06 &lt;fct&gt;, region &lt;fct&gt;, size &lt;dbl&gt;, vote08_coded &lt;fct&gt;, pres08 &lt;fct&gt;,
-## #   natspac &lt;fct&gt;, natenvir &lt;fct&gt;, natheal &lt;fct&gt;, natcity &lt;fct&gt;,
-## #   natcrime &lt;fct&gt;, natdrug &lt;fct&gt;, nateduc &lt;fct&gt;, natrace &lt;fct&gt;, natarms &lt;fct&gt;,
-## #   nataid &lt;fct&gt;, natfare &lt;fct&gt;, natroad &lt;fct&gt;, natsoc &lt;fct&gt;, natmass &lt;fct&gt;,
-## #   natpark &lt;fct&gt;, natchld &lt;fct&gt;, natsci &lt;fct&gt;, natenrgy &lt;fct&gt;, eqwlth &lt;dbl&gt;, …
-```
-
----
-
-# `scale_*_brewer()`
-
-
-
-.panelset[
-.panel[.panel-name[Output]
-&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-
-.panel[.panel-name[Code]
-
-```r
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-* scale_fill_brewer(type = "seq")
-```
-]
-]
-
----
-
-# `scale_*_brewer()`
-
-.panelset[
-.panel[.panel-name[Output]
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-
-.panel[.panel-name[Code]
-
-```r
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(
-    type = "seq",
-*   guide = "none"
-  )
-```
-]
-]
-
----
-
-# Sequential palette
-
-.panelset[
-.panel[.panel-name[Output]
-&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-
-.panel[.panel-name[Code]
-
-```r
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(
-*   palette = "OrRd",
-    guide = "none"
-  )
-```
-]
-]
-
----
-
-# Qualitative palette
-
-.panelset[
-.panel[.panel-name[Output]
-&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-
-.panel[.panel-name[Code]
-
-```r
-gss_relig &lt;- drop_na(gss, relig) %&gt;%
-  # collapse low frequency categories to "Other"
-  mutate(relig = str_to_title(relig) %&gt;%
-    fct_lump_n(n = 7, other_level = "Other") %&gt;%
-    fct_infreq())
-
-ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
-  geom_bar() +
-  scale_fill_brewer(guide = "none")
-```
-]
-]
-
----
-
-# Qualitative palette
-
-.panelset[
-.panel[.panel-name[Output]
-&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="70%" style="display: block; margin: auto;" /&gt;
-]
-
-.panel[.panel-name[Code]
-
-```r
-ggplot(data = gss_relig, mapping = aes(x = relig, fill = relig)) +
-  geom_bar() +
-  scale_fill_brewer(
-*   type = "qual",
-    guide = "none"
-  )
-```
-]
-]
-
----
-
-# `viridis`
-
-&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Comparison of palettes
-
-&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Green-Blind (Deuteranopia)
-
-&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Desaturated
-
-&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# `viridis` - continuous
-
-
----
-
-# `viridis` - continuous
-
----
-
-# `viridis` - discrete
-
-
-```r
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_viridis_d(guide = "none")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-class: middle, center, inverse
-
-# Exercise on implementing palettes
-
-<div class="countdown" id="timer_624b4e68" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-
----
-
-# When to use sequential or diverging color scales?
-
-&lt;img src="images/seq-div.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Except when you shouldn't!
-
-- Meaningful middle point
-- Emphasize extremes
-- See more differences
-
----
-
-# Meaningful middle point
-
-&lt;img src="images/div-palette.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-- Zero
-- 50%
-- Average
-- Agreed threshold
-- A target
-
----
-
-# WTF?
-
-&lt;img src="images/pepmusic.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Emphasize highest values
-
-
-
-&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Emphasize extremes
-
-&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Increased range in scale
-
-&lt;img src="images/births-div.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Increased range in scale
-
-&lt;img src="images/births-seq.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Implementing diverging palettes
-
-
-```r
-ggplot(data = gss_polviews, mapping = aes(x = polviews, fill = polviews)) +
-  geom_bar() +
-  scale_fill_brewer(type = "div", guide = "none")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Implementing diverging palettes
-
-
----
-
-# Implementing diverging palettes
-
-
----
-
-class: center, middle, inverse
-
-# Exercise on diverging palettes
-
-<div class="countdown" id="timer_624b4e13" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-
----
-
-# When to use classed or unclassed color scales?
-
-&lt;img src="images/class-scale.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Use a classed scale if the data is classed
-
-&lt;img src="images/class-continuous.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Communicating statistical brackets
-
-
-
-&lt;img src="index_files/figure-html/unnamed-chunk-44-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Communicating general patterns
-
-&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Increased classes for more nuance
-
-&lt;img src="index_files/figure-html/unnamed-chunk-46-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Assisting with interpretations
-
-&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Directly encoding values
-
-&lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Choosing an interpolation
-
-- Linear
-- Quartiles, quantiles, deciles
-
----
-
-# Linear
-
-&lt;img src="index_files/figure-html/unnamed-chunk-49-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Linear
-
-&lt;img src="index_files/figure-html/unnamed-chunk-50-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Quartiles
-
-&lt;img src="index_files/figure-html/unnamed-chunk-51-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Quintiles
-
-&lt;img src="index_files/figure-html/unnamed-chunk-52-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Deciles
-
-&lt;img src="index_files/figure-html/unnamed-chunk-53-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Natural breaks
-
-&lt;img src="index_files/figure-html/unnamed-chunk-54-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
----
-
-# Implementing breaks
-
-- Automatically with `scale_*_viridis_b()`
-- Manually with `cut_number()`
-
----
-
-# Quartiles
-
-.pull-left[
-
-
-```r
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 3,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/quart-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Quintiles
-
-.pull-left[
-
-
-```r
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 4,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/quint-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Deciles
-
-.pull-left[
-
-
-```r
-ggplot(
-  data = unemp_oct21,
-  mapping = aes(fill = unemp)
-) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_viridis_b(
-    n.breaks = 9,
-    nice.breaks = FALSE
-  )
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/dec-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-
-```r
-unemp_oct21 %&gt;%
-  mutate(unemp = cut_number(unemp, n = 4)) %&gt;%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/quart-man-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-
-```r
-unemp_oct21 %&gt;%
-  mutate(unemp = cut_number(unemp, n = 5)) %&gt;%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/quint-man-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Manually with `cut_number()`
-
-.pull-left[
-
-
-```r
-unemp_oct21 %&gt;%
-  mutate(unemp = cut_number(unemp, n = 10)) %&gt;%
-  ggplot(mapping = aes(fill = unemp)) +
-  geom_sf(color = "white", size = .1) +
-  scale_fill_brewer(type = "seq")
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/dec-man-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-# Natural breaks
-
-.pull-left[
-
-
-```r
-library(classInt)
-
-# calculate intervals
-unemp_classes &lt;- classIntervals(unemp_oct21$unemp,
-  n = 5,
-  style = "jenks"
-)
-
-unemp_oct21 %&gt;%
-  # apply to variable
-  mutate(unemp_cat = kimisc::cut_format(
-    x = unemp,
-    breaks = unemp_classes$brks,
-    include.lowest = TRUE,
-    format_fun = scales::percent
-  )) %&gt;%
-  ggplot(mapping = aes(fill = unemp_cat)) +
-  geom_sf(color = "white", size = .1)
-```
-
-]
-
-.pull-right[
-
-&lt;img src="index_files/figure-html/nat-break-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-
-]
-
----
-
-class: middle, center, inverse
-
-# Exercises on interpolating continuous variables
-
-<div class="countdown" id="timer_624b4ca6" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">07</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
