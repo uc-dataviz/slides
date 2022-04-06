@@ -1,0 +1,134 @@
+---
+title: "Deep dive: themes + axes + annotation"
+author: "MACS 40700 <br /> University of Chicago"
+output: rcfss::xaringan_wide
+---
+
+```{r setup, include = FALSE, cache = FALSE}
+# generate CSS file
+library(xaringanthemer)
+rcfss::xaringan_theme()
+
+# source in the default knitr options
+source(here::here("R", "slide-opts.R"))
+
+# enable panelsets and default theme
+xaringanExtra::use_panelset()
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# load basic packages
+library(knitr)
+library(here)
+library(countdown)
+library(patchwork)
+```
+
+```{r pkgs, include = FALSE, cache = FALSE}
+library(tidyverse)
+library(readxl)
+library(urbnmapr)
+library(here)
+library(patchwork)
+library(knitr)
+library(palmerpenguins)
+library(colorblindr)
+library(rnaturalearth)
+library(tidycensus)
+library(scales)
+library(RColorBrewer)
+library(ggrepel)
+library(cowplot)
+
+# useful on MacOS to speed up rendering of geom_sf() objects
+if (!identical(getOption("bitmapType"), "cairo") && isTRUE(capabilities()[["cairo"]])) {
+  options(bitmapType = "cairo")
+}
+
+theme_set(theme_minimal())
+
+# map theme
+theme_map <- function(base_size, ...) {
+  theme_minimal(base_size = base_size) +
+    theme(
+      text = element_text(family = "Ubuntu Regular", color = "#22211d"),
+      axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
+      panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+      panel.grid.minor = element_blank(),
+      plot.background = element_rect(fill = "#f5f5f2", color = NA),
+      panel.background = element_rect(fill = "#f5f5f2", color = NA),
+      legend.background = element_rect(fill = "#f5f5f2", color = NA),
+      panel.border = element_blank(),
+      ...
+    )
+}
+
+set.seed(123)
+theme_set(theme_minimal(base_size = rcfss::base_size - 2))
+```
+
+class: middle, inverse
+
+# Themes
+
+---
+
+## Refresher
+
+```{r echo = TRUE, out.width = "60%"}
+p <- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+p
+```
+
+---
+
+## Complete themes
+
+```{r out.width = "33%", fig.show = "hold", fig.align = "default"}
+p + theme_gray() + labs(title = "Gray")
+p + theme_void() + labs(title = "Void")
+p + theme_dark() + labs(title = "Dark")
+```
+
+---
+
+## Themes from ggthemes
+
+```{r out.width = "33%", fig.show = "hold", fig.align = "default"}
+library(ggthemes)
+
+p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
+p + theme_economist() + labs(title = "Economist")
+p + theme_wsj() + labs(title = "Wall Street Journal")
+```
+
+---
+
+## Themes and color scales from ggthemes
+
+```{r warning = FALSE, message = FALSE, out.width = "60%"}
+p + 
+  aes(color = species) +
+  scale_color_wsj() +
+  theme_wsj() + 
+  labs(title = "Wall Street Journal")
+```
+
+---
+
+## Modifying theme elements
+
+```{r warning = FALSE, message = FALSE, fig.asp = 0.5, out.width = "60%"}
+p + 
+  labs(title = "Palmer penguins") +
+  theme(
+    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
+    plot.background = element_rect(color = "red", fill = "mistyrose")
+  )
+```

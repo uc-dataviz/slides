@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Deep dive: coordinates + facets + themes</title>
+    <title>Deep dive: coordinates + facets</title>
     <meta charset="utf-8" />
     <meta name="author" content="MACS 40700   University of Chicago" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
@@ -13,7 +13,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Deep dive: coordinates + facets + themes
+# Deep dive: coordinates + facets
 ### MACS 40700 <br /> University of Chicago
 
 ---
@@ -33,13 +33,13 @@ class: middle, inverse
 
 - Facets
 
-- Themes
+- Group collaboration
 
 ---
 
 ## Setup
 
-.midi[
+.small[
 
 ```r
 # load packages
@@ -544,66 +544,23 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
 
 class: middle, inverse
 
-# Themes
+# Project #1
 
 ---
 
-## Complete themes
+# Project #1
 
+.pull-left[
+- Initial proposal
+- Develop as a group
+- Take chances, make mistakes, get messy!
+]
 
-```r
-p + theme_gray() + labs(title = "Gray")
-p + theme_void() + labs(title = "Void")
-p + theme_dark() + labs(title = "Dark")
-```
+--
 
-&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-18-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-18-3.png" width="33%" /&gt;
-
----
-
-## Themes from ggthemes
-
-
-```r
-library(ggthemes)
-
-p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
-p + theme_economist() + labs(title = "Economist")
-p + theme_wsj() + labs(title = "Wall Street Journal")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-19-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-19-3.png" width="33%" /&gt;
-
----
-
-## Themes and color scales from ggthemes
-
-
-```r
-p + 
-  aes(color = species) +
-  scale_color_wsj() +
-  theme_wsj() + 
-  labs(title = "Wall Street Journal")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="60%" /&gt;
-
----
-
-## Modifying theme elements
-
-
-```r
-p + 
-  labs(title = "Palmer penguins") +
-  theme(
-    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
-    plot.background = element_rect(color = "red", fill = "mistyrose")
-  )
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="60%" /&gt;
+.pull-right[
+&lt;img src="https://media.giphy.com/media/vhpwk2TOw2hq0/giphy.gif" width="60%" /&gt;
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
