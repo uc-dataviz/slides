@@ -77,6 +77,189 @@ ggplot(mtcars, aes(x = mpg, y = disp)) +
 
 class: inverse, middle
 
+# Wrap-up up from Thursday
+
+---
+
+## Two variables
+
+- One time, one continuous
+  - `geom_area()`: area plot
+  - `geom_line()`: line plot
+  - `geom_step()`: step plot
+
+- Display uncertainty:
+  - `geom_crossbar()`: vertical bar with center
+  - `geom_errorbar()`: error bars
+  - `geom_linerange()`: vertical line
+  - `geom_pointrange()`: vertical line with center
+
+- Spatial
+  - `geom_sf()`: for map data (more on this later...)
+
+---
+
+## Average net cost per Pell grant recipient
+
+```{r include = FALSE, cache = FALSE}
+# load packages
+library(tidyverse)
+library(rcfss)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, # 8"
+  fig.asp = 0.618, # the golden ratio
+  fig.retina = 2, # dpi multiplier for displaying HTML output on retina
+  dpi = 150, # higher dpi, sharper image
+  out.width = "60%"
+)
+```
+
+```{r}
+mean_netcost_pctpell <- scorecard %>%
+  mutate(pctpell = round(pctpell, digits = 2)) %>%
+  group_by(pctpell) %>%
+  summarise(
+    n = n(),
+    mean_netcost = mean(netcost),
+    sd_netcost = sd(netcost)
+  ) %>%
+  drop_na(mean_netcost)
+
+mean_netcost_pctpell
+```
+
+---
+
+## `geom_errorbar()`
+
+.task[
+Describe how this plot is constructed and what the points and the lines (error bars) correspond to.
+]
+
+.panelset[
+.panel[.panel-name[Code]
+```{r errorbar, fig.show = "hide"}
+ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
+  geom_point() +
+  geom_errorbar(aes(
+    ymin = mean_netcost - sd_netcost,
+    ymax = mean_netcost + sd_netcost
+  ))
+```
+]
+.panel[.panel-name[Plot]
+```{r ref.label = "errorbar", echo = FALSE}
+
+```
+]
+]
+
+```{r echo = FALSE, cache = FALSE}
+countdown(minutes = 3, bottom = 0)
+```
+
+---
+
+## Let's clean things up a bit!
+
+Meet your new best friend, the [**scales**](https://scales.r-lib.org/) package!
+
+```{r}
+library(scales)
+```
+
+---
+
+## Let's clean things up a bit!
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), fig.show = "hold"}
+ggplot(scorecard, aes(x = avgfacsal, y = netcost)) +
+  geom_point(alpha = 0.4, size = 2, color = "#012169") +
+  scale_x_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_dollar()) +
+  labs(
+    x = "Average faculty salary (USD)",
+    y = "Net cost of attendance (USD)",
+    title = "Faculty salaries and net cost of attendance in US universities",
+    subtitle = "2018-19",
+    caption = "Source: College Scorecard"
+  )
+```
+]
+
+---
+
+class: middle, inverse
+
+# geoms
+
+---
+
+## Three variables
+
+- `geom_tile()`: tile the plane with rectangles
+- `geom_raster()`: fast version of `geom_tile()` for equal sized tiles
+
+---
+
+## `geom_tile()`
+
+```{r}
+ggplot(scorecard, aes(x = type, y = locale)) +
+ geom_tile(aes(fill = netcost))
+```
+
+---
+
+## Another look at smooth-ish surface
+
+.panelset[
+.panel[.panel-name[Summarize]
+.small[
+```{r}
+mean_netcost_type_locale <- scorecard %>%
+  group_by(type, locale) %>%
+  summarize(mean_netcost = mean(netcost, na.rm = TRUE), .groups = "drop")
+
+mean_netcost_type_locale
+```
+]
+]
+.panel[.panel-name[Plot]
+```{r}
+ggplot(mean_netcost_type_locale, aes(x = type, y = locale)) +
+  geom_point(aes(color = mean_netcost), size = 30, pch = "square")
+```
+]
+]
+
+---
+
+## Activity: Pick a geom
+
+.task[
+For each of the following problems, suggest a useful geom:
+
+1. Display how the value of variable has changed over time
+1. Show the detailed distribution of a single continuous variable
+1. Focus attention on the overall relationship between two variables in a large dataset
+1. Label outlying points in a single variable
+]
+
+```{r echo = FALSE, cache = FALSE}
+countdown(minutes = 3, bottom = 0)
+```
+
+---
+
+class: inverse, middle
+
 # Setup
 
 ---
@@ -259,7 +442,7 @@ countdown(minutes = 2, bottom = 0)
 
 ## "Address" messages
 
-```{r out.width = "50%"}
+```{r out.width = "50%", message = TRUE}
 ggplot(scorecard, aes(x = pctpell, y = avgfacsal, color = type)) + 
   geom_point(alpha = 0.8) +
   scale_x_continuous(name = "pctpell") +
@@ -278,17 +461,29 @@ What happens if you pair a discrete variable with a continuous scale? What happe
 .panel[.panel-name[Plots]
 .pull-left[
 ```{r incorrect-scale-continuous, error = TRUE, eval = FALSE}
-ggplot(scorecard, aes(x = type, y = avgfacsal)) +
+ggplot(
+  data = scorecard,
+  mapping = aes(
+    x = type, #<<
+    y = avgfacsal
+  )
+) +
   geom_point(alpha = 0.5) +
-  scale_x_continuous()
+  scale_x_continuous() #<<
 ```
 ]
 
 .pull-right[
 ```{r incorrect-scale-discrete, eval = FALSE}
-ggplot(scorecard, aes(x = type, y = avgfacsal)) +
+ggplot(
+  data = scorecard,
+  mapping = aes(
+    x = type,
+    y = avgfacsal #<<
+  )
+) +
   geom_point(alpha = 0.5) +
-  scale_y_discrete()
+  scale_y_discrete() #<<
 ```
 
 ]
