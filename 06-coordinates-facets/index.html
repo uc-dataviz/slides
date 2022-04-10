@@ -540,6 +540,69 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
 
 &lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="50%" /&gt;
 
+class: middle, inverse
+
+# Themes
+
+---
+
+## Complete themes
+
+
+```r
+p + theme_gray() + labs(title = "Gray")
+p + theme_void() + labs(title = "Void")
+p + theme_dark() + labs(title = "Dark")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-18-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-18-3.png" width="33%" /&gt;
+
+---
+
+## Themes from ggthemes
+
+
+```r
+library(ggthemes)
+
+p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
+p + theme_economist() + labs(title = "Economist")
+p + theme_wsj() + labs(title = "Wall Street Journal")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-19-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-19-3.png" width="33%" /&gt;
+
+---
+
+## Themes and color scales from ggthemes
+
+
+```r
+p + 
+  aes(color = species) +
+  scale_color_wsj() +
+  theme_wsj() + 
+  labs(title = "Wall Street Journal")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="60%" /&gt;
+
+---
+
+## Modifying theme elements
+
+
+```r
+p + 
+  labs(title = "Palmer penguins") +
+  theme(
+    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
+    plot.background = element_rect(color = "red", fill = "mistyrose")
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="60%" /&gt;
+
 ---
 
 class: middle, inverse

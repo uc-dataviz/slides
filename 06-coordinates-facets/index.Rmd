@@ -546,6 +546,57 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   facet_wrap(vars(species))
 ```
 
+class: middle, inverse
+
+# Themes
+
+---
+
+## Complete themes
+
+```{r out.width = "33%", fig.show = "hold", fig.align = "default"}
+p + theme_gray() + labs(title = "Gray")
+p + theme_void() + labs(title = "Void")
+p + theme_dark() + labs(title = "Dark")
+```
+
+---
+
+## Themes from ggthemes
+
+```{r out.width = "33%", fig.show = "hold", fig.align = "default"}
+library(ggthemes)
+
+p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
+p + theme_economist() + labs(title = "Economist")
+p + theme_wsj() + labs(title = "Wall Street Journal")
+```
+
+---
+
+## Themes and color scales from ggthemes
+
+```{r warning = FALSE, message = FALSE, out.width = "60%"}
+p + 
+  aes(color = species) +
+  scale_color_wsj() +
+  theme_wsj() + 
+  labs(title = "Wall Street Journal")
+```
+
+---
+
+## Modifying theme elements
+
+```{r warning = FALSE, message = FALSE, fig.asp = 0.5, out.width = "60%"}
+p + 
+  labs(title = "Palmer penguins") +
+  theme(
+    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
+    plot.background = element_rect(color = "red", fill = "mistyrose")
+  )
+```
+
 ---
 
 class: middle, inverse
