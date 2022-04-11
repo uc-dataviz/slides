@@ -25,54 +25,17 @@ class: center, middle, inverse, title-slide
 
 class: middle, inverse
 
-# Workflow notes
+# Project #1
 
 ---
 
-## Code style: ggplot2
-
-- Line breaks after `+`
-- Spaces around ` = `
-- Otherwise spacing around punctuation as you would in English
-  - Space after `, `
-  - No space around `(` and `)`
-- Indent all lines after `ggplot()`
-
-```r
-# bad
-ggplot(mtcars, aes(x=mpg,y =disp))+
-geom_point()
-
-# bad
-ggplot(mtcars, aes(x=mpg,y =disp))+geom_point()
-
-# good
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-```
-
----
-
-## Code style: comments
-
-- Place comment above the relevant code
-- Short comments can be placed in the same line as well
-
-```r
-# good
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point() # points (short comment)
-
-# good
-# scatterplot of mpg vs. disp (long comment)
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-
-# bad
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-  # above code plots mpg vs. disp
-```
+- [Project description](https://uc-dataviz.netlify.app/project-1.html)
+- Group assignments
+- Repos
+- Deliverables
+    - April 15 - Proposals for peer review
+    - April 22 - Revised proposals for instructor review
+    - April 28 - write-up and presentation
 
 ---
 
@@ -161,7 +124,7 @@ ggplot(mean_netcost_pctpell, aes(x = pctpell, y = mean_netcost)) +
 ]
 ]
 
-<div class="countdown" id="timer_625327e0" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_625473ca" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -293,7 +256,7 @@ For each of the following problems, suggest a useful geom:
 1. Label outlying points in a single variable
 ]
 
-<div class="countdown" id="timer_625327ce" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_625474a5" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -504,7 +467,7 @@ ggplot(scorecard, aes(x = pctpell, y = avgfacsal, color = type)) +
   scale_x_continuous(name = "Percent of students receiving a Pell grant") 
 ```
 
-<div class="countdown" id="timer_62532743" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62547445" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">02</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -586,7 +549,7 @@ ggplot(
 ]
 ]
 
-<div class="countdown" id="timer_62532822" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_62547179" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -702,7 +665,7 @@ ggplot(scorecard, aes(x = pctpell, y = avgfacsal)) +
 ]
 ]
 
-<div class="countdown" id="timer_6253280d" style="bottom:0;left:0;" data-warnwhen="0">
+<div class="countdown" id="timer_625474fb" style="bottom:0;left:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 

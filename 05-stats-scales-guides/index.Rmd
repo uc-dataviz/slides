@@ -24,54 +24,17 @@ library(countdown)
 
 class: middle, inverse
 
-# Workflow notes
+# Project #1
 
 ---
 
-## Code style: ggplot2
-
-- Line breaks after `+`
-- Spaces around ` = `
-- Otherwise spacing around punctuation as you would in English
-  - Space after `, `
-  - No space around `(` and `)`
-- Indent all lines after `ggplot()`
-
-```r
-# bad
-ggplot(mtcars, aes(x=mpg,y =disp))+
-geom_point()
-
-# bad
-ggplot(mtcars, aes(x=mpg,y =disp))+geom_point()
-
-# good
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-```
-
----
-
-## Code style: comments
-
-- Place comment above the relevant code
-- Short comments can be placed in the same line as well
-
-```r
-# good
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point() # points (short comment)
-
-# good
-# scatterplot of mpg vs. disp (long comment)
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-
-# bad
-ggplot(mtcars, aes(x = mpg, y = disp)) +
-  geom_point()
-  # above code plots mpg vs. disp
-```
+- [Project description](https://uc-dataviz.netlify.app/project-1.html)
+- Group assignments
+- Repos
+- Deliverables
+    - April 15 - Proposals for peer review
+    - April 22 - Revised proposals for instructor review
+    - April 28 - write-up and presentation
 
 ---
 
