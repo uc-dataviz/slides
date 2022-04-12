@@ -33,6 +33,7 @@ class: inverse, middle
 library(tidyverse)
 library(palmerpenguins)
 library(hrbrthemes)
+library(ggthemes)
 library(ggpomological)
 
 # set default theme for ggplot2
@@ -252,6 +253,60 @@ class: inverse, middle
 class: inverse, middle
 
 # .hand[Live coding] 
+
+---
+
+class: inverse, middle
+
+# Axes
+
+---
+
+## Axis breaks
+
+.task[
+How can the following figure be improved with custom breaks in axes, if at all?
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Context matters
+
+
+```r
+pac_plot +
+* scale_x_continuous(breaks = seq(from = 2000, to = 2020, by = 2))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Conciseness matters
+
+
+```r
+pac_plot +
+  scale_x_continuous(breaks = seq(2000, 2020, 4))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Precision matters
+
+
+```r
+pac_plot +
+  scale_x_continuous(breaks = seq(2000, 2020, 4)) +
+* labs(x = "Election year")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

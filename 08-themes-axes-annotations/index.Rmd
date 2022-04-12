@@ -34,6 +34,7 @@ class: inverse, middle
 library(tidyverse)
 library(palmerpenguins)
 library(hrbrthemes)
+library(ggthemes)
 library(ggpomological)
 
 # set default theme for ggplot2
@@ -258,3 +259,51 @@ include_graphics(path = "images/theme_elements-1024x755.png")
 class: inverse, middle
 
 # .hand[Live coding] 
+
+---
+
+class: inverse, middle
+
+# Axes
+
+---
+
+## Axis breaks
+
+.task[
+How can the following figure be improved with custom breaks in axes, if at all?
+]
+
+```{r echo = FALSE, message = FALSE, cache = TRUE}
+pac_plot <- read_rds(file = "data/pac-uk-default.rds")
+pac_plot
+```
+
+---
+
+## Context matters
+
+```{r message = FALSE, warning = FALSE, out.width = "70%"}
+pac_plot +
+  scale_x_continuous(breaks = seq(from = 2000, to = 2020, by = 2)) #<<
+```
+
+---
+
+## Conciseness matters
+
+```{r message = FALSE, warning = FALSE, out.width = "70%"}
+pac_plot +
+  scale_x_continuous(breaks = seq(2000, 2020, 4))
+```
+
+---
+
+## Precision matters
+
+```{r message = FALSE, warning = FALSE, out.width = "70%"}
+pac_plot +
+  scale_x_continuous(breaks = seq(2000, 2020, 4)) +
+  labs(x = "Election year") #<<
+```
+
