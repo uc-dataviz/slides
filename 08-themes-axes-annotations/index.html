@@ -32,9 +32,11 @@ class: inverse, middle
 # load packages
 library(tidyverse)
 library(palmerpenguins)
-library(hrbrthemes)
 library(ggthemes)
 library(ggpomological)
+library(colorspace)
+library(lubridate)
+library(hrbrthemes)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
@@ -96,13 +98,13 @@ We can apply these principles to `ggplot()` plots
 .pull-left[
 
 ```r
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
                      color = species)) +
   geom_point(size = 2) +
-* theme_ipsum_ps()
+* theme_tufte()
 ```
 ]
 .pull-right[
@@ -116,13 +118,13 @@ ggplot(penguins, aes(x = bill_depth_mm,
 .pull-left[
 
 ```r
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
                      color = species)) +
   geom_point(size = 2) +
-* theme_modern_rc()
+* theme_solarized()
 ```
 ]
 
@@ -137,7 +139,7 @@ ggplot(penguins, aes(x = bill_depth_mm,
 .pull-left[
 
 ```r
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
@@ -160,6 +162,9 @@ ggplot(penguins, aes(x = bill_depth_mm,
 
 ```r
 library(ggpomological)
+library(showtext)
+
+font_add_google("Homemade Apple")
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
@@ -268,7 +273,7 @@ class: inverse, middle
 How can the following figure be improved with custom breaks in axes, if at all?
 ]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -307,6 +312,451 @@ pac_plot +
 
 &lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
+---
+
+class: inverse, middle
+
+# Fretting the little things
+
+---
+
+# Little details matter
+
+.pull-left[
+&lt;img src="images/stevejobs.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
+
+--
+
+.pull-right[
+&lt;img src="images/apple_iie.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+???
+
+https://commons.wikimedia.org/wiki/File:Steve_Jobs_Headshot_2010-CROP.jpg
+
+https://en.wikipedia.org/wiki/Apple_IIe#/media/File:Iie-system.jpg
+
+---
+
+# Obsession with tiny details
+
+.pull-left[
+
+&lt;img src="images/ibm-circuit.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
+
+--
+
+.pull-right[
+&lt;img src="images/apple-iie-circuit.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+???
+
+https://en.wikipedia.org/wiki/IBM_PCjr#/media/File:IBM_PCB_Jr_Motherboard.jpg
+
+http://www.willegal.net/appleii/appleii-kit.htm
+
+---
+
+# Human-focused design
+
+.large[
+&gt; "This is what customers pay us for -- to sweat all these details so it's easy and pleasant for them to use our computers."
+]
+
+???
+
+Steve Jobs in *Fortune*, as quoted in [Alice Rawsthorn, *Hello World: Where Design Meets Life*, p. 110(?)](https://www.google.com/books/edition/Hello_World/b6iMDwAAQBAJ?hl=en&amp;gbpv=1&amp;dq=to+sweat+all+these+details+so+it%E2%80%99s+easy+and+pleasant+for+them+to+use+our+computers&amp;pg=PT110&amp;printsec=frontcover)
+
+---
+
+# Graph details: Redundant coding
+
+## One little change makes this far more accessible
+
+
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+--
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Graph details: Consistent ordering
+
+### Again, one little change makes this far more accessible
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+--
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+???
+
+Source: Claus Wilke: https://clauswilke.com/dataviz/redundant-coding.html
+
+---
+
+# Details matter
+
+.large[Worrying about tiny details in graphs…]
+
+--
+
+.midi[…makes them easier for your audience to understand]
+
+--
+
+.midi[…improves their beauty]
+
+--
+
+.midi[…enhances the truth]
+
+---
+
+class: inverse, middle
+
+# Text in plots
+
+---
+
+# Including text on a plot
+
+## Label actual data points
+
+`geom_text()`, `geom_label()`, `geom_text_repel()`, etc.
+
+--
+
+## Add arbitrary annotations
+
+`annotate()`
+
+---
+
+# Label actual data points
+
+.pull-left[
+
+```r
+library(gapminder)
+
+gapminder_europe &lt;- gapminder %&gt;% 
+  filter(year == 2007, 
+         continent == "Europe")
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* geom_text(aes(label = country))
+```
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Label actual data points
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* geom_label(aes(label = country))
+```
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+
+# Solution 1: Repel labels
+
+.pull-left[
+
+```r
+*library(ggrepel)
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* geom_text_repel(aes(label = country))
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Solution 1: Repel labels
+
+.pull-left[
+
+```r
+library(ggrepel)
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* geom_label_repel(aes(label = country))
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Solution 2a: Don't use so many labels
+
+.pull-left[
+.small[
+
+```r
+gapminder_europe &lt;- gapminder_europe %&gt;% 
+  mutate(should_be_labeled = 
+           ifelse(country %in% c("Albania", 
+                                 "Norway", 
+                                 "Hungary"), 
+                  TRUE, FALSE))
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_label_repel(
+*   data = filter(gapminder_europe,
+*                 should_be_labeled == TRUE),
+    aes(label = country)
+  )
+```
+]
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Solution 2b: Use other aesthetics too
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(aes(color = should_be_labeled)) +
+  geom_label_repel(
+    data = filter(
+      gapminder_europe, 
+      should_be_labeled == TRUE
+    ),
+    aes(label = country, 
+        fill = should_be_labeled),
+    color = "white"
+  ) +
+  scale_color_manual(values = c("grey50", 
+                                "red")) +
+  scale_fill_manual(values = c("red")) +
+  guides(color = "none", fill = "none")
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# (Highlight non-text things too!)
+
+.pull-left[
+
+```r
+# Color just Oceania
+gapminder_highlighted &lt;- gapminder %&gt;% 
+  mutate(is_oceania = 
+           ifelse(continent == "Oceania", 
+                  TRUE, FALSE))
+
+ggplot(gapminder_highlighted, 
+       aes(x = year, y = lifeExp, 
+           group = country, 
+           color = is_oceania, 
+           size = is_oceania)) +
+  geom_line() +
+  scale_color_manual(values = c("grey70", 
+                                "red")) +
+  scale_size_manual(values = c(0.1, 0.5)) +
+  guides(color = "none", size = "none") +
+  theme_minimal()
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Including text on a plot
+
+## Label actual data points
+
+`geom_text()`, `geom_label()`, `geom_text_repel()`, etc.
+
+--
+
+## Add arbitrary annotations
+
+`annotate()`
+
+---
+
+# Adding arbitrary annotations
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* annotate(geom = "text",
+*          x = 40000, y = 76,
+*          label = "Some text!")
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Adding arbitrary annotations
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* annotate(geom = "label",
+           x = 40000, y = 76,
+           label = "Some text!")
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Any geom works
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* # This is evil though!!!
+* # We just invented a point
+* annotate(geom = "point",
+           x = 40000, y = 76)
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Any geom works
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+* annotate(geom = "rect",
+           xmin = 30000, xmax = 50000,
+           ymin = 78, ymax = 82,
+           fill = "red", alpha = 0.2)
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Use multiple annotations
+
+.pull-left[
+
+```r
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  annotate(geom = "rect", 
+           xmin = 30000, xmax = 50000,
+           ymin = 78, ymax = 82,
+           fill = "red", alpha = 0.2) +
+  annotate(geom = "label",
+           x = 40000, y = 76.5,
+           label = "Rich and long-living") +
+  annotate(geom = "segment", 
+           x = 40000, xend = 40000, 
+           y = 76.8, yend = 77.8,
+           arrow = arrow(
+             length = unit(0.1, "in")))
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+class: inverse, middle
+
+# More .hand[live coding]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

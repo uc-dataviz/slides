@@ -33,9 +33,11 @@ class: inverse, middle
 # load packages
 library(tidyverse)
 library(palmerpenguins)
-library(hrbrthemes)
 library(ggthemes)
 library(ggpomological)
+library(colorspace)
+library(lubridate)
+library(hrbrthemes)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
@@ -99,13 +101,13 @@ We can apply these principles to `ggplot()` plots
 
 .pull-left[
 ```{r hrbrlight, fig.show = "hide", warning = FALSE}
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
                      color = species)) +
   geom_point(size = 2) +
-  theme_ipsum_ps() #<<
+  theme_tufte() #<<
 ```
 ]
 .pull-right[
@@ -119,13 +121,13 @@ ggplot(penguins, aes(x = bill_depth_mm,
 
 .pull-left[
 ```{r hrbrdark, fig.show = "hide", warning = FALSE}
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
                      color = species)) +
   geom_point(size = 2) +
-  theme_modern_rc() #<<
+  theme_solarized() #<<
 ```
 ]
 
@@ -140,7 +142,7 @@ ggplot(penguins, aes(x = bill_depth_mm,
 
 .pull-left[
 ```{r economist, fig.show = "hide", warning = FALSE}
-library(hrbrthemes)
+library(ggthemes)
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
@@ -163,6 +165,9 @@ ggplot(penguins, aes(x = bill_depth_mm,
 .pull-left[
 ```{r pomological, fig.show = "hide", warning = FALSE}
 library(ggpomological)
+library(showtext)
+
+font_add_google("Homemade Apple")
 
 ggplot(penguins, aes(x = bill_depth_mm,
                      y = bill_length_mm,
@@ -274,7 +279,7 @@ class: inverse, middle
 How can the following figure be improved with custom breaks in axes, if at all?
 ]
 
-```{r echo = FALSE, message = FALSE, cache = TRUE}
+```{r echo = FALSE, message = FALSE, out.width = "70%"}
 pac_plot <- read_rds(file = "data/pac-uk-default.rds")
 pac_plot
 ```
@@ -307,3 +312,540 @@ pac_plot +
   labs(x = "Election year") #<<
 ```
 
+---
+
+class: inverse, middle
+
+# Fretting the little things
+
+---
+
+# Little details matter
+
+.pull-left[
+```{r echo = FALSE}
+include_graphics(path = "images/stevejobs.jpg")
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/apple_iie.jpg")
+```
+]
+
+???
+
+https://commons.wikimedia.org/wiki/File:Steve_Jobs_Headshot_2010-CROP.jpg
+
+https://en.wikipedia.org/wiki/Apple_IIe#/media/File:Iie-system.jpg
+
+---
+
+# Obsession with tiny details
+
+.pull-left[
+
+```{r echo = FALSE}
+include_graphics(path = "images/ibm-circuit.jpg")
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/apple-iie-circuit.jpg")
+```
+]
+
+???
+
+https://en.wikipedia.org/wiki/IBM_PCjr#/media/File:IBM_PCB_Jr_Motherboard.jpg
+
+http://www.willegal.net/appleii/appleii-kit.htm
+
+---
+
+# Human-focused design
+
+.large[
+> "This is what customers pay us for -- to sweat all these details so it's easy and pleasant for them to use our computers."
+]
+
+???
+
+Steve Jobs in *Fortune*, as quoted in [Alice Rawsthorn, *Hello World: Where Design Meets Life*, p. 110(?)](https://www.google.com/books/edition/Hello_World/b6iMDwAAQBAJ?hl=en&gbpv=1&dq=to+sweat+all+these+details+so+it%E2%80%99s+easy+and+pleasant+for+them+to+use+our+computers&pg=PT110&printsec=frontcover)
+
+---
+
+# Graph details: Redundant coding
+
+## One little change makes this far more accessible
+
+```{r include = FALSE, cache = FALSE}
+# switch back to minimal theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+```
+
+.pull-left[
+```{r echo = FALSE, fig.width = 6, out.width = "100%"}
+penguins_bad <- ggplot(penguins, aes(x = bill_depth_mm, y = flipper_length_mm, color = species, fill = species)) +
+  geom_point(size = 2.5, stroke = 0.5, shape = 21, alpha = 0.6) +
+  scale_color_manual(values = darken(c("#E69F00", "#56B4E9", "#009E73"), 0.3)) +
+  scale_fill_manual(values = c("#E69F0080", "#56B4E980", "#009E7380")) +
+  labs(
+    x = "Bill depth (mm)",
+    y = "Flipper length (mm)",
+    color = NULL,
+    fill = NULL
+  )
+
+cowplot::stamp_bad(penguins_bad)
+```
+
+]
+
+--
+
+.pull-right[
+```{r echo = FALSE, fig.width = 6, out.width = "100%"}
+penguins_good <- ggplot(penguins, aes(x = bill_depth_mm, y = flipper_length_mm, color = species, fill = species)) +
+  geom_point(size = 2.5, stroke = 0.5, shape = 21, alpha = 0.6) +
+  scale_color_manual(values = darken(c("#56B4E9", "#E69F00", "#009E73"), 0.3)) +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00", "#009E73")) +
+  labs(
+    x = "Bill depth (mm)",
+    y = "Flipper length (mm)",
+    color = NULL,
+    fill = NULL,
+    shape = NULL
+  )
+
+cowplot::stamp_good(penguins_good)
+```
+]
+
+---
+
+# Graph details: Consistent ordering
+
+### Again, one little change makes this far more accessible
+
+.pull-left[
+```{r echo = FALSE, fig.width = 6, out.width = "100%"}
+tech_stocks <- read_csv("data/tech_stocks.csv") %>%
+  mutate(date = ymd(date)) %>%
+  select(company, date, price_indexed)
+
+price_plot_base <- ggplot(tech_stocks, aes(x = date, y = price_indexed, color = company)) +
+  geom_line(size = 0.66, na.rm = TRUE) +
+  scale_color_manual(
+    values = c(
+      Facebook = "#000000", 
+      Alphabet = "#E69F00", 
+      Microsoft = "#56B4E9",
+      Apple = "#009E73"
+    ),
+    name = "",
+    breaks = c("Alphabet", "Apple", "Facebook", "Microsoft")
+  ) +
+  scale_x_date(
+    name = "year",
+    limits = c(ymd("2012-06-01"), ymd("2017-05-31")),
+    expand = c(0,0)
+  ) + 
+  scale_y_continuous(
+    name = "stock price, indexed",
+    limits = c(0, 560),
+    expand = c(0,0)
+  )
+
+cowplot::stamp_bad(price_plot_base)
+```
+]
+
+--
+
+.pull-right[
+```{r echo = FALSE, fig.width = 6, out.width = "100%"}
+price_plot_base_good <- ggplot(tech_stocks, aes(x = date, y = price_indexed, color = company)) +
+  scale_color_manual(
+    values = c(
+      Facebook = "#000000", 
+      Alphabet = "#E69F00", 
+      Microsoft = "#56B4E9",
+      Apple = "#009E73"
+    ),
+    name = "",
+    breaks = c("Facebook", "Alphabet", "Microsoft", "Apple")
+  ) +
+  scale_x_date(
+    name = "year",
+    limits = c(ymd("2012-06-01"), ymd("2017-05-31")),
+    expand = c(0,0)
+  ) + 
+  scale_y_continuous(
+    name = "stock price, indexed",
+    limits = c(0, 560),
+    expand = c(0,0)
+  )
+
+cowplot::stamp_good(price_plot_base_good +
+  geom_line(size = 0.66, na.rm = TRUE))
+```
+]
+
+???
+
+Source: Claus Wilke: https://clauswilke.com/dataviz/redundant-coding.html
+
+---
+
+# Details matter
+
+.large[Worrying about tiny details in graphs…]
+
+--
+
+.midi[…makes them easier for your audience to understand]
+
+--
+
+.midi[…improves their beauty]
+
+--
+
+.midi[…enhances the truth]
+
+---
+
+class: inverse, middle
+
+# Text in plots
+
+---
+
+# Including text on a plot
+
+## Label actual data points
+
+`geom_text()`, `geom_label()`, `geom_text_repel()`, etc.
+
+--
+
+## Add arbitrary annotations
+
+`annotate()`
+
+---
+
+# Label actual data points
+
+.pull-left[
+```{r gapminder-text-bad, fig.show="hide"}
+library(gapminder)
+
+gapminder_europe <- gapminder %>% 
+  filter(year == 2007, 
+         continent == "Europe")
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_text(aes(label = country)) #<<
+```
+
+]
+
+.pull-right[
+```{r ref.label = "gapminder-text-bad", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Label actual data points
+
+.pull-left[
+```{r gapminder-label-bad, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_label(aes(label = country)) #<<
+```
+
+]
+
+.pull-right[
+```{r ref.label = "gapminder-label-bad", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+
+]
+
+---
+
+# Solution 1: Repel labels
+
+.pull-left[
+```{r gapminder-repel, fig.show="hide"}
+library(ggrepel) #<<
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_text_repel(aes(label = country)) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-repel", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Solution 1: Repel labels
+
+.pull-left[
+```{r gapminder-repel-label,  fig.show="hide"}
+library(ggrepel)
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_label_repel(aes(label = country)) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-repel-label", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Solution 2a: Don't use so many labels
+
+.pull-left[
+.small[
+```{r gapminder-repel-filtered, fig.show="hide"}
+gapminder_europe <- gapminder_europe %>% 
+  mutate(should_be_labeled = 
+           ifelse(country %in% c("Albania", 
+                                 "Norway", 
+                                 "Hungary"), 
+                  TRUE, FALSE))
+
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_label_repel(
+    data = filter(gapminder_europe,  #<<
+                  should_be_labeled == TRUE), #<<
+    aes(label = country)
+  )
+```
+]
+]
+
+.pull-right[
+```{r ref.label = "gapminder-repel-filtered", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Solution 2b: Use other aesthetics too
+
+.pull-left[
+```{r gapminder-repel-filtered-fancy, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(aes(color = should_be_labeled)) +
+  geom_label_repel(
+    data = filter(
+      gapminder_europe, 
+      should_be_labeled == TRUE
+    ),
+    aes(label = country, 
+        fill = should_be_labeled),
+    color = "white"
+  ) +
+  scale_color_manual(values = c("grey50", 
+                                "red")) +
+  scale_fill_manual(values = c("red")) +
+  guides(color = "none", fill = "none")
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-repel-filtered-fancy", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# (Highlight non-text things too!)
+
+.pull-left[
+```{r gapminder-highlight, fig.show="hide"}
+# Color just Oceania
+gapminder_highlighted <- gapminder %>% 
+  mutate(is_oceania = 
+           ifelse(continent == "Oceania", 
+                  TRUE, FALSE))
+
+ggplot(gapminder_highlighted, 
+       aes(x = year, y = lifeExp, 
+           group = country, 
+           color = is_oceania, 
+           size = is_oceania)) +
+  geom_line() +
+  scale_color_manual(values = c("grey70", 
+                                "red")) +
+  scale_size_manual(values = c(0.1, 0.5)) +
+  guides(color = "none", size = "none") +
+  theme_minimal()
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-highlight", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Including text on a plot
+
+## Label actual data points
+
+`geom_text()`, `geom_label()`, `geom_text_repel()`, etc.
+
+--
+
+## Add arbitrary annotations
+
+`annotate()`
+
+---
+
+# Adding arbitrary annotations
+
+.pull-left[
+```{r gapminder-annotate-1, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  annotate(geom = "text", #<<
+           x = 40000, y = 76, #<<
+           label = "Some text!") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-annotate-1", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Adding arbitrary annotations
+
+.pull-left[
+```{r gapminder-annotate-2, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  annotate(geom = "label", #<<
+           x = 40000, y = 76,
+           label = "Some text!")
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-annotate-2", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Any geom works
+
+.pull-left[
+```{r gapminder-annotate-3, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  # This is evil though!!! #<<
+  # We just invented a point #<<
+  annotate(geom = "point", #<<
+           x = 40000, y = 76)
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-annotate-3", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Any geom works
+
+.pull-left[
+```{r gapminder-annotate-4, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  annotate(geom = "rect",  #<<
+           xmin = 30000, xmax = 50000,
+           ymin = 78, ymax = 82,
+           fill = "red", alpha = 0.2)
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-annotate-4", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+# Use multiple annotations
+
+.pull-left[
+```{r gapminder-annotate-5, fig.show="hide"}
+ggplot(gapminder_europe, 
+       aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  annotate(geom = "rect", 
+           xmin = 30000, xmax = 50000,
+           ymin = 78, ymax = 82,
+           fill = "red", alpha = 0.2) +
+  annotate(geom = "label",
+           x = 40000, y = 76.5,
+           label = "Rich and long-living") +
+  annotate(geom = "segment", 
+           x = 40000, xend = 40000, 
+           y = 76.8, yend = 77.8,
+           arrow = arrow(
+             length = unit(0.1, "in")))
+```
+]
+
+.pull-right[
+```{r ref.label = "gapminder-annotate-5", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 6}
+```
+]
+
+---
+
+class: inverse, middle
+
+# More .hand[live coding]
