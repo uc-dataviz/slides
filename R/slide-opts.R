@@ -12,4 +12,4 @@ knitr::opts_chunk$set(
 )
 
 # set base theme
-ggplot2::theme_set(ggplot2::theme_minimal(base_size = rcfss::base_size))
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))

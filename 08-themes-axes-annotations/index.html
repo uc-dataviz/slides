@@ -21,83 +21,237 @@ class: center, middle, inverse, title-slide
 
 
 
+class: inverse, middle
 
+# Setup
+
+---
+
+
+```r
+# load packages
+library(tidyverse)
+library(palmerpenguins)
+library(hrbrthemes)
+library(ggpomological)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618,
+  fig.retina = 2, dpi = 150
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 6, dplyr.print_min = 6)
+```
+
+---
 
 class: middle, inverse
 
-# Themes
+# CRAP and ggplot
 
 ---
 
-## Refresher
+# Universal principles
 
+.center[
+.large[**C**ontrast]
 
-```r
-p &lt;- ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
-  geom_point()
-p
-```
+.large[**R**epetition]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-1-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+.large[**A**lignment]
 
----
-
-## Complete themes
-
-
-```r
-p + theme_gray() + labs(title = "Gray")
-p + theme_void() + labs(title = "Void")
-p + theme_dark() + labs(title = "Dark")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-2-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-2-3.png" width="33%" /&gt;
+.large[**P**roximity]
+]
 
 ---
 
-## Themes from ggthemes
+# Is that gray background okay?
 
+&lt;img src="index_files/figure-html/standard-grey-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
-```r
-library(ggthemes)
+--
 
-p + theme_fivethirtyeight() + labs(title = "FiveThirtyEight")
-p + theme_economist() + labs(title = "Economist")
-p + theme_wsj() + labs(title = "Wall Street Journal")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-3-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-3-3.png" width="33%" /&gt;
+It adds contrast! Some people just don't like it 🤷
 
 ---
 
-## Themes and color scales from ggthemes
+# Applying CRAP to ggplot
 
+We can follow CRAP principles to make big improvements to our plots
 
-```r
-p + 
-  aes(color = species) +
-  scale_color_wsj() +
-  theme_wsj() + 
-  labs(title = "Wall Street Journal")
-```
+Claus Wilke's chapter covers lots of these graph-specific principles
 
-&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+We can apply these principles to `ggplot()` plots
 
 ---
 
-## Modifying theme elements
+# Like this!
 
+.pull-left[
 
 ```r
-p + 
-  labs(title = "Palmer penguins") +
-  theme(
-    plot.title = element_text(color = "red", face = "bold", family = "Comic Sans MS"),
-    plot.background = element_rect(color = "red", fill = "mistyrose")
-  )
-```
+library(hrbrthemes)
 
-&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+ggplot(penguins, aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point(size = 2) +
+* theme_ipsum_ps()
+```
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-1-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# And this!
+
+.pull-left[
+
+```r
+library(hrbrthemes)
+
+ggplot(penguins, aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point(size = 2) +
+* theme_modern_rc()
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Or this!
+
+.pull-left[
+
+```r
+library(hrbrthemes)
+
+ggplot(penguins, aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point(size = 2) +
+* scale_color_economist() +
+* theme_economist()
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# And even this!
+
+.pull-left[
+
+```r
+library(ggpomological)
+
+ggplot(penguins, aes(x = bill_depth_mm,
+                     y = bill_length_mm,
+                     color = species)) +
+  geom_point(size = 2) +
+* scale_color_pomological() +
+* theme_pomological_fancy()
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+class: inverse, middle, center
+
+## One magic, powerful function
+
+--
+
+.huge[`theme()`]
+
+---
+
+class: inverse, middle
+
+# The anatomy of a `ggplot()` theme
+
+---
+
+# Theme system
+
+&lt;img src="images/theme_elements-1024x755.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Source: [`ggplot2` theme elements demonstration](https://henrywang.nl/ggplot2-theme-elements-demonstration/)]
+
+---
+
+# Theme elements
+
+### Each element in the plot can be targeted
+
+--
+
+- Plot title = `plot.title`
+
+--
+
+- Grid lines = `panel.grid`
+
+--
+
+- Legend background = `legend.background`
+
+---
+
+# Theme functions
+
+### Use special functions to manipulate specific elements
+
+--
+
+- Text-based things = `element_text()`
+
+--
+
+- Rectangular things (backgrounds) = `element_rect()`
+
+--
+
+- Line-based things (axis lines, grid lines) = `element_line()`
+
+--
+
+- Disable element completely = `element_blank()`
+
+---
+
+# How to learn `theme()`
+
+- The `theme()` function has **94** possible arguments
+
+- You can get hyper-specific with things like `axis.ticks.length.x.bottom`
+
+- The only way to learn how to use `theme()` is to use it and tinker with it
+
+---
+
+class: inverse, middle
+
+# .hand[Live coding] 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
