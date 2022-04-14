@@ -26,7 +26,34 @@ library(patchwork)
 
 class: middle, inverse
 
-# Welcome
+# Announcements
+
+---
+
+## Announcements
+
+- Homework 1 collected
+- Homework 2 distributed
+
+
+--
+
+- Project 1 peer evaluation groups
+
+.small[
+|Reviewer      |Reviewee                    |
+|:-------------|:---------------------------|
+|Calm Comet    |Undead Hen, Tan Egg         |
+|Chalky Piglet |Calm Comet, Undead Hen      |
+|Elated Anura  |Chalky Piglet, Calm Comet   |
+|Female Python |Elated Anura, Chalky Piglet |
+|Froggy Panda  |Female Python, Elated Anura |
+|Outer Baboon  |Froggy Panda, Female Python |
+|Sleepy Spider |Outer Baboon, Froggy Panda  |
+|Swampy Pygmy  |Sleepy Spider, Outer Baboon |
+|Tan Egg       |Swampy Pygmy, Sleepy Spider |
+|Undead Hen    |Tan Egg, Swampy Pygmy       |
+]
 
 ---
 
@@ -105,6 +132,14 @@ class: middle, inverse
 
 ## Setting limits: what the plots say
 
+.task[
+Identify the differences between each plot. Focus on the range of the `x` and `y` axes<br>as well as the contents of the plots.
+]
+
+```{r cache = FALSE, echo = FALSE}
+countdown(minutes = 5, top = 0)
+```
+
 .tiny[
 ```{r set-limits, out.width = "25%", fig.width = 6, fig.show = "hold", warning = FALSE, message = FALSE}
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
@@ -171,6 +206,42 @@ ggplot(hsb2, aes(x = read, y = write)) +
 
 ---
 
+## Fixing aspect ratio with `tune::coord_obs_pred()`
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r pred-data}
+data(solubility_test, package = "modeldata")
+
+p <- ggplot(solubility_test, aes(x = solubility, y = prediction)) +
+  geom_abline(lty = 2) +
+  geom_point(alpha = 0.5)
+
+```
+]
+
+.panel[.panel-name[`coord_cartesian()`]
+```{r pred-default, dependson = "pred-data"}
+p + coord_cartesian()
+```
+]
+
+.panel[.panel-name[`coord_fixed()`]
+```{r pred-fixed, dependson = "pred-data"}
+p + coord_fixed()
+```
+]
+
+.panel[.panel-name[`coord_obs_pred()`]
+```{r pred-tune, dependson = "pred-data"}
+p + tune::coord_obs_pred()
+```
+]
+]
+
+---
+
 ## Transformations
 
 .tiny[
@@ -212,8 +283,8 @@ ggplot(penguins, aes(x = 1, fill = species)) +
 
 ggplot(penguins, aes(x = 1, fill = species)) +
   geom_bar() +
-  coord_polar(theta = "x") +
-  labs(title = "Bullseye chart") #<<
+  coord_polar(theta = "x") + #<<
+  labs(title = "Bullseye chart")
 ```
 ]
 
@@ -272,7 +343,7 @@ pie_loan_grades
 ## Pie charts: when to love 'em, when to lose 'em
 
 .pull-left-narrow[
-`r emo::ji("heart")` For categorical variables with few levels, bar charts can work well
+`r emo::ji("heart")` For categorical variables with few levels, pie charts can work well
 ]
 .pull-right-wide[
 ```{r echo = FALSE, out.width = "50%"}
@@ -287,7 +358,7 @@ loans %>%
 ]
 
 .pull-left-narrow[
-`r emo::ji("broken_heart")` For categorical variables with many levels, bar charts are difficult to read
+`r emo::ji("broken_heart")` For categorical variables with many levels, pie charts are difficult to read
 ]
 .pull-right-wide[
 ```{r echo = FALSE, out.width = "50%"}
@@ -342,6 +413,8 @@ loans %>%
 ]
 .panel[.panel-name[Plot]
 ```{r waffle-penguin, echo = FALSE}
+library(waffle) #<<
+
 penguins %>%
   count(species) %>%
   ggplot(aes(fill = species, values = n)) +
@@ -545,6 +618,8 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point(aes(color = species)) +
   facet_wrap(vars(species))
 ```
+
+---
 
 class: middle, inverse
 
