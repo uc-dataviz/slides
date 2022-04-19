@@ -739,6 +739,8 @@ gg_color_gradient(n = 200) +
 include_graphics(path = "images/quant-qual.png")
 ```
 
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
+
 ---
 
 # Use qualitative for nominal variables
@@ -746,6 +748,8 @@ include_graphics(path = "images/quant-qual.png")
 ```{r}
 include_graphics(path = "images/unordered.png")
 ```
+
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
 
 ---
 
@@ -755,6 +759,8 @@ include_graphics(path = "images/unordered.png")
 include_graphics(path = "images/unemp-best.png")
 ```
 
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
+
 ---
 
 # Quantitative $\neq$ continuous
@@ -762,6 +768,8 @@ include_graphics(path = "images/unemp-best.png")
 ```{r}
 include_graphics(path = "images/likert.png")
 ```
+
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
 
 ---
 
@@ -771,6 +779,8 @@ include_graphics(path = "images/likert.png")
 include_graphics(path = "images/treemap.png")
 ```
 
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
+
 ---
 
 # Double-encoded line chart
@@ -778,6 +788,8 @@ include_graphics(path = "images/treemap.png")
 ```{r}
 include_graphics(path = "images/double-encode-lines.png")
 ```
+
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
 
 ---
 
@@ -787,13 +799,7 @@ include_graphics(path = "images/double-encode-lines.png")
 include_graphics(path = "images/subcategories.png")
 ```
 
----
-
-# Stick to shades of one hue
-
-```{r}
-include_graphics(path = "images/hues-single.png")
-```
+.footnote[Source: [Lisa Charlotte Muth](https://blog.datawrapper.de/category/color-in-data-vis/)]
 
 ---
 
