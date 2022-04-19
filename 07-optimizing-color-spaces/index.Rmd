@@ -880,7 +880,7 @@ Scale function            | Aesthetic &nbsp;&nbsp;&nbsp;   | Data type     | Pal
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles1-out, ref.label = "temps-tiles1", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles1-out, ref.label = "temps-tiles1", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -901,7 +901,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles2-out, ref.label = "temps-tiles2", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles2-out, ref.label = "temps-tiles2", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -922,7 +922,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles3-out, ref.label = "temps-tiles3", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles3-out, ref.label = "temps-tiles3", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -943,7 +943,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles4-out, ref.label = "temps-tiles4", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles4-out, ref.label = "temps-tiles4", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -964,7 +964,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles5-out, ref.label = "temps-tiles5", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles5-out, ref.label = "temps-tiles5", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -1005,7 +1005,7 @@ Scale function                       | Aesthetic &nbsp;&nbsp;&nbsp; | Data type 
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles6-out, ref.label = "temps-tiles6", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles6-out, ref.label = "temps-tiles6", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -1026,7 +1026,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles7-out, ref.label = "temps-tiles7", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles7-out, ref.label = "temps-tiles7", echo = FALSE, fig.asp = .3}
 ```
 ]
 
@@ -1047,7 +1047,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
 
 .panelset[
 .panel[.panel-name[Output]
-```{r temps-tiles8-out, ref.label = "temps-tiles8", echo = FALSE, fig.asp = .3, dev = "svg"}
+```{r temps-tiles8-out, ref.label = "temps-tiles8", echo = FALSE, fig.asp = .3}
 ```
 ]
 
