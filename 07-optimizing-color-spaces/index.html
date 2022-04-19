@@ -650,7 +650,7 @@ Scale function                       | Aesthetic &amp;nbsp;&amp;nbsp;&amp;nbsp; 
 :-----------                         | :--------  | :--------- | :------------
 `scale_color_discrete_qualitative()` | `color`    | discrete   | qualitative
 `scale_fill_continuous_sequential()` | `fill`     | continuous | sequential
-`scale_colour_continous_divergingx()` | `colour`   | continuous | diverging
+`scale_colour_continuous_divergingx()` | `colour`   | continuous | diverging
 
 ---
 
@@ -668,7 +668,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
   geom_tile(width = 0.95, height = 0.95) + 
   coord_fixed(expand = FALSE) +
   theme_classic() +
-* scale_fill_continuous_sequential(palette = "YlGnBu", rev = FALSE)
+* scale_fill_continuous_sequential(palette = "YlGnBu")
 ```
 ]
 ]
@@ -689,7 +689,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
   geom_tile(width = 0.95, height = 0.95) + 
   coord_fixed(expand = FALSE) +
   theme_classic() +
-* scale_fill_continuous_sequential(palette = "Viridis", rev = FALSE)
+* scale_fill_continuous_sequential(palette = "Viridis")
 ```
 ]
 ]
@@ -710,7 +710,7 @@ ggplot(temps_months, aes(x = month, y = location, fill = mean)) +
   geom_tile(width = 0.95, height = 0.95) + 
   coord_fixed(expand = FALSE) +
   theme_classic() +
-* scale_fill_continuous_sequential(palette = "Inferno", begin = 0.15, rev = FALSE)
+* scale_fill_continuous_sequential(palette = "Inferno", begin = 0.15)
 ```
 ]
 ]
