@@ -618,7 +618,7 @@ Figure redrawn from [Claus O. Wilke. Fundamentals of Data Visualization. O'Reill
 
 ---
 
-class: inverse, center, middle
+class: inverse, middle
 
 # Choosing a color scale
 
@@ -803,7 +803,7 @@ include_graphics(path = "images/subcategories.png")
 
 ---
 
-class: inverse, center, middle
+class: inverse, middle
 
 # Implementing optimal color palettes in R
 
@@ -1088,7 +1088,7 @@ colorspace::divergingx_palettes(plot = TRUE, n = 9) # all divergingx palettes
 
 ---
 
-class: inverse, center, middle
+class: inverse, middle
 
 # Setting colors for discrete, qualitative scales
 
