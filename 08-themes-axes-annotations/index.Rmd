@@ -56,21 +56,7 @@ options(dplyr.print_max = 6, dplyr.print_min = 6)
 
 class: middle, inverse
 
-# CRAP and ggplot
-
----
-
-# Universal principles
-
-.center[
-.large[**C**ontrast]
-
-.large[**R**epetition]
-
-.large[**A**lignment]
-
-.large[**P**roximity]
-]
+# Themes
 
 ---
 
@@ -87,13 +73,11 @@ It adds contrast! Some people just don't like it `r emo::ji("shrug")`
 
 ---
 
-# Applying CRAP to ggplot
+class: inverse, middle
 
-We can follow CRAP principles to make big improvements to our plots
-
-Claus Wilke's chapter covers lots of these graph-specific principles
-
-We can apply these principles to `ggplot()` plots
+```{r alternatives, echo = FALSE, fig.align = "center"}
+include_graphics(path = "https://i.imgur.com/9luIDwf.gif")
+```
 
 ---
 
@@ -396,8 +380,8 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 ```{r echo = FALSE, fig.width = 6, out.width = "100%"}
 penguins_bad <- ggplot(penguins, aes(x = bill_depth_mm, y = flipper_length_mm, color = species, fill = species)) +
   geom_point(size = 2.5, stroke = 0.5, shape = 21, alpha = 0.6) +
-  scale_color_manual(values = darken(c("#E69F00", "#56B4E9", "#009E73"), 0.3)) +
-  scale_fill_manual(values = c("#E69F0080", "#56B4E980", "#009E7380")) +
+  scale_color_manual(values = darken(c("#009E73", "#56B4E9", "#E69F00"), 0.3)) +
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00")) +
   labs(
     x = "Bill depth (mm)",
     y = "Flipper length (mm)",
@@ -414,8 +398,8 @@ cowplot::stamp_bad(penguins_bad)
 
 .pull-right[
 ```{r echo = FALSE, fig.width = 6, out.width = "100%"}
-penguins_good <- ggplot(penguins, aes(x = bill_depth_mm, y = flipper_length_mm, color = species, fill = species)) +
-  geom_point(size = 2.5, stroke = 0.5, shape = 21, alpha = 0.6) +
+penguins_good <- ggplot(penguins, aes(x = bill_depth_mm, y = flipper_length_mm, color = species, fill = species, shape = species)) +
+  geom_point(size = 2.5, stroke = 0.5,  alpha = 0.6) +
   scale_color_manual(values = darken(c("#56B4E9", "#E69F00", "#009E73"), 0.3)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00", "#009E73")) +
   labs(
