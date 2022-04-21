@@ -378,8 +378,6 @@ Steve Jobs in *Fortune*, as quoted in [Alice Rawsthorn, *Hello World: Where Desi
 
 # Graph details: Redundant coding
 
-## One little change makes this far more accessible
-
 ```{r include = FALSE, cache = FALSE}
 # switch back to minimal theme
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
@@ -426,8 +424,6 @@ cowplot::stamp_good(penguins_good)
 ---
 
 # Graph details: Consistent ordering
-
-### Again, one little change makes this far more accessible
 
 .pull-left[
 ```{r echo = FALSE, fig.width = 6, out.width = "100%"}
