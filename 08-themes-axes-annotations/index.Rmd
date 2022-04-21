@@ -169,7 +169,7 @@ ggplot(penguins, aes(x = bill_depth_mm,
 
 ---
 
-class: inverse, middle, center
+class: inverse, middle
 
 ## One magic, powerful function
 
