@@ -38,6 +38,9 @@ library(ggpomological)
 library(colorspace)
 library(lubridate)
 library(hrbrthemes)
+library(WDI)
+library(ggrepel)
+library(ggtext)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
@@ -837,4 +840,619 @@ ggplot(gapminder_europe,
 
 class: inverse, middle
 
-# More .hand[live coding]
+# Complex annotations
+
+---
+
+## World development indicators
+
+```{r get-wdi-fake, include = FALSE, eval = FALSE}
+indicators <- c(
+  "SP.POP.TOTL", # Population
+  "EN.ATM.CO2E.PC", # CO2 emissions
+  "NY.GDP.PCAP.KD"
+) # GDP per capita
+
+wdi_co2_raw <- WDI(
+  country = "all", indicators, extra = TRUE,
+  start = 1995, end = 2015
+)
+```
+
+```{r save-wdi, eval = FALSE, include = FALSE}
+write_csv(wdi_co2_raw, here::here("data", "wdi_co2.csv"))
+```
+
+```{r load-data-wdi-real}
+wdi_co2_raw <- read_csv(here("data", "wdi_co2.csv"))
+```
+
+```{r clean-data-wdi}
+wdi_clean <- wdi_co2_raw %>%
+  filter(region != "Aggregates") %>%
+  select(iso2c, iso3c, country, year,
+    population = SP.POP.TOTL,
+    co2_emissions = EN.ATM.CO2E.PC,
+    gdp_per_cap = NY.GDP.PCAP.KD,
+    region, income
+  )
+
+wdi_clean
+```
+
+---
+
+## Clean and reshape data
+
+.tiny[
+```{r rearrange-data}
+co2_rankings <- wdi_clean %>%
+  # Get rid of smaller countries
+  filter(population > 200000) %>%
+  # Only look at two years
+  filter(year %in% c(1995, 2014)) %>%
+  # Get rid of all the rows that have missing values in co2_emissions
+  drop_na(co2_emissions) %>%
+  # Look at each year individually and rank countries based on their emissions that year
+  group_by(year) %>%
+  mutate(ranking = rank(co2_emissions)) %>%
+  ungroup() %>%
+  # Only select required columns
+  select(iso3c, country, year, region, income, ranking) %>%
+  # pivot long
+  pivot_wider(names_from = year, names_prefix = "rank_", values_from = ranking) %>%
+  # Find the difference in ranking between 2014 and 1995
+  mutate(rank_diff = rank_2014 - rank_1995) %>%
+  # Remove all rows where there's a missing value in the rank_diff column
+  drop_na(rank_diff) %>%
+  # Make an indicator variable that is true of the absolute value of the
+  # difference in rankings is greater than 25
+  mutate(big_change = ifelse(abs(rank_diff) >= 25, TRUE, FALSE)) %>%
+  # Make another indicator variable that indicates if the rank improved by a
+  # lot, worsened by a lot, or didn't change much.
+  mutate(better_big_change = case_when(
+    rank_diff <= -25 ~ "Rank improved",
+    rank_diff >= 25 ~ "Rank worsened",
+    TRUE ~ "Rank changed a little"
+  ))
+```
+]
+
+---
+
+## Clean and reshape data
+
+.small[
+```{r show-head-original}
+head(wdi_clean)
+```
+
+```{r show-head-new}
+head(co2_rankings)
+```
+]
+
+---
+
+class: inverse, middle
+
+## Plot the data and annotate
+
+---
+
+```{r cache = FALSE, include = FALSE}
+theme_set(theme_grey())
+```
+
+.pull-left[
+.tiny[
+```{r pretty-plot-0, fig.show = "hide", warning = FALSE}
+set.seed(123) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-0", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-1, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot( #<<
+  data = co2_rankings, #<<
+  mapping = aes(x = rank_1995, y = rank_2014) #<<
+) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-1", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-2, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  geom_point(aes(color = better_big_change)) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-2", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-3, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel( #<<
+    data = filter(co2_rankings, big_change == TRUE), #<<
+    aes(label = country, fill = better_big_change), #<<
+    color = "white", family = "Roboto Condensed" #<<
+  ) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-3", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-5, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) + #<<
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  )
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-5", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-6, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate( #<<
+    geom = "text", x = 170, y = 6, label = "Outliers improving", #<<
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50" #<<
+  ) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-6", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-7, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate( #<<
+    geom = "text", x = 2, y = 170, label = "Outliers worsening", #<<
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50" #<<
+  ) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-7", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-8, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-8", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-9, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-9", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-10, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) + #<<
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-10", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-11, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs( #<<
+    x = "Rank in 1995", y = "Rank in 2014", #<<
+    title = "Changes in CO2 emission rankings between 1995 and 2014", #<<
+    subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted", #<<
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded." #<<
+  ) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-11", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-12, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO2 emission rankings between 1995 and 2014",
+    subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-12", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-13, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO2 emission rankings between 1995 and 2014",
+    subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+  theme_bw(base_family = "Roboto Condensed") #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-13", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-14, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO<sub>2</sub> emission rankings between 1995 and 2014", #<<
+    subtitle = "Countries that <span style='color: #0074D9'>**improved**</span> or <span style='color: #FF4136'>**worsened**</span> more than 25 positions in the rankings highlighted", #<<
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+  theme_bw(base_family = "Roboto Condensed")
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-14", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+.pull-left[
+.tiny[
+```{r pretty-plot-15, fig.show = "hide", warning = FALSE}
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO<sub>2</sub> emission rankings between 1995 and 2014",
+    subtitle = "Countries that <span style='color: #0074D9'>**improved**</span> or <span style='color: #FF4136'>**worsened**</span> more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+  theme_bw(base_family = "Roboto Condensed") +
+  theme( #<<
+    plot.title = element_markdown(face = "bold", size = rel(1.6)), #<<
+    plot.subtitle = element_markdown(size = rel(1.3)), #<<
+    plot.margin = unit(c(0.5, 1, 0.5, 0.5), units = "lines") #<<
+  ) #<<
+```
+]
+]
+.pull-right[
+```{r ref.label = "pretty-plot-15", echo = FALSE, warning = FALSE, out.width = "100%", fig.width = 8}
+```
+]
+
+---
+
+```{r ref.label = "pretty-plot-15", echo = FALSE, warning = FALSE, out.width = "90%", fig.width = 10}
+```
+

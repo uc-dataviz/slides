@@ -37,6 +37,9 @@ library(ggpomological)
 library(colorspace)
 library(lubridate)
 library(hrbrthemes)
+library(WDI)
+library(ggrepel)
+library(ggtext)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_gray(base_size = 16))
@@ -743,7 +746,649 @@ ggplot(gapminder_europe,
 
 class: inverse, middle
 
-# More .hand[live coding]
+# Complex annotations
+
+---
+
+## World development indicators
+
+
+
+
+
+
+```r
+wdi_co2_raw &lt;- read_csv(here("data", "wdi_co2.csv"))
+```
+
+
+```r
+wdi_clean &lt;- wdi_co2_raw %&gt;%
+  filter(region != "Aggregates") %&gt;%
+  select(iso2c, iso3c, country, year,
+    population = SP.POP.TOTL,
+    co2_emissions = EN.ATM.CO2E.PC,
+    gdp_per_cap = NY.GDP.PCAP.KD,
+    region, income
+  )
+
+wdi_clean
+```
+
+```
+## # A tibble: 4,557 × 9
+##   iso2c iso3c country  year population co2_emissions gdp_per_cap region   income
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; 
+## 1 AD    AND   Andorra  2001      67344          7.72      35975. Europe … High …
+## 2 AD    AND   Andorra  1997      64318          7.31      31326. Europe … High …
+## 3 AD    AND   Andorra  1998      64140          7.64      32416. Europe … High …
+## 4 AD    AND   Andorra  2000      65390          7.95      34268. Europe … High …
+## 5 AD    AND   Andorra  2014      79213          5.81      34722. Europe … High …
+## 6 AD    AND   Andorra  2002      70048          7.57      36159. Europe … High …
+## # … with 4,551 more rows
+```
+
+---
+
+## Clean and reshape data
+
+.tiny[
+
+```r
+co2_rankings &lt;- wdi_clean %&gt;%
+  # Get rid of smaller countries
+  filter(population &gt; 200000) %&gt;%
+  # Only look at two years
+  filter(year %in% c(1995, 2014)) %&gt;%
+  # Get rid of all the rows that have missing values in co2_emissions
+  drop_na(co2_emissions) %&gt;%
+  # Look at each year individually and rank countries based on their emissions that year
+  group_by(year) %&gt;%
+  mutate(ranking = rank(co2_emissions)) %&gt;%
+  ungroup() %&gt;%
+  # Only select required columns
+  select(iso3c, country, year, region, income, ranking) %&gt;%
+  # pivot long
+  pivot_wider(names_from = year, names_prefix = "rank_", values_from = ranking) %&gt;%
+  # Find the difference in ranking between 2014 and 1995
+  mutate(rank_diff = rank_2014 - rank_1995) %&gt;%
+  # Remove all rows where there's a missing value in the rank_diff column
+  drop_na(rank_diff) %&gt;%
+  # Make an indicator variable that is true of the absolute value of the
+  # difference in rankings is greater than 25
+  mutate(big_change = ifelse(abs(rank_diff) &gt;= 25, TRUE, FALSE)) %&gt;%
+  # Make another indicator variable that indicates if the rank improved by a
+  # lot, worsened by a lot, or didn't change much.
+  mutate(better_big_change = case_when(
+    rank_diff &lt;= -25 ~ "Rank improved",
+    rank_diff &gt;= 25 ~ "Rank worsened",
+    TRUE ~ "Rank changed a little"
+  ))
+```
+]
+
+---
+
+## Clean and reshape data
+
+.small[
+
+```r
+head(wdi_clean)
+```
+
+```
+## # A tibble: 6 × 9
+##   iso2c iso3c country  year population co2_emissions gdp_per_cap region   income
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; 
+## 1 AD    AND   Andorra  2001      67344          7.72      35975. Europe … High …
+## 2 AD    AND   Andorra  1997      64318          7.31      31326. Europe … High …
+## 3 AD    AND   Andorra  1998      64140          7.64      32416. Europe … High …
+## 4 AD    AND   Andorra  2000      65390          7.95      34268. Europe … High …
+## 5 AD    AND   Andorra  2014      79213          5.81      34722. Europe … High …
+## 6 AD    AND   Andorra  2002      70048          7.57      36159. Europe … High …
+```
+
+
+```r
+head(co2_rankings)
+```
+
+```
+## # A tibble: 6 × 9
+##   iso3c country           region income rank_1995 rank_2014 rank_diff big_change
+##   &lt;chr&gt; &lt;chr&gt;             &lt;chr&gt;  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;lgl&gt;     
+## 1 ARE   United Arab Emir… Middl… High …       171       169        -2 FALSE     
+## 2 AFG   Afghanistan       South… Low i…        14        22         8 FALSE     
+## 3 ALB   Albania           Europ… Upper…        52        74        22 FALSE     
+## 4 ARM   Armenia           Europ… Upper…        73        76         3 FALSE     
+## 5 AGO   Angola            Sub-S… Lower…        59        62         3 FALSE     
+## 6 ARG   Argentina         Latin… Upper…       100       110        10 FALSE     
+## # … with 1 more variable: better_big_change &lt;chr&gt;
+```
+]
+
+---
+
+class: inverse, middle
+
+## Plot the data and annotate
+
+---
+
+
+
+.pull-left[
+.tiny[
+
+```r
+*set.seed(123)
+```
+]
+]
+.pull-right[
+
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+*ggplot(
+* data = co2_rankings,
+* mapping = aes(x = rank_1995, y = rank_2014)
+*) 
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+* geom_point(aes(color = better_big_change))
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  geom_point(aes(color = better_big_change)) +
+* geom_label_repel(
+*   data = filter(co2_rankings, big_change == TRUE),
+*   aes(label = country, fill = better_big_change),
+*   color = "white", family = "Roboto Condensed"
+* )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+* annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+* annotate(
+*   geom = "text", x = 170, y = 6, label = "Outliers improving",
+*   family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+* )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+* annotate(
+*   geom = "text", x = 2, y = 170, label = "Outliers worsening",
+*   family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+* )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+* scale_color_manual(values = c("grey50", "#0074D9", "#FF4136"))
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+* scale_fill_manual(values = c("#0074D9", "#FF4136"))
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-40-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+* scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+* scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25))
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-41-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+* labs(
+*   x = "Rank in 1995", y = "Rank in 2014",
+*   title = "Changes in CO2 emission rankings between 1995 and 2014",
+*   subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted",
+*   caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+* )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-42-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO2 emission rankings between 1995 and 2014",
+    subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+* guides(color = "none", fill = "none")
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-43-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO2 emission rankings between 1995 and 2014",
+    subtitle = "Countries that improved or worsened more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+* theme_bw(base_family = "Roboto Condensed")
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-44-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+*   title = "Changes in CO&lt;sub&gt;2&lt;/sub&gt; emission rankings between 1995 and 2014",
+*   subtitle = "Countries that &lt;span style='color: #0074D9'&gt;**improved**&lt;/span&gt; or &lt;span style='color: #FF4136'&gt;**worsened**&lt;/span&gt; more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+  theme_bw(base_family = "Roboto Condensed")
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+.tiny[
+
+```r
+set.seed(123)
+
+ggplot(
+  data = co2_rankings,
+  mapping = aes(x = rank_1995, y = rank_2014)
+) +
+  annotate(geom = "segment", x = 0, xend = 172, y = 0, yend = 178) +
+  geom_point(aes(color = better_big_change)) +
+  geom_label_repel(
+    data = filter(co2_rankings, big_change == TRUE),
+    aes(label = country, fill = better_big_change),
+    color = "white", family = "Roboto Condensed"
+  ) +
+  annotate(
+    geom = "text", x = 170, y = 6, label = "Outliers improving",
+    family = "Roboto Condensed", fontface = "italic", hjust = 1, color = "grey50"
+  ) +
+  annotate(
+    geom = "text", x = 2, y = 170, label = "Outliers worsening",
+    family = "Roboto Condensed", fontface = "italic", hjust = 0, color = "grey50"
+  ) +
+  scale_color_manual(values = c("grey50", "#0074D9", "#FF4136")) +
+  scale_fill_manual(values = c("#0074D9", "#FF4136")) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 175, 25)) +
+  labs(
+    x = "Rank in 1995", y = "Rank in 2014",
+    title = "Changes in CO&lt;sub&gt;2&lt;/sub&gt; emission rankings between 1995 and 2014",
+    subtitle = "Countries that &lt;span style='color: #0074D9'&gt;**improved**&lt;/span&gt; or &lt;span style='color: #FF4136'&gt;**worsened**&lt;/span&gt; more than 25 positions in the rankings highlighted",
+    caption = "Source: The World Bank.\nCountries with populations of less than 200,000 excluded."
+  ) +
+  guides(color = "none", fill = "none") +
+  theme_bw(base_family = "Roboto Condensed") +
+* theme(
+*   plot.title = element_markdown(face = "bold", size = rel(1.6)),
+*   plot.subtitle = element_markdown(size = rel(1.3)),
+*   plot.margin = unit(c(0.5, 1, 0.5, 0.5), units = "lines")
+* )
+```
+]
+]
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-46-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
