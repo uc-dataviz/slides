@@ -1,0 +1,215 @@
+---
+title: "Presentation ready plots"
+author: "MACS 40700 <br /> University of Chicago"
+output: rcfss::xaringan_wide
+---
+
+```{r setup, include = FALSE, cache = FALSE}
+# generate CSS file
+library(xaringanthemer)
+rcfss::xaringan_theme()
+
+# source in the default knitr options
+source(here::here("R", "slide-opts.R"))
+
+# enable panelsets and default theme
+xaringanExtra::use_panelset()
+# ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# load basic packages
+library(knitr)
+library(here)
+library(countdown)
+library(patchwork)
+```
+
+class: middle, inverse
+
+# Welcome
+
+---
+
+## Announcements I
+
+Project presentations on Thursday
+
+- Bring a laptop to fill out feedback forms
+- Presentation order, with latest start-by times:
+  - 11:03 - Calm Comet
+  - 11:11 - Chalky Piglet
+  - 11:19 - Elated Anura
+  - 11:27 - Female Python
+  - 11:35 - Froggy Panda
+  - 11:43 - Outer Baboon
+  - 12:51 - Sleepy Spider
+  - 11:59 - Swampy Pygmy
+  - 12:07 - Tan Egg
+  - 12:15 - Undead Hen
+
+---
+
+## Setup
+
+```{r message = FALSE, warning = FALSE}
+# load packages
+library(tidyverse)
+library(colorspace)
+library(ggtext)
+library(scales)
+library(ggrepel)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618, fig.retina = 3,
+  dpi = 300, out.width = "60%"
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 6, dplyr.print_min = 6)
+```
+
+---
+
+## Agenda for today
+
+- Wrap up annotations
+
+- Telling a story
+
+- `xaringan`
+
+- Plots on slides
+
+---
+
+class: inverse, middle
+
+# Telling a story
+
+---
+
+## Multiple ways of telling a story
+
+- Sequential plots: Motivation, then resolution
+
+- A single plot: Resolution, and hidden in it motivation
+
+<br>
+
+.note[
+**Project note:** you're asked to create two plots per question. One possible approach: Start with a plot showing the raw data, and show derived quantities (e.g. percent increases, averages, coefficients of fitted models) in the subsequent plot.
+]
+
+---
+
+## Simplicity vs. complexity
+
+> When you’re trying to show too much data at once you may end up not showing anything.
+
+- Never assume your audience can rapidly process complex visual displays
+
+- Don't add variables to your plot that are tangential to your story
+
+- Don't jump straight to a highly complex figure; first show an easily digestible subset (e.g., show one facet first)
+
+- Aim for memorable, but clear
+
+<br>
+
+.note[
+**Project note:** Make sure to leave time to iterate on your plots after you practice your presentation. If certain plots are getting too wordy to explain, take time to simplify them!
+]
+
+---
+
+## Consistency vs. repetitiveness
+
+> Be consistent but don’t be repetitive.
+
+- Use consistent features throughout plots (e.g., same color represents same level on all plots)
+
+- Aim to use a different type of visualization for each distinct analysis
+
+<br>
+
+.note[
+**Project note:** If possible, ask a friend who is not in the class to listen to your presentation and then ask them what they remember. Then, ask yourself: is that what you wanted them to remember?
+]
+
+---
+
+class: inverse, middle
+
+# `xaringan`
+
+---
+
+## `xaringan`
+
+- R Markdown extension to HTML5 presentations
+
+- [Detailed guide to `xaringan`](https://arm.rbind.io/slides/xaringan.html)
+
+- [`xaringan` in R Markdown reference book](https://bookdown.org/yihui/rmarkdown/xaringan.html)
+
+- [Example slides](https://dataviz-sp22.github.io/proj1/presentation/presentation.html#1)
+
+---
+
+class: inverse, middle
+
+# Plots on slides
+
+---
+
+## Fitting your figures on a slide
+
+- Use a setup chunk for consistent `dpi`, `fig.asp`, `out.width` etc.
+
+- But, remember that you might want different `fig.asp` and `out.width` for faceted plots
+
+- For a "zoomed out" look, increase `fig.width`
+
+.pull-left[
+```{r out.width = "100%", echo = FALSE}
+mtcars %>%
+  rownames_to_column() %>%
+  ggplot(aes(x = disp, y = mpg)) +
+  geom_text_repel(aes(label = rowname)) +
+  coord_cartesian(clip = "off") +
+  labs(title = "fig.width = 8")
+```
+]
+.pull-right[
+```{r out.width = "100%", fig.width = 10, echo = FALSE}
+mtcars %>%
+  rownames_to_column() %>%
+  ggplot(aes(x = disp, y = mpg)) +
+  geom_text_repel(aes(label = rowname)) +
+  coord_cartesian(clip = "off") +
+  labs(title = "fig.width = 10")
+```
+]
+
+---
+
+## Multiple figures on a slide
+
+- Use `.pull-left` and `.pull-right` environments (example in slide template)
+
+- Use `out.width= "50%"` in a chunk that creates two plots to have each span half the slide and be placed next to each other (or `out.width = "33%"` for three plots, etc.)
+
+- Use the [**patchwork**](https://patchwork.data-imaginist.com/) package (details on this later in the semester, but feel free to look into it yourself!)
+
+- Possibly, use pivoting to reshape your data and then use facets
+
+---
+
+## Like something you saw in my slides?
+
+<br>
+
+Look into the source code at https://github.com/uc-dataviz/slides.
