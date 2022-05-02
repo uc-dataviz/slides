@@ -32,7 +32,7 @@ class: inverse, middle
 
 ## Setup
 
-```{r pkgs, message = FALSE, cache = FALSE}
+```{r pkgs, message = FALSE, cache = FALSE, echo = TRUE}
 # load packages
 library(tidyverse)
 library(sf)
@@ -233,34 +233,20 @@ class: inverse, middle
 
 ## Bounding box
 
-.pull-left[
-
-```{r bb-chicago-stamen, eval = FALSE, echo = TRUE}
-# store bounding box coordinates
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 chi_bb <- c(
   left = -87.936287,
   bottom = 41.679835,
   right = -87.447052,
   top = 42.000835
 )
-
-# get map tiles
 chicago <- get_stamenmap(
   bbox = chi_bb,
   zoom = 11
 )
-
-# draw the map
 ggmap(chicago)
 ```
-
-]
-
-.pull-right[
-
-```{r bb-chicago-stamen-out, ref.label = "bb-chicago-stamen", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
@@ -321,7 +307,7 @@ wrap_plots(stamen_maptype$ggmap)
 * City of Chicago open data portal
 * [Crime data from 2017](https://data.cityofchicago.org/Public-Safety/Crimes-2017/d62x-nvdr)
 
-```{r import-crimes}
+```{r import-crimes, echo = TRUE}
 crimes <- read_csv("data/chicago-crimes.csv")
 glimpse(crimes)
 ```
@@ -330,28 +316,18 @@ glimpse(crimes)
 
 ## Plot high-level map of crime
 
-.pull-left[
-
-```{r import-chicago, eval = FALSE, echo = TRUE}
+.panelset[
+```{r import-chicago, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago)
 ```
-
-]
-
-.pull-right[
-
-```{r import-chicago-out, ref.label = "import-chicago", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Using `geom_point()`
 
-.pull-left[
-
-```{r plot-crime-point, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r plot-crime-point, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   geom_point(
     data = crimes,
@@ -361,23 +337,14 @@ ggmap(chicago) +
     )
   )
 ```
-
-]
-
-.pull-right[
-
-```{r plot-crime-point-out, ref.label = "plot-crime-point", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Using `geom_point()`
 
-.pull-left[
-
-```{r plot-crime-point-alpha, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r plot-crime-point-alpha, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   geom_point(
     data = crimes,
@@ -389,24 +356,14 @@ ggmap(chicago) +
     alpha = .01
   )
 ```
-
-
-]
-
-.pull-right[
-
-```{r plot-crime-point-alpha-out, ref.label = "plot-crime-point-alpha", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Using `stat_density_2d()`
 
-.pull-left[
-
-```{r kde-contour, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r kde-contour, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   geom_density_2d(
     data = crimes,
@@ -416,23 +373,14 @@ ggmap(chicago) +
     )
   )
 ```
-
-]
-
-.pull-right[
-
-```{r kde-contour-out, ref.label = "kde-contour", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Using `stat_density_2d()`
 
-.pull-left[
-
-```{r kde-fill, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r kde-fill, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   stat_density_2d(
     data = crimes,
@@ -444,23 +392,14 @@ ggmap(chicago) +
     geom = "polygon"
   )
 ```
-
-]
-
-.pull-right[
-
-```{r kde-fill-out, ref.label = "kde-fill", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Using `stat_density_2d()`
 
-.pull-left[
-
-```{r plot-crime-density, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r plot-crime-density, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   stat_density_2d(
     data = crimes,
@@ -474,23 +413,14 @@ ggmap(chicago) +
     geom = "polygon"
   )
 ```
-
-]
-
-.pull-right[
-
-```{r plot-crime-density-out, ref.label = "plot-crime-density", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
 
 ## Looking for variation
 
-.pull-left[
-
-```{r plot-crime-wday, dependson = "import-crimes", eval = FALSE, echo = TRUE}
+.panelset[
+```{r plot-crime-wday, dependson = "import-crimes", panelset = c(output = "Plot", source = "Code"), echo = TRUE, out.width = "70%"}
 ggmap(chicago) +
   stat_density_2d(
     data = crimes %>%
@@ -509,14 +439,6 @@ ggmap(chicago) +
   ) +
   facet_wrap(facets = vars(`Primary Type`))
 ```
-
-]
-
-.pull-right[
-
-```{r plot-crime-wday-out, ref.label = "plot-crime-wday", eval = TRUE, echo = FALSE}
-```
-
 ]
 
 ---
