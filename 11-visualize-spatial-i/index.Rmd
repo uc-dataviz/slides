@@ -463,6 +463,12 @@ ggmap(chicago) +
 - City of Chicago data portal
 - 311 service requests
 
+```r
+# install ggmap if necessary
+# install.packages("ggmap")
+usethis::use_course("uc-dataviz/raster-maps")
+```
+
 ```{r cache = FALSE, echo = FALSE}
 countdown(minutes = 15)
 ```
