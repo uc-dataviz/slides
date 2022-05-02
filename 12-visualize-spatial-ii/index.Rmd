@@ -19,7 +19,6 @@ rcfss::xaringan_theme()
 
 # source in the default knitr options
 source(here::here("R", "slide-opts.R"))
-knitr::opts_chunk$set(echo = FALSE)
 
 # enable panelsets and default theme
 xaringanExtra::use_panelset()
@@ -41,14 +40,14 @@ class: inverse, middle
 
 ## Setup
 
-```{r pkgs, message = FALSE, cache = FALSE, echo = TRUE}
+```{r pkgs, message = FALSE, cache = FALSE}
 # load packages
 library(tidyverse)
 library(sf)
 library(rnaturalearth)
 library(lubridate)
 library(tidycensus)
-library(RColorBrewer)
+library(colorspace)
 
 # more efficient to generate sf maps
 if (!identical(getOption("bitmapType"), "cairo") && isTRUE(capabilities()[["cairo"]])) {
@@ -111,7 +110,7 @@ knitr::opts_chunk$set(
 ## Simple Features for R
 
 ```{r echo = FALSE, fig.alt = "Simple features for R", out.width = "60%"}
-knitr::include_graphics("images/sf.jpeg")
+include_graphics("images/sf.jpeg")
 ```
 
 .footnote[
@@ -142,7 +141,7 @@ Illustration by Allison Horst
 ## Simple features
 
 ```{r echo = FALSE, fig.alt = "Simple features", out.width = "70%"}
-knitr::include_graphics("images/simple-features.png")
+include_graphics("images/simple-features.png")
 ```
 
 .footnote[
@@ -161,15 +160,19 @@ Source: [Simple Features for R](https://r-spatial.github.io/sf/articles/sf1.html
 
 ## Importing shapefiles
 
-```{r import-usa-shape, echo = TRUE}
+```{r import-usa-shape, include = FALSE}
 usa_shape <- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
+```
+
+```{r import-usa-shape-fake,  eval = FALSE}
+usa_shape <- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
 ---
 
 ## Importing shapefiles
 
-```{r import-usa-shape-print, echo = TRUE}
+```{r import-usa-shape-print}
 usa_shape
 ```
 
@@ -177,15 +180,19 @@ usa_shape
 
 ## Importing GeoJSON files
 
-```{r import-chi-json, echo = TRUE}
+```{r import-chi-json, include = FALSE}
 chi_json <- st_read(dsn = here("12-visualize-spatial-ii", "data", "community-area-boundaries.geojson"))
+```
+
+```{r import-chi-json-fake, eval = FALSE}
+chi_json <- st_read(dsn = here("data", "community-area-boundaries.geojson"))
 ```
 
 ---
 
 ## Importing GeoJSON files
 
-```{r import-chi-json-print, echo = TRUE}
+```{r import-chi-json-print}
 chi_json
 ```
 
@@ -193,46 +200,60 @@ chi_json
 
 ## Drawing maps with `sf` objects
 
-```{r import-usa, echo = TRUE}
+```{r import-usa, include = FALSE}
 usa <- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
+```
+
+```{r import-usa-fake, eval = FALSE}
+usa <- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
 ---
 
 ## USA boundaries
 
-```{r geom-sf, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot(data = usa) +
-  geom_sf()
+  geom_sf() #<<
 ```
+]
 
 ---
 
 ## Plot a subset of a map
 
-```{r usa-subset, echo = TRUE, fig.height = 5}
-usa_48 <- usa %>%
-  filter(NAME %in% state.name) %>%
-  filter(NAME != "Alaska", NAME != "Hawaii")
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+usa_48 <- usa %>% #<<
+  filter(NAME %in% state.name) %>% #<<
+  filter(NAME != "Alaska", NAME != "Hawaii") #<<
 
 ggplot(data = usa_48) +
   geom_sf()
 ```
+]
 
 ---
 
 ## Just another `ggplot()`
 
-```{r usa-fill, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot(data = usa_48) +
-  geom_sf(fill = "palegreen", color = "black")
+  geom_sf(
+    fill = "palegreen", #<<
+    color = "black" #<<
+  )
 ```
+]
 
 ---
 
 ## `urbnmapr`
 
-```{r urbnmapr, echo = TRUE, fig.height = 5}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 # devtools::install_github("UrbanInstitute/urbnmapr")
 library(urbnmapr)
 
@@ -241,16 +262,23 @@ states_sf <- get_urbn_map("states", sf = TRUE)
 ggplot(data = states_sf) +
   geom_sf()
 ```
+]
+
+---
+
+class: inverse, middle
+
+# Identifying points on a map
 
 ---
 
 ## Points
 
-```{r import-crimes, echo = TRUE}
+```{r import-crimes}
 crimes <- read_csv("data/chicago-crimes.csv")
 ```
 
-```{r chi-crimes, echo = TRUE}
+```{r chi-crimes}
 crimes_homicide <- filter(.data = crimes, `Primary Type` == "HOMICIDE")
 crimes_homicide
 ```
@@ -259,20 +287,21 @@ crimes_homicide
 
 ## Points
 
-```{r scatter, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot(data = crimes_homicide, mapping = aes(x = Longitude, y = Latitude)) +
   geom_point()
 ```
+]
 
 ---
 
 ## Points
 
-.pull-left[
-
-```{r chi-crime, eval = FALSE, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot(data = chi_json) +
-  geom_sf() +
+  geom_sf() + #<<
   geom_point(
     data = crimes_homicide,
     mapping = aes(
@@ -282,21 +311,13 @@ ggplot(data = chi_json) +
     shape = 1
   )
 ```
-
-]
-
-.pull-right[
-
-```{r chi-crime-out, ref.label = "chi-crime", eval = TRUE, echo = FALSE, fig.width = 6}
-```
-
 ]
 
 ---
 
 ## Converting to `sf` data frame
 
-```{r crimes-sf, echo = TRUE}
+```{r crimes-sf}
 crimes_homicide_sf <- st_as_sf(x = crimes_homicide, coords = c("Longitude", "Latitude"))
 st_crs(crimes_homicide_sf) <- 4326 # set the coordinate reference system
 crimes_homicide_sf
@@ -306,17 +327,25 @@ crimes_homicide_sf
 
 ## Plotting with two sf data frames
 
-```{r crimes-sf-plot, echo = TRUE, fig.height = 6}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot() +
   geom_sf(data = chi_json) +
-  geom_sf(data = crimes_homicide_sf, shape = 1)
+  geom_sf(data = crimes_homicide_sf, shape = 1) #<<
 ```
+]
+
+---
+
+class: inverse, middle
+
+# Choropleths
 
 ---
 
 ## Fill (choropleths)
 
-```{r import-foreign, echo = TRUE}
+```{r import-foreign}
 fb_state <- read_csv(file = here("12-visualize-spatial-ii", "data", "foreign-born.csv"))
 fb_state
 ```
@@ -325,7 +354,7 @@ fb_state
 
 ## Join the data
 
-```{r usa-foreign-join, echo = TRUE}
+```{r usa-foreign-join}
 usa_fb <- left_join(x = usa_48, y = fb_state, by = c("STATEFP" = "GEOID", "NAME"))
 usa_fb
 ```
@@ -334,22 +363,36 @@ usa_fb
 
 ## Draw the map
 
-```{r geom-map-state, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 ggplot(data = usa_fb) +
-  geom_sf(mapping = aes(fill = pct_foreign))
+  geom_sf(mapping = aes(fill = pct_foreign)) #<<
 ```
+]
+
+---
+
+## Use better colors
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+ggplot(data = usa_fb) +
+  geom_sf(mapping = aes(fill = pct_foreign)) +
+  scale_fill_continuous_sequential(palette = "mako") #<<
+```
+]
 
 ---
 
 ## Spatial aggregation
 
-```{r crimes-agg, echo = TRUE}
+```{r crimes-agg}
 st_join(x = chi_json, y = crimes_homicide_sf)
 ```
 
 ---
 
-```{r crimes-agg-map, include = FALSE, fig.width = 6}
+```{r crimes-agg-map, include = FALSE}
 chi_json %>%
   st_join(y = crimes_homicide_sf) %>%
   group_by(community) %>%
@@ -360,7 +403,6 @@ chi_json %>%
 
 `r chunk_reveal(chunk_name = "crimes-agg-map", break_type = "auto")`
 
-
 ---
 
 ## Exercise using household income
@@ -368,7 +410,7 @@ chi_json %>%
 - American Community Survey
 - [`tidycensus`](https://walker-data.com/tidycensus/)
 
-```{r cache = FALSE}
+```{r cache = FALSE, echo = FALSE}
 countdown(minutes = 10)
 ```
 
@@ -383,35 +425,56 @@ countdown(minutes = 10)
 
 ## `cut_interval()`
 
-```{r cut-interval, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 usa_fb %>%
-  mutate(rate_cut = cut_interval(pct_foreign, n = 6)) %>%
+  mutate(rate_cut = cut_interval(pct_foreign, n = 6)) %>% #<<
   ggplot() +
-  geom_sf(aes(fill = rate_cut))
+  geom_sf(aes(fill = rate_cut)) +
+  scale_fill_discrete_sequential(palette = "inferno")
 ```
+]
 
 ---
 
 ## `cut_number()`
 
-```{r cut-number, echo = TRUE}
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
 usa_fb %>%
-  mutate(rate_cut = cut_number(pct_foreign, n = 6)) %>%
+  mutate(rate_cut = cut_number(pct_foreign, n = 6)) %>% #<<
   ggplot() +
-  geom_sf(aes(fill = rate_cut))
+  geom_sf(aes(fill = rate_cut)) +
+  scale_fill_discrete_sequential(palette = "inferno")
 ```
+]
+
+---
+
+## `ggplot2::binned_scale()`
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+usa_fb %>%
+  ggplot() +
+  geom_sf(aes(fill = pct_foreign)) +
+  scale_fill_binned_sequential(palette = "inferno")
+```
+]
 
 ---
 
 ## Map projection
 
+.center[
 <iframe width="560" height="315" src="https://www.youtube.com/embed/vVX-PrBRtTY?rel=0" frameborder="0" allowfullscreen></iframe>
+]
 
 ---
 
 ## Map projection
 
-```{r echo = FALSE}
+```{r echo = FALSE, out.width = "40%"}
 include_graphics(path = "https://imgs.xkcd.com/comics/mercator_projection.png")
 ```
 
@@ -430,12 +493,12 @@ include_graphics(path = "https://imgs.xkcd.com/comics/mercator_projection.png")
 
 ## Mercator projection
 
-```{r projections}
+```{r projections, echo = FALSE}
 map_proj_base <- ggplot(data = usa_48) +
   geom_sf()
 ```
 
-```{r mercator-sf, echo = TRUE, fig.height = 6}
+```{r mercator-sf, echo = FALSE}
 map_proj_base +
   coord_sf(crs = 3785) +
   ggtitle("Mercator projection")
@@ -445,7 +508,7 @@ map_proj_base +
 
 ## Projection using standard lines
 
-```{r projection-rest}
+```{r projection-rest, echo = FALSE, fig.width = 12}
 {
   map_proj_base +
     coord_sf(crs = 4326) +
