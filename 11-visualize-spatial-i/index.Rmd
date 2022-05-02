@@ -476,7 +476,7 @@ class: middle, inverse
 ---
 
 ```{r echo = FALSE, message = FALSE}
-us_state_vaccinations <- read_csv(here::here("11-visualizing-geospatial-data-i", "data/us_state_vaccinations.csv"))
+us_state_vaccinations <- read_csv(here::here("11-visualize-spatial-i", "data/us_state_vaccinations.csv"))
 
 us_state_vaccinations <- us_state_vaccinations %>%
   mutate(location = if_else(location == "New York State", "New York", location)) %>%
@@ -511,7 +511,7 @@ ggplot(us_state_vaccinations, aes(x = date, y = people_fully_vaccinated_per_hund
 ## Daily US vaccine data by state
 
 ```{r include = FALSE}
-us_state_vaccinations <- read_csv(here::here("11-visualizing-geospatial-data-i", "data/us_state_vaccinations.csv"))
+us_state_vaccinations <- read_csv(here::here("11-visualize-spatial-i", "data/us_state_vaccinations.csv"))
 ```
 
 .small[
