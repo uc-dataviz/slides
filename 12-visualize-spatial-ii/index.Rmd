@@ -410,6 +410,12 @@ chi_json %>%
 - American Community Survey
 - [`tidycensus`](https://walker-data.com/tidycensus/)
 
+```r
+# install sf if necessary
+# install.packages("sf")
+usethis::use_course("uc-dataviz/vector-maps")
+```
+
 ```{r cache = FALSE, echo = FALSE}
 countdown(minutes = 10)
 ```
@@ -474,7 +480,7 @@ usa_fb %>%
 
 ## Map projection
 
-```{r echo = FALSE, out.width = "40%"}
+```{r echo = FALSE, out.width = "30%"}
 include_graphics(path = "https://imgs.xkcd.com/comics/mercator_projection.png")
 ```
 
