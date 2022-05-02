@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizing geospatial data II</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link href="index_files/countdown/countdown.css" rel="stylesheet" />
+    <script src="index_files/countdown/countdown.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualizing geospatial data II
+### MACS 40700 <br /> University of Chicago
+
+---
+
+
+
+
+class: inverse, middle
+
+# Setup
+
+---
+
+## Setup
+
+
+```r
+# load packages
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(lubridate)
+library(tidycensus)
+library(RColorBrewer)
+
+# more efficient to generate sf maps
+if (!identical(getOption("bitmapType"), "cairo") &amp;&amp; isTRUE(capabilities()[["cairo"]])) {
+  options(bitmapType = "cairo")
+}
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618,
+  fig.retina = 2, dpi = 150
+)
+```
+
+---
+
+## Map data file formats
+
+* Vector files
+    * Raster images
+    * Numeric data
+* Popular formats
+    * Shapefile
+    * GeoJSON
+    
+---
+
+## Shapefile
+
+* Encodes points, lines, and polygons
+* Collection of files
+    * `.shp` - geographic coordinates
+    * `.dbf` - data associated with the geographic features
+    * `.prj` - projection of the coordinates in the shapefile
+
+---
+
+## GeoJSON
+
+* Uses **J**ava**S**cript **O**bject **N**otation (JSON) file format
+    
+    ```json
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [125.6, 10.1]
+      },
+      "properties": {
+        "name": "Dinagat Islands"
+      }
+    }
+    ```
+* Plain text files
+
+---
+
+## Simple Features for R
+
+&lt;img src="images/sf.jpeg" title="Simple features for R" alt="Simple features for R" width="60%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Illustration by Allison Horst
+]
+
+---
+
+## What is a feature?
+
+* Thing or an object in the real world
+* Sets of features
+* Geometry
+* Attributes
+
+---
+
+## Dimensions
+
+* Geometries composed of points
+    * Coordinates in a 2-, 3- or 4-dimensional space
+    * All points in a geometry have the same dimensionality
+* X and Y coordinates
+* Z coordinate
+
+---
+
+## Simple features
+
+&lt;img src="images/simple-features.png" title="Simple features" alt="Simple features" width="70%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: [Simple Features for R](https://r-spatial.github.io/sf/articles/sf1.html#sf-objects-with-simple-features-1)
+]
+
+---
+
+## Simple features in R
+
+* Uses basic R data structures
+* Data frame with one row per feature
+* Lots of list columns
+
+---
+
+## Importing shapefiles
+
+
+```r
+usa_shape &lt;- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
+```
+
+```
+## Reading layer `cb_2020_us_state_5m' from data source 
+##   `/Users/soltoffbc/Projects/Data Visualization/slides/12-visualize-spatial-ii/data/cb_2020_us_state_5m/cb_2020_us_state_5m.shp' 
+##   using driver `ESRI Shapefile'
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+```
+
+---
+
+## Importing shapefiles
+
+
+```r
+usa_shape
+```
+
+```
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558
+## 7       72 01779808 0400000US72    72     PR   Puerto Rico   00   8868948653
+## 8       29 01779791 0400000US29    29     MO      Missouri   00 178052563675
+## 9       50 01779802 0400000US50    50     VT       Vermont   00  23873081385
+## 10      24 01714934 0400000US24    24     MD      Maryland   00  25151895765
+##         AWATER                       geometry
+## 1  29343721650 MULTIPOLYGON (((-86.9562 45...
+## 2    489206049 MULTIPOLYGON (((-82.643 38....
+## 3   2391577745 MULTIPOLYGON (((-117.2427 4...
+## 4  18949864226 MULTIPOLYGON (((-97.23921 4...
+## 5   1085996889 MULTIPOLYGON (((-96.6397 42...
+## 6   1399179670 MULTIPOLYGON (((-75.5708 39...
+## 7   4922329963 MULTIPOLYGON (((-65.3375 18...
+## 8   2487215790 MULTIPOLYGON (((-95.77355 4...
+## 9   1030243281 MULTIPOLYGON (((-73.43774 4...
+## 10  6979171386 MULTIPOLYGON (((-76.0494 37...
+```
+
+---
+
+## Importing GeoJSON files
+
+
+```r
+chi_json &lt;- st_read(dsn = here("12-visualize-spatial-ii", "data", "community-area-boundaries.geojson"))
+```
+
+```
+## Reading layer `community-area-boundaries' from data source 
+##   `/Users/soltoffbc/Projects/Data Visualization/slides/12-visualize-spatial-ii/data/community-area-boundaries.geojson' 
+##   using driver `GeoJSON'
+## Simple feature collection with 77 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+```
+
+---
+
+## Importing GeoJSON files
+
+
+```r
+chi_json
+```
+
+```
+## Simple feature collection with 77 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##          community area    shape_area perimeter area_num_1 area_numbe
+## 1          DOUGLAS    0 46004621.1581         0         35         35
+## 2          OAKLAND    0 16913961.0408         0         36         36
+## 3      FULLER PARK    0 19916704.8692         0         37         37
+## 4  GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 5          KENWOOD    0 29071741.9283         0         39         39
+## 6   LINCOLN SQUARE    0 71352328.2399         0          4          4
+## 7  WASHINGTON PARK    0 42373881.4842         0         40         40
+## 8        HYDE PARK    0 45105380.1732         0         41         41
+## 9         WOODLAWN    0  57815179.512         0         42         42
+## 10     ROGERS PARK    0 51259902.4506         0          1          1
+##    comarea_id comarea     shape_len                       geometry
+## 1           0       0 31027.0545098 MULTIPOLYGON (((-87.60914 4...
+## 2           0       0 19565.5061533 MULTIPOLYGON (((-87.59215 4...
+## 3           0       0 25339.0897503 MULTIPOLYGON (((-87.6288 41...
+## 4           0       0 28196.8371573 MULTIPOLYGON (((-87.60671 4...
+## 5           0       0 23325.1679062 MULTIPOLYGON (((-87.59215 4...
+## 6           0       0 36624.6030848 MULTIPOLYGON (((-87.67441 4...
+## 7           0       0 28175.3160866 MULTIPOLYGON (((-87.60604 4...
+## 8           0       0 29746.7082016 MULTIPOLYGON (((-87.58038 4...
+## 9           0       0 46936.9592443 MULTIPOLYGON (((-87.57714 4...
+## 10          0       0 34052.3975757 MULTIPOLYGON (((-87.65456 4...
+```
+
+---
+
+## Drawing maps with `sf` objects
+
+
+```r
+usa &lt;- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
+```
+
+```
+## Reading layer `cb_2020_us_state_5m' from data source 
+##   `/Users/soltoffbc/Projects/Data Visualization/slides/12-visualize-spatial-ii/data/cb_2020_us_state_5m/cb_2020_us_state_5m.shp' 
+##   using driver `ESRI Shapefile'
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+```
+
+---
+
+## USA boundaries
+
+
+```r
+ggplot(data = usa) +
+  geom_sf()
+```
+
+&lt;img src="index_files/figure-html/geom-sf-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Plot a subset of a map
+
+
+```r
+usa_48 &lt;- usa %&gt;%
+  filter(NAME %in% state.name) %&gt;%
+  filter(NAME != "Alaska", NAME != "Hawaii")
+
+ggplot(data = usa_48) +
+  geom_sf()
+```
+
+&lt;img src="index_files/figure-html/usa-subset-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Just another `ggplot()`
+
+
+```r
+ggplot(data = usa_48) +
+  geom_sf(fill = "palegreen", color = "black")
+```
+
+&lt;img src="index_files/figure-html/usa-fill-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## `urbnmapr`
+
+
+```r
+# devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+states_sf &lt;- get_urbn_map("states", sf = TRUE)
+
+ggplot(data = states_sf) +
+  geom_sf()
+```
+
+&lt;img src="index_files/figure-html/urbnmapr-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Points
+
+
+```r
+crimes &lt;- read_csv("data/chicago-crimes.csv")
+```
+
+
+```r
+crimes_homicide &lt;- filter(.data = crimes, `Primary Type` == "HOMICIDE")
+crimes_homicide
+```
+
+```
+## # A tibble: 675 × 22
+##          ID `Case Number` Date            Block IUCR  `Primary Type` Description
+##       &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;      
+##  1 10826397 JA119425      01/18/2017 12:… 023X… 0142  HOMICIDE       RECKLESS H…
+##  2 10836558 JA138326      02/01/2017 06:… 013X… 0142  HOMICIDE       RECKLESS H…
+##  3 11177987 JA549346      12/14/2017 05:… 038X… 0142  HOMICIDE       RECKLESS H…
+##  4    23059 JA100252      01/01/2017 05:… 046X… 0110  HOMICIDE       FIRST DEGR…
+##  5    23060 JA100278      01/01/2017 06:… 046X… 0110  HOMICIDE       FIRST DEGR…
+##  6    23061 JA102602      01/03/2017 12:… 034X… 0110  HOMICIDE       FIRST DEGR…
+##  7    23062 JA103468      01/03/2017 11:… 032X… 0110  HOMICIDE       FIRST DEGR…
+##  8    23063 JA102602      01/04/2017 12:… 034X… 0110  HOMICIDE       FIRST DEGR…
+##  9    23064 JA103468      01/04/2017 05:… 032X… 0110  HOMICIDE       FIRST DEGR…
+## 10    23066 HZ564892      01/06/2017 01:… 086X… 0110  HOMICIDE       FIRST DEGR…
+## # … with 665 more rows, and 15 more variables: `Location Description` &lt;chr&gt;,
+## #   Arrest &lt;lgl&gt;, Domestic &lt;lgl&gt;, Beat &lt;chr&gt;, District &lt;chr&gt;, Ward &lt;dbl&gt;,
+## #   `Community Area` &lt;dbl&gt;, `FBI Code` &lt;chr&gt;, `X Coordinate` &lt;dbl&gt;,
+## #   `Y Coordinate` &lt;dbl&gt;, Year &lt;dbl&gt;, `Updated On` &lt;chr&gt;, Latitude &lt;dbl&gt;,
+## #   Longitude &lt;dbl&gt;, Location &lt;chr&gt;
+```
+
+---
+
+## Points
+
+
+```r
+ggplot(data = crimes_homicide, mapping = aes(x = Longitude, y = Latitude)) +
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/scatter-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Points
+
+.pull-left[
+
+
+```r
+ggplot(data = chi_json) +
+  geom_sf() +
+  geom_point(
+    data = crimes_homicide,
+    mapping = aes(
+      x = Longitude,
+      y = Latitude
+    ),
+    shape = 1
+  )
+```
+
+]
+
+.pull-right[
+
+&lt;img src="index_files/figure-html/chi-crime-out-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+
+## Converting to `sf` data frame
+
+
+```r
+crimes_homicide_sf &lt;- st_as_sf(x = crimes_homicide, coords = c("Longitude", "Latitude"))
+st_crs(crimes_homicide_sf) &lt;- 4326 # set the coordinate reference system
+crimes_homicide_sf
+```
+
+```
+## Simple feature collection with 675 features and 20 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -87.83662 ymin: 41.65306 xmax: -87.53287 ymax: 42.02164
+## Geodetic CRS:  WGS 84
+## # A tibble: 675 × 21
+##          ID `Case Number` Date            Block IUCR  `Primary Type` Description
+##  *    &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;      
+##  1 10826397 JA119425      01/18/2017 12:… 023X… 0142  HOMICIDE       RECKLESS H…
+##  2 10836558 JA138326      02/01/2017 06:… 013X… 0142  HOMICIDE       RECKLESS H…
+##  3 11177987 JA549346      12/14/2017 05:… 038X… 0142  HOMICIDE       RECKLESS H…
+##  4    23059 JA100252      01/01/2017 05:… 046X… 0110  HOMICIDE       FIRST DEGR…
+##  5    23060 JA100278      01/01/2017 06:… 046X… 0110  HOMICIDE       FIRST DEGR…
+##  6    23061 JA102602      01/03/2017 12:… 034X… 0110  HOMICIDE       FIRST DEGR…
+##  7    23062 JA103468      01/03/2017 11:… 032X… 0110  HOMICIDE       FIRST DEGR…
+##  8    23063 JA102602      01/04/2017 12:… 034X… 0110  HOMICIDE       FIRST DEGR…
+##  9    23064 JA103468      01/04/2017 05:… 032X… 0110  HOMICIDE       FIRST DEGR…
+## 10    23066 HZ564892      01/06/2017 01:… 086X… 0110  HOMICIDE       FIRST DEGR…
+## # … with 665 more rows, and 14 more variables: `Location Description` &lt;chr&gt;,
+## #   Arrest &lt;lgl&gt;, Domestic &lt;lgl&gt;, Beat &lt;chr&gt;, District &lt;chr&gt;, Ward &lt;dbl&gt;,
+## #   `Community Area` &lt;dbl&gt;, `FBI Code` &lt;chr&gt;, `X Coordinate` &lt;dbl&gt;,
+## #   `Y Coordinate` &lt;dbl&gt;, Year &lt;dbl&gt;, `Updated On` &lt;chr&gt;, Location &lt;chr&gt;,
+## #   geometry &lt;POINT [°]&gt;
+```
+
+---
+
+## Plotting with two sf data frames
+
+
+```r
+ggplot() +
+  geom_sf(data = chi_json) +
+  geom_sf(data = crimes_homicide_sf, shape = 1)
+```
+
+&lt;img src="index_files/figure-html/crimes-sf-plot-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Fill (choropleths)
+
+
+```r
+fb_state &lt;- read_csv(file = here("12-visualize-spatial-ii", "data", "foreign-born.csv"))
+fb_state
+```
+
+```
+## # A tibble: 52 × 6
+##    GEOID NAME                    total   native  foreign pct_foreign
+##    &lt;chr&gt; &lt;chr&gt;                   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;
+##  1 01    Alabama               4876250  4703303   172947      0.0355
+##  2 02    Alaska                 737068   679401    57667      0.0782
+##  3 04    Arizona               7050299  6109648   940651      0.133 
+##  4 05    Arkansas              2999370  2854323   145047      0.0484
+##  5 06    California           39283497 28736287 10547210      0.268 
+##  6 08    Colorado              5610349  5063836   546513      0.0974
+##  7 10    Delaware               957248   865775    91473      0.0956
+##  8 11    District of Columbia   692683   597618    95065      0.137 
+##  9 09    Connecticut           3575074  3054123   520951      0.146 
+## 10 12    Florida              20901636 16576836  4324800      0.207 
+## # … with 42 more rows
+```
+
+---
+
+## Join the data
+
+
+```r
+usa_fb &lt;- left_join(x = usa_48, y = fb_state, by = c("STATEFP" = "GEOID", "NAME"))
+usa_fb
+```
+
+```
+## Simple feature collection with 48 features and 13 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -124.7332 ymin: 24.51496 xmax: -66.9499 ymax: 49.38436
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558
+## 7       29 01779791 0400000US29    29     MO      Missouri   00 178052563675
+## 8       50 01779802 0400000US50    50     VT       Vermont   00  23873081385
+## 9       24 01714934 0400000US24    24     MD      Maryland   00  25151895765
+## 10      33 01779794 0400000US33    33     NH New Hampshire   00  23190113978
+##         AWATER   total  native foreign pct_foreign
+## 1  29343721650 5790716 5500994  289722  0.05003215
+## 2    489206049 1817305 1787134   30171  0.01660206
+## 3   2391577745 1717750 1615307  102443  0.05963790
+## 4  18949864226 5563378 5090529  472849  0.08499315
+## 5   1085996889 3139508 2973069  166439  0.05301436
+## 6   1399179670  957248  865775   91473  0.09555831
+## 7   2487215790 6104910 5849191  255719  0.04188743
+## 8   1030243281  624313  594985   29328  0.04697644
+## 9   6979171386 6018848 5105961  912887  0.15167138
+## 10  1025973001 1348124 1265430   82694  0.06134005
+##                          geometry
+## 1  MULTIPOLYGON (((-86.9562 45...
+## 2  MULTIPOLYGON (((-82.643 38....
+## 3  MULTIPOLYGON (((-117.2427 4...
+## 4  MULTIPOLYGON (((-97.23921 4...
+## 5  MULTIPOLYGON (((-96.6397 42...
+## 6  MULTIPOLYGON (((-75.5708 39...
+## 7  MULTIPOLYGON (((-95.77355 4...
+## 8  MULTIPOLYGON (((-73.43774 4...
+## 9  MULTIPOLYGON (((-76.0494 37...
+## 10 MULTIPOLYGON (((-72.55725 4...
+```
+
+---
+
+## Draw the map
+
+
+```r
+ggplot(data = usa_fb) +
+  geom_sf(mapping = aes(fill = pct_foreign))
+```
+
+&lt;img src="index_files/figure-html/geom-map-state-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Spatial aggregation
+
+
+```r
+st_join(x = chi_json, y = crimes_homicide_sf)
+```
+
+```
+## Simple feature collection with 686 features and 29 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##           community area    shape_area perimeter area_num_1 area_numbe
+## 1           DOUGLAS    0 46004621.1581         0         35         35
+## 1.1         DOUGLAS    0 46004621.1581         0         35         35
+## 1.2         DOUGLAS    0 46004621.1581         0         35         35
+## 1.3         DOUGLAS    0 46004621.1581         0         35         35
+## 2           OAKLAND    0 16913961.0408         0         36         36
+## 3       FULLER PARK    0 19916704.8692         0         37         37
+## 4   GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.1 GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.2 GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.3 GRAND BOULEVARD    0 48492503.1554         0         38         38
+##     comarea_id comarea     shape_len    ID Case Number                   Date
+## 1            0       0 31027.0545098 23297    JA269803 05/18/2017 09:04:00 PM
+## 1.1          0       0 31027.0545098 23316    JA283507 05/29/2017 10:56:00 AM
+## 1.2          0       0 31027.0545098 23446    JA348138 07/14/2017 09:24:00 PM
+## 1.3          0       0 31027.0545098 23499    JA383393 08/08/2017 11:17:00 PM
+## 2            0       0 19565.5061533    NA        &lt;NA&gt;                   &lt;NA&gt;
+## 3            0       0 25339.0897503 23340    JA294107 06/05/2017 07:58:00 PM
+## 4            0       0 28196.8371573 23116    JA137097 01/31/2017 08:02:00 PM
+## 4.1          0       0 28196.8371573 23406    JA328468 06/30/2017 08:12:00 AM
+## 4.2          0       0 28196.8371573 23407    JA328468 06/30/2017 10:51:00 AM
+## 4.3          0       0 28196.8371573 23414    JA331015 07/02/2017 02:13:00 AM
+##                   Block IUCR Primary Type         Description
+## 1      027XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.1    029XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.2 000XX W PERSHING RD 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.3     000XX E 37TH PL 0110     HOMICIDE FIRST DEGREE MURDER
+## 2                  &lt;NA&gt; &lt;NA&gt;         &lt;NA&gt;                &lt;NA&gt;
+## 3   044XX S SHIELDS AVE 0110     HOMICIDE FIRST DEGREE MURDER
+## 4   045XX S PRAIRIE AVE 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.1    041XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.2    041XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.3    042XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+##     Location Description Arrest Domestic Beat District Ward Community Area
+## 1        CHA PARKING LOT  FALSE    FALSE 0133      001    3             35
+## 1.1            APARTMENT   TRUE     TRUE 0133      001    3             35
+## 1.2                 AUTO  FALSE    FALSE 0213      002    3             38
+## 1.3               STREET  FALSE    FALSE 0213      002    3             35
+## 2                   &lt;NA&gt;     NA       NA &lt;NA&gt;     &lt;NA&gt;   NA             NA
+## 3                 STREET  FALSE    FALSE 0925      009    3             37
+## 4                  ALLEY  FALSE    FALSE 0215      002    3             38
+## 4.1                 AUTO  FALSE    FALSE 0213      002    3             38
+## 4.2                 AUTO  FALSE    FALSE 0213      002    3             38
+## 4.3               STREET  FALSE    FALSE 0213      002    3             38
+##     FBI Code X Coordinate Y Coordinate Year             Updated On
+## 1        01A      1176731      1886507 2017 03/19/2019 04:11:22 PM
+## 1.1      01A      1176758      1885480 2017 03/19/2019 04:11:22 PM
+## 1.2      01A      1176527      1879134 2017 03/19/2019 04:11:22 PM
+## 1.3      01A      1177555      1880158 2017 03/19/2019 04:11:22 PM
+## 2       &lt;NA&gt;           NA           NA   NA                   &lt;NA&gt;
+## 3        01A      1174721      1875349 2017 03/19/2019 04:11:22 PM
+## 4        01A      1178802      1874963 2017 03/18/2019 04:08:09 PM
+## 4.1      01A      1176956      1877748 2017 03/19/2019 04:11:22 PM
+## 4.2      01A      1176956      1877748 2017 03/19/2019 04:11:22 PM
+## 4.3      01A      1176979      1876907 2017 03/19/2019 04:11:22 PM
+##                          Location                       geometry
+## 1     (41.843922218, -87.6269207) MULTIPOLYGON (((-87.60914 4...
+## 1.1 (41.841103444, -87.626852618) MULTIPOLYGON (((-87.60914 4...
+## 1.2 (41.823694722, -87.627891537) MULTIPOLYGON (((-87.60914 4...
+## 1.3 (41.826481438, -87.624089191) MULTIPOLYGON (((-87.60914 4...
+## 2                            &lt;NA&gt; MULTIPOLYGON (((-87.59215 4...
+## 3   (41.813348838, -87.634629974) MULTIPOLYGON (((-87.6288 41...
+## 4   (41.812197594, -87.619672538) MULTIPOLYGON (((-87.60671 4...
+## 4.1  (41.819881744, -87.62635954) MULTIPOLYGON (((-87.60671 4...
+## 4.2  (41.819881744, -87.62635954) MULTIPOLYGON (((-87.60671 4...
+## 4.3 (41.817573449, -87.626300553) MULTIPOLYGON (((-87.60671 4...
+```
+
+---
+
+
+
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+*chi_json
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+
+```
+## Simple feature collection with 77 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##          community area    shape_area perimeter area_num_1 area_numbe
+## 1          DOUGLAS    0 46004621.1581         0         35         35
+## 2          OAKLAND    0 16913961.0408         0         36         36
+## 3      FULLER PARK    0 19916704.8692         0         37         37
+## 4  GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 5          KENWOOD    0 29071741.9283         0         39         39
+## 6   LINCOLN SQUARE    0 71352328.2399         0          4          4
+## 7  WASHINGTON PARK    0 42373881.4842         0         40         40
+## 8        HYDE PARK    0 45105380.1732         0         41         41
+## 9         WOODLAWN    0  57815179.512         0         42         42
+## 10     ROGERS PARK    0 51259902.4506         0          1          1
+##    comarea_id comarea     shape_len                       geometry
+## 1           0       0 31027.0545098 MULTIPOLYGON (((-87.60914 4...
+## 2           0       0 19565.5061533 MULTIPOLYGON (((-87.59215 4...
+## 3           0       0 25339.0897503 MULTIPOLYGON (((-87.6288 41...
+## 4           0       0 28196.8371573 MULTIPOLYGON (((-87.60671 4...
+## 5           0       0 23325.1679062 MULTIPOLYGON (((-87.59215 4...
+## 6           0       0 36624.6030848 MULTIPOLYGON (((-87.67441 4...
+## 7           0       0 28175.3160866 MULTIPOLYGON (((-87.60604 4...
+## 8           0       0 29746.7082016 MULTIPOLYGON (((-87.58038 4...
+## 9           0       0 46936.9592443 MULTIPOLYGON (((-87.57714 4...
+## 10          0       0 34052.3975757 MULTIPOLYGON (((-87.65456 4...
+```
+]
+
+---
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+chi_json %&gt;%
+* st_join(y = crimes_homicide_sf)
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+
+```
+## Simple feature collection with 686 features and 29 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##           community area    shape_area perimeter area_num_1 area_numbe
+## 1           DOUGLAS    0 46004621.1581         0         35         35
+## 1.1         DOUGLAS    0 46004621.1581         0         35         35
+## 1.2         DOUGLAS    0 46004621.1581         0         35         35
+## 1.3         DOUGLAS    0 46004621.1581         0         35         35
+## 2           OAKLAND    0 16913961.0408         0         36         36
+## 3       FULLER PARK    0 19916704.8692         0         37         37
+## 4   GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.1 GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.2 GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 4.3 GRAND BOULEVARD    0 48492503.1554         0         38         38
+##     comarea_id comarea     shape_len    ID Case Number                   Date
+## 1            0       0 31027.0545098 23297    JA269803 05/18/2017 09:04:00 PM
+## 1.1          0       0 31027.0545098 23316    JA283507 05/29/2017 10:56:00 AM
+## 1.2          0       0 31027.0545098 23446    JA348138 07/14/2017 09:24:00 PM
+## 1.3          0       0 31027.0545098 23499    JA383393 08/08/2017 11:17:00 PM
+## 2            0       0 19565.5061533    NA        &lt;NA&gt;                   &lt;NA&gt;
+## 3            0       0 25339.0897503 23340    JA294107 06/05/2017 07:58:00 PM
+## 4            0       0 28196.8371573 23116    JA137097 01/31/2017 08:02:00 PM
+## 4.1          0       0 28196.8371573 23406    JA328468 06/30/2017 08:12:00 AM
+## 4.2          0       0 28196.8371573 23407    JA328468 06/30/2017 10:51:00 AM
+## 4.3          0       0 28196.8371573 23414    JA331015 07/02/2017 02:13:00 AM
+##                   Block IUCR Primary Type         Description
+## 1      027XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.1    029XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.2 000XX W PERSHING RD 0110     HOMICIDE FIRST DEGREE MURDER
+## 1.3     000XX E 37TH PL 0110     HOMICIDE FIRST DEGREE MURDER
+## 2                  &lt;NA&gt; &lt;NA&gt;         &lt;NA&gt;                &lt;NA&gt;
+## 3   044XX S SHIELDS AVE 0110     HOMICIDE FIRST DEGREE MURDER
+## 4   045XX S PRAIRIE AVE 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.1    041XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.2    041XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+## 4.3    042XX S STATE ST 0110     HOMICIDE FIRST DEGREE MURDER
+##     Location Description Arrest Domestic Beat District Ward Community Area
+## 1        CHA PARKING LOT  FALSE    FALSE 0133      001    3             35
+## 1.1            APARTMENT   TRUE     TRUE 0133      001    3             35
+## 1.2                 AUTO  FALSE    FALSE 0213      002    3             38
+## 1.3               STREET  FALSE    FALSE 0213      002    3             35
+## 2                   &lt;NA&gt;     NA       NA &lt;NA&gt;     &lt;NA&gt;   NA             NA
+## 3                 STREET  FALSE    FALSE 0925      009    3             37
+## 4                  ALLEY  FALSE    FALSE 0215      002    3             38
+## 4.1                 AUTO  FALSE    FALSE 0213      002    3             38
+## 4.2                 AUTO  FALSE    FALSE 0213      002    3             38
+## 4.3               STREET  FALSE    FALSE 0213      002    3             38
+##     FBI Code X Coordinate Y Coordinate Year             Updated On
+## 1        01A      1176731      1886507 2017 03/19/2019 04:11:22 PM
+## 1.1      01A      1176758      1885480 2017 03/19/2019 04:11:22 PM
+## 1.2      01A      1176527      1879134 2017 03/19/2019 04:11:22 PM
+## 1.3      01A      1177555      1880158 2017 03/19/2019 04:11:22 PM
+## 2       &lt;NA&gt;           NA           NA   NA                   &lt;NA&gt;
+## 3        01A      1174721      1875349 2017 03/19/2019 04:11:22 PM
+## 4        01A      1178802      1874963 2017 03/18/2019 04:08:09 PM
+## 4.1      01A      1176956      1877748 2017 03/19/2019 04:11:22 PM
+## 4.2      01A      1176956      1877748 2017 03/19/2019 04:11:22 PM
+## 4.3      01A      1176979      1876907 2017 03/19/2019 04:11:22 PM
+##                          Location                       geometry
+## 1     (41.843922218, -87.6269207) MULTIPOLYGON (((-87.60914 4...
+## 1.1 (41.841103444, -87.626852618) MULTIPOLYGON (((-87.60914 4...
+## 1.2 (41.823694722, -87.627891537) MULTIPOLYGON (((-87.60914 4...
+## 1.3 (41.826481438, -87.624089191) MULTIPOLYGON (((-87.60914 4...
+## 2                            &lt;NA&gt; MULTIPOLYGON (((-87.59215 4...
+## 3   (41.813348838, -87.634629974) MULTIPOLYGON (((-87.6288 41...
+## 4   (41.812197594, -87.619672538) MULTIPOLYGON (((-87.60671 4...
+## 4.1  (41.819881744, -87.62635954) MULTIPOLYGON (((-87.60671 4...
+## 4.2  (41.819881744, -87.62635954) MULTIPOLYGON (((-87.60671 4...
+## 4.3 (41.817573449, -87.626300553) MULTIPOLYGON (((-87.60671 4...
+```
+]
+
+---
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+chi_json %&gt;%
+  st_join(y = crimes_homicide_sf) %&gt;%
+* group_by(community)
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+
+```
+## Simple feature collection with 686 features and 29 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## # A tibble: 686 × 30
+## # Groups:   community [77]
+##    community area  shape_area perimeter area_num_1 area_numbe comarea_id comarea
+##    &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;  
+##  1 DOUGLAS   0     46004621.… 0         35         35         0          0      
+##  2 DOUGLAS   0     46004621.… 0         35         35         0          0      
+##  3 DOUGLAS   0     46004621.… 0         35         35         0          0      
+##  4 DOUGLAS   0     46004621.… 0         35         35         0          0      
+##  5 OAKLAND   0     16913961.… 0         36         36         0          0      
+##  6 FULLER P… 0     19916704.… 0         37         37         0          0      
+##  7 GRAND BO… 0     48492503.… 0         38         38         0          0      
+##  8 GRAND BO… 0     48492503.… 0         38         38         0          0      
+##  9 GRAND BO… 0     48492503.… 0         38         38         0          0      
+## 10 GRAND BO… 0     48492503.… 0         38         38         0          0      
+## # … with 676 more rows, and 22 more variables: shape_len &lt;chr&gt;, ID &lt;dbl&gt;,
+## #   `Case Number` &lt;chr&gt;, Date &lt;chr&gt;, Block &lt;chr&gt;, IUCR &lt;chr&gt;,
+## #   `Primary Type` &lt;chr&gt;, Description &lt;chr&gt;, `Location Description` &lt;chr&gt;,
+## #   Arrest &lt;lgl&gt;, Domestic &lt;lgl&gt;, Beat &lt;chr&gt;, District &lt;chr&gt;, Ward &lt;dbl&gt;,
+## #   `Community Area` &lt;dbl&gt;, `FBI Code` &lt;chr&gt;, `X Coordinate` &lt;dbl&gt;,
+## #   `Y Coordinate` &lt;dbl&gt;, Year &lt;dbl&gt;, `Updated On` &lt;chr&gt;, Location &lt;chr&gt;,
+## #   geometry &lt;MULTIPOLYGON [°]&gt;
+```
+]
+
+---
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+chi_json %&gt;%
+  st_join(y = crimes_homicide_sf) %&gt;%
+  group_by(community) %&gt;%
+* count()
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+
+```
+## Simple feature collection with 77 features and 2 fields
+## Geometry type: GEOMETRY
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## # A tibble: 77 × 3
+##    community          n                                                 geometry
+##  * &lt;chr&gt;          &lt;int&gt;                                            &lt;POLYGON [°]&gt;
+##  1 ALBANY PARK        1 ((-87.70454 41.97382, -87.70478 41.97395, -87.70501 41.…
+##  2 ARCHER HEIGHTS     3 ((-87.71437 41.82632, -87.71523 41.82605, -87.71573 41.…
+##  3 ARMOUR SQUARE      1 ((-87.62918 41.84592, -87.62919 41.84613, -87.62919 41.…
+##  4 ASHBURN            6 ((-87.71278 41.75739, -87.71297 41.75743, -87.71308 41.…
+##  5 AUBURN GRESHAM    27 ((-87.64028 41.75614, -87.64052 41.75613, -87.64058 41.…
+##  6 AUSTIN            83 ((-87.79152 41.91813, -87.79258 41.91852, -87.79387 41.…
+##  7 AVALON PARK        4 ((-87.58582 41.75151, -87.58582 41.75167, -87.58587 41.…
+##  8 AVONDALE           3 ((-87.688 41.93611, -87.68804 41.93614, -87.68808 41.93…
+##  9 BELMONT CRAGIN     8 ((-87.74135 41.91422, -87.74137 41.91491, -87.74137 41.…
+## 10 BEVERLY            1 ((-87.67337 41.73566, -87.67347 41.73566, -87.67349 41.…
+## # … with 67 more rows
+```
+]
+
+---
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+chi_json %&gt;%
+  st_join(y = crimes_homicide_sf) %&gt;%
+  group_by(community) %&gt;%
+  count() %&gt;%
+* ggplot()
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+&lt;img src="index_files/figure-html/crimes-agg-map_auto_05_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-crimes-agg-map-auto[
+
+```r
+chi_json %&gt;%
+  st_join(y = crimes_homicide_sf) %&gt;%
+  group_by(community) %&gt;%
+  count() %&gt;%
+  ggplot() +
+* geom_sf(mapping = aes(fill = n))
+```
+]
+ 
+.panel2-crimes-agg-map-auto[
+&lt;img src="index_files/figure-html/crimes-agg-map_auto_06_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+&lt;style&gt;
+.panel1-crimes-agg-map-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-crimes-agg-map-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-crimes-agg-map-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+---
+
+## Exercise using household income
+
+- American Community Survey
+- [`tidycensus`](https://walker-data.com/tidycensus/)
+
+<div class="countdown" id="timer_62700a2e" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+## Bin data to discrete intervals
+
+* Continuous vs. discrete variables for color
+* Collapse to a discrete variable
+
+---
+
+## `cut_interval()`
+
+
+```r
+usa_fb %&gt;%
+  mutate(rate_cut = cut_interval(pct_foreign, n = 6)) %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+&lt;img src="index_files/figure-html/cut-interval-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## `cut_number()`
+
+
+```r
+usa_fb %&gt;%
+  mutate(rate_cut = cut_number(pct_foreign, n = 6)) %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+&lt;img src="index_files/figure-html/cut-number-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Map projection
+
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/vVX-PrBRtTY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+
+---
+
+## Map projection
+
+&lt;img src="https://imgs.xkcd.com/comics/mercator_projection.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Source: [xkcd](https://xkcd.com/2082/)]
+
+---
+
+## Map projection
+
+* Coordinate reference system
+* `proj4string`
+
+&gt; &lt;https://spatialreference.org/ref/epsg/&gt;
+
+---
+
+## Mercator projection
+
+
+
+
+```r
+map_proj_base +
+  coord_sf(crs = 3785) +
+  ggtitle("Mercator projection")
+```
+
+&lt;img src="index_files/figure-html/mercator-sf-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Projection using standard lines
+
+&lt;img src="index_files/figure-html/projection-rest-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Adjusting color intervals and projections
+
+<div class="countdown" id="timer_62700a47" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLines": true,
+"highlightLanguage": "r",
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
