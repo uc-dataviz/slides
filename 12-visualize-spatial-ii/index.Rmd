@@ -1,5 +1,5 @@
 ---
-title: "Visualizing geospatial data II"
+title: "Visualizing spatial data II"
 author: "MACS 40700 <br /> University of Chicago"
 output:
   xaringan::moon_reader:
@@ -45,8 +45,6 @@ class: inverse, middle
 library(tidyverse)
 library(sf)
 library(rnaturalearth)
-library(lubridate)
-library(tidycensus)
 library(colorspace)
 
 # more efficient to generate sf maps
@@ -128,16 +126,6 @@ Illustration by Allison Horst
 
 ---
 
-## Dimensions
-
-* Geometries composed of points
-    * Coordinates in a 2-, 3- or 4-dimensional space
-    * All points in a geometry have the same dimensionality
-* X and Y coordinates
-* Z coordinate
-
----
-
 ## Simple features
 
 ```{r echo = FALSE, fig.alt = "Simple features", out.width = "70%"}
@@ -168,13 +156,11 @@ usa_shape <- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_s
 usa_shape <- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
----
-
-## Importing shapefiles
-
-```{r import-usa-shape-print}
+.tiny[
+```{r import-usa-shape-print, R.options = list(width = 120)}
 usa_shape
 ```
+]
 
 ---
 
@@ -188,13 +174,11 @@ chi_json <- st_read(dsn = here("12-visualize-spatial-ii", "data", "community-are
 chi_json <- st_read(dsn = here("data", "community-area-boundaries.geojson"))
 ```
 
----
-
-## Importing GeoJSON files
-
-```{r import-chi-json-print}
+.tiny[
+```{r import-chi-json-print, R.options = list(width = 150)}
 chi_json
 ```
+]
 
 ---
 
@@ -208,6 +192,11 @@ usa <- st_read(dsn = here("12-visualize-spatial-ii", "data", "cb_2020_us_state_5
 usa <- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
+.tiny[
+```{r import-usa-print, R.options = list(width = 120)}
+usa_shape
+```
+]
 ---
 
 ## USA boundaries
@@ -247,6 +236,14 @@ ggplot(data = usa_48) +
   )
 ```
 ]
+
+---
+
+```{r contig-41, echo = FALSE, out.width = "60%"}
+include_graphics(path = "https://imgs.xkcd.com/comics/contiguous_41_states.png")
+```
+
+.footnote[Source: [xkcd](https://imgs.xkcd.com/comics/contiguous_41_states.png)]
 
 ---
 
@@ -343,10 +340,23 @@ class: inverse, middle
 
 ---
 
+```{r echo = FALSE}
+include_graphics(path = "https://media.giphy.com/media/If7M383oivlYY/giphy.gif")
+```
+
+---
+
 ## Fill (choropleths)
 
-```{r import-foreign}
+```{r import-foreign, include = FALSE}
 fb_state <- read_csv(file = here("12-visualize-spatial-ii", "data", "foreign-born.csv"))
+```
+
+```{r import-foreign-fake, eval = FALSE}
+fb_state <- read_csv(file = here("data", "foreign-born.csv"))
+```
+
+```{r import-foreign-print}
 fb_state
 ```
 
@@ -402,6 +412,41 @@ chi_json %>%
 ```
 
 `r chunk_reveal(chunk_name = "crimes-agg-map", break_type = "auto")`
+
+---
+
+## Comparison
+
+```{r crimes-agg-map-2, echo = FALSE, out.width = "95%", fig.width = 12}
+library(patchwork)
+{
+  chi_json %>%
+    st_join(y = crimes_homicide_sf) %>%
+    group_by(community) %>%
+    count() %>%
+    ggplot() +
+    geom_sf(mapping = aes(fill = n)) +
+    scale_fill_continuous_sequential(palette = "viridis") +
+    labs(title = "Choropleth")
+} + {
+  ggplot() +
+    geom_sf(data = chi_json) +
+    stat_density_2d(
+      data = crimes_homicide,
+      mapping = aes(
+        x = Longitude,
+        y = Latitude,
+        fill = stat(level)
+      ),
+      alpha = .2,
+      bins = 25,
+      geom = "polygon"
+    ) +
+    scale_fill_continuous_sequential(palette = "viridis") +
+    labs(title = "Heatmap", x = NULL, y = NULL)
+}
+```
+
 
 ---
 
@@ -464,7 +509,40 @@ usa_fb %>%
 usa_fb %>%
   ggplot() +
   geom_sf(aes(fill = pct_foreign)) +
-  scale_fill_binned_sequential(palette = "inferno")
+  scale_fill_binned_sequential(palette = "inferno") #<<
+```
+]
+
+---
+
+## `ggplot2::binned_scale()` with quartiles
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+usa_fb %>%
+  ggplot() +
+  geom_sf(aes(fill = pct_foreign)) +
+  scale_fill_binned_sequential(
+    palette = "inferno",
+    n.breaks = 3 #<<
+  )
+```
+]
+
+---
+
+## `ggplot2::binned_scale()` with quartiles
+
+.panelset[
+```{r panelset = c(output = "Plot", source = "Code"), out.width = "70%"}
+usa_fb %>%
+  ggplot() +
+  geom_sf(aes(fill = pct_foreign)) +
+  scale_fill_binned_sequential(
+    palette = "inferno",
+    n.breaks = 3, #<<
+    nice.breaks = FALSE #<<
+  )
 ```
 ]
 
@@ -555,7 +633,15 @@ map_proj_base +
 
 ## Adjusting color intervals and projections
 
-```{r cache = FALSE}
+```{r cache = FALSE, echo = FALSE}
 countdown(minutes = 8)
 ```
+
+```{r echo = FALSE, out.width = "40%"}
+include_graphics(path = "https://c.tenor.com/aa3KO3VP0dQAAAAC/cj-the-west-wing.gif")
+```
+
+
+
+
 

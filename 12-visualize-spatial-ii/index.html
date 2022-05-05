@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Visualizing geospatial data II</title>
+    <title>Visualizing spatial data II</title>
     <meta charset="utf-8" />
     <meta name="author" content="MACS 40700   University of Chicago" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
@@ -15,7 +15,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Visualizing geospatial data II
+# Visualizing spatial data II
 ### MACS 40700 <br /> University of Chicago
 
 ---
@@ -37,8 +37,6 @@ class: inverse, middle
 library(tidyverse)
 library(sf)
 library(rnaturalearth)
-library(lubridate)
-library(tidycensus)
 library(colorspace)
 
 # more efficient to generate sf maps
@@ -118,16 +116,6 @@ Illustration by Allison Horst
 
 ---
 
-## Dimensions
-
-* Geometries composed of points
-    * Coordinates in a 2-, 3- or 4-dimensional space
-    * All points in a geometry have the same dimensionality
-* X and Y coordinates
-* Z coordinate
-
----
-
 ## Simple features
 
 &lt;img src="images/simple-features.png" title="Simple features" alt="Simple features" width="70%" style="display: block; margin: auto;" /&gt;
@@ -155,10 +143,7 @@ Source: [Simple Features for R](https://r-spatial.github.io/sf/articles/sf1.html
 usa_shape &lt;- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
----
-
-## Importing shapefiles
-
+.tiny[
 
 ```r
 usa_shape
@@ -171,29 +156,19 @@ usa_shape
 ## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
 ## Geodetic CRS:  NAD83
 ## First 10 features:
-##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND
-## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684
-## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765
-## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496
-## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570
-## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848
-## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558
-## 7       72 01779808 0400000US72    72     PR   Puerto Rico   00   8868948653
-## 8       29 01779791 0400000US29    29     MO      Missouri   00 178052563675
-## 9       50 01779802 0400000US50    50     VT       Vermont   00  23873081385
-## 10      24 01714934 0400000US24    24     MD      Maryland   00  25151895765
-##         AWATER                       geometry
-## 1  29343721650 MULTIPOLYGON (((-86.9562 45...
-## 2    489206049 MULTIPOLYGON (((-82.643 38....
-## 3   2391577745 MULTIPOLYGON (((-117.2427 4...
-## 4  18949864226 MULTIPOLYGON (((-97.23921 4...
-## 5   1085996889 MULTIPOLYGON (((-96.6397 42...
-## 6   1399179670 MULTIPOLYGON (((-75.5708 39...
-## 7   4922329963 MULTIPOLYGON (((-65.3375 18...
-## 8   2487215790 MULTIPOLYGON (((-95.77355 4...
-## 9   1030243281 MULTIPOLYGON (((-73.43774 4...
-## 10  6979171386 MULTIPOLYGON (((-76.0494 37...
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND      AWATER                       geometry
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684 29343721650 MULTIPOLYGON (((-86.9562 45...
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765   489206049 MULTIPOLYGON (((-82.643 38....
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496  2391577745 MULTIPOLYGON (((-117.2427 4...
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570 18949864226 MULTIPOLYGON (((-97.23921 4...
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848  1085996889 MULTIPOLYGON (((-96.6397 42...
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558  1399179670 MULTIPOLYGON (((-75.5708 39...
+## 7       72 01779808 0400000US72    72     PR   Puerto Rico   00   8868948653  4922329963 MULTIPOLYGON (((-65.3375 18...
+## 8       29 01779791 0400000US29    29     MO      Missouri   00 178052563675  2487215790 MULTIPOLYGON (((-95.77355 4...
+## 9       50 01779802 0400000US50    50     VT       Vermont   00  23873081385  1030243281 MULTIPOLYGON (((-73.43774 4...
+## 10      24 01714934 0400000US24    24     MD      Maryland   00  25151895765  6979171386 MULTIPOLYGON (((-76.0494 37...
 ```
+]
 
 ---
 
@@ -206,10 +181,7 @@ usa_shape
 chi_json &lt;- st_read(dsn = here("data", "community-area-boundaries.geojson"))
 ```
 
----
-
-## Importing GeoJSON files
-
+.tiny[
 
 ```r
 chi_json
@@ -222,29 +194,19 @@ chi_json
 ## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
 ## Geodetic CRS:  WGS 84
 ## First 10 features:
-##          community area    shape_area perimeter area_num_1 area_numbe
-## 1          DOUGLAS    0 46004621.1581         0         35         35
-## 2          OAKLAND    0 16913961.0408         0         36         36
-## 3      FULLER PARK    0 19916704.8692         0         37         37
-## 4  GRAND BOULEVARD    0 48492503.1554         0         38         38
-## 5          KENWOOD    0 29071741.9283         0         39         39
-## 6   LINCOLN SQUARE    0 71352328.2399         0          4          4
-## 7  WASHINGTON PARK    0 42373881.4842         0         40         40
-## 8        HYDE PARK    0 45105380.1732         0         41         41
-## 9         WOODLAWN    0  57815179.512         0         42         42
-## 10     ROGERS PARK    0 51259902.4506         0          1          1
-##    comarea_id comarea     shape_len                       geometry
-## 1           0       0 31027.0545098 MULTIPOLYGON (((-87.60914 4...
-## 2           0       0 19565.5061533 MULTIPOLYGON (((-87.59215 4...
-## 3           0       0 25339.0897503 MULTIPOLYGON (((-87.6288 41...
-## 4           0       0 28196.8371573 MULTIPOLYGON (((-87.60671 4...
-## 5           0       0 23325.1679062 MULTIPOLYGON (((-87.59215 4...
-## 6           0       0 36624.6030848 MULTIPOLYGON (((-87.67441 4...
-## 7           0       0 28175.3160866 MULTIPOLYGON (((-87.60604 4...
-## 8           0       0 29746.7082016 MULTIPOLYGON (((-87.58038 4...
-## 9           0       0 46936.9592443 MULTIPOLYGON (((-87.57714 4...
-## 10          0       0 34052.3975757 MULTIPOLYGON (((-87.65456 4...
+##          community area    shape_area perimeter area_num_1 area_numbe comarea_id comarea     shape_len                       geometry
+## 1          DOUGLAS    0 46004621.1581         0         35         35          0       0 31027.0545098 MULTIPOLYGON (((-87.60914 4...
+## 2          OAKLAND    0 16913961.0408         0         36         36          0       0 19565.5061533 MULTIPOLYGON (((-87.59215 4...
+## 3      FULLER PARK    0 19916704.8692         0         37         37          0       0 25339.0897503 MULTIPOLYGON (((-87.6288 41...
+## 4  GRAND BOULEVARD    0 48492503.1554         0         38         38          0       0 28196.8371573 MULTIPOLYGON (((-87.60671 4...
+## 5          KENWOOD    0 29071741.9283         0         39         39          0       0 23325.1679062 MULTIPOLYGON (((-87.59215 4...
+## 6   LINCOLN SQUARE    0 71352328.2399         0          4          4          0       0 36624.6030848 MULTIPOLYGON (((-87.67441 4...
+## 7  WASHINGTON PARK    0 42373881.4842         0         40         40          0       0 28175.3160866 MULTIPOLYGON (((-87.60604 4...
+## 8        HYDE PARK    0 45105380.1732         0         41         41          0       0 29746.7082016 MULTIPOLYGON (((-87.58038 4...
+## 9         WOODLAWN    0  57815179.512         0         42         42          0       0 46936.9592443 MULTIPOLYGON (((-87.57714 4...
+## 10     ROGERS PARK    0 51259902.4506         0          1          1          0       0 34052.3975757 MULTIPOLYGON (((-87.65456 4...
 ```
+]
 
 ---
 
@@ -257,6 +219,32 @@ chi_json
 usa &lt;- st_read(dsn = here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp"))
 ```
 
+.tiny[
+
+```r
+usa_shape
+```
+
+```
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND      AWATER                       geometry
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684 29343721650 MULTIPOLYGON (((-86.9562 45...
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765   489206049 MULTIPOLYGON (((-82.643 38....
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496  2391577745 MULTIPOLYGON (((-117.2427 4...
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570 18949864226 MULTIPOLYGON (((-97.23921 4...
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848  1085996889 MULTIPOLYGON (((-96.6397 42...
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558  1399179670 MULTIPOLYGON (((-75.5708 39...
+## 7       72 01779808 0400000US72    72     PR   Puerto Rico   00   8868948653  4922329963 MULTIPOLYGON (((-65.3375 18...
+## 8       29 01779791 0400000US29    29     MO      Missouri   00 178052563675  2487215790 MULTIPOLYGON (((-95.77355 4...
+## 9       50 01779802 0400000US50    50     VT       Vermont   00  23873081385  1030243281 MULTIPOLYGON (((-73.43774 4...
+## 10      24 01714934 0400000US24    24     MD      Maryland   00  25151895765  6979171386 MULTIPOLYGON (((-76.0494 37...
+```
+]
 ---
 
 ## USA boundaries
@@ -332,6 +320,12 @@ ggplot(data = usa_48) +
 
 ]
 ]
+
+---
+
+&lt;img src="https://imgs.xkcd.com/comics/contiguous_41_states.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Source: [xkcd](https://imgs.xkcd.com/comics/contiguous_41_states.png)]
 
 ---
 
@@ -526,11 +520,21 @@ class: inverse, middle
 
 ---
 
+&lt;img src="https://media.giphy.com/media/If7M383oivlYY/giphy.gif" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
 ## Fill (choropleths)
 
 
+
+
 ```r
-fb_state &lt;- read_csv(file = here("12-visualize-spatial-ii", "data", "foreign-born.csv"))
+fb_state &lt;- read_csv(file = here("data", "foreign-born.csv"))
+```
+
+
+```r
 fb_state
 ```
 
@@ -621,7 +625,7 @@ ggplot(data = usa_fb) +
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -645,7 +649,7 @@ ggplot(data = usa_fb) +
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1026,6 +1030,13 @@ chi_json %&gt;%
 
 ---
 
+## Comparison
+
+&lt;img src="index_files/figure-html/crimes-agg-map-2-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
 ## Exercise using household income
 
 - American Community Survey
@@ -1037,7 +1048,7 @@ chi_json %&gt;%
 usethis::use_course("uc-dataviz/vector-maps")
 ```
 
-<div class="countdown" id="timer_62703184" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6273f2ae" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -1069,7 +1080,7 @@ usa_fb %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1095,7 +1106,7 @@ usa_fb %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1111,7 +1122,7 @@ usa_fb %&gt;%
 usa_fb %&gt;%
   ggplot() +
   geom_sf(aes(fill = pct_foreign)) +
-  scale_fill_binned_sequential(palette = "inferno")
+* scale_fill_binned_sequential(palette = "inferno")
 ```
 
 
@@ -1120,7 +1131,64 @@ usa_fb %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## `ggplot2::binned_scale()` with quartiles
+
+.panelset[
+.panel[.panel-name[Code]
+
+```r
+usa_fb %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = pct_foreign)) +
+  scale_fill_binned_sequential(
+    palette = "inferno",
+*   n.breaks = 3
+  )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## `ggplot2::binned_scale()` with quartiles
+
+.panelset[
+.panel[.panel-name[Code]
+
+```r
+usa_fb %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = pct_foreign)) +
+  scale_fill_binned_sequential(
+    palette = "inferno",
+*   n.breaks = 3,
+*   nice.breaks = FALSE
+  )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1168,14 +1236,15 @@ usa_fb %&gt;%
 
 ## Adjusting color intervals and projections
 
-
-```r
-countdown(minutes = 8)
-```
-
-<div class="countdown" id="timer_6270328c" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6273f59b" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
+
+&lt;img src="https://c.tenor.com/aa3KO3VP0dQAAAAC/cj-the-west-wing.gif" width="40%" style="display: block; margin: auto;" /&gt;
+
+
+
+
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
