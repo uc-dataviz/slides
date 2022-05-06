@@ -103,7 +103,7 @@ knitr::include_graphics("images/gganimate.png")
 
 ## Animation example
 
-```{r freedom-race, cache = TRUE, echo = FALSE, message = FALSE, warning = FALSE, gganimate = list(nframes = 300, fps = 15, start_pause = 10, end_pause = 10), out.width = "80%", cache = TRUE}
+```{r freedom-race, cache = TRUE, echo = FALSE, message = FALSE, warning = FALSE, gganimate = list(nframes = 30, fps = 2), out.width = "80%", cache = TRUE}
 freedom <- read_csv(here::here("14-animation", "data/freedom.csv"), na = "-")
 
 countries_to_plot <- freedom %>%
@@ -781,9 +781,8 @@ freedom_to_plot <- freedom %>%
   rowwise() %>%
   mutate(sd = sd(c_across(contains("cl_")), na.rm = TRUE)) %>%
   ungroup() %>%
-  arrange(desc(sd)) %>%
   relocate(country, sd) %>%
-  slice_head(n = 15) %>%
+  slice_max(order_by = sd, n = 15) %>%
   drop_na()
 
 freedom_ranked <- freedom_to_plot %>%
@@ -811,7 +810,7 @@ freedom_faceted_plot <- freedom_ranked %>%
   ggplot(aes(x = civil_liberty, y = factor(rank_in_year))) +
   geom_col(aes(fill = is_turkey), show.legend = FALSE) +
   scale_fill_manual(values = c("gray", "red")) +
-  facet_wrap(~year) +
+  facet_wrap(vars(year)) +
   scale_x_continuous(
     limits = c(-5, 7),
     breaks = 1:7
