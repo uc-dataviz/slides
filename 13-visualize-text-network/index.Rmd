@@ -1,5 +1,5 @@
 ---
-title: "Visualizing text and<br />network data"
+title: "Visualizing text + network data"
 author: "MACS 40700 <br /> University of Chicago"
 output:
   xaringan::moon_reader:
