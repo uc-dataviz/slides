@@ -32,25 +32,9 @@ library(patchwork)
 library(flipbookr)
 ```
 
-class: middle, inverse
-
-# Welcome
-
----
-
-## Announcements
-
-- Project 2 work starts on Monday
-
-- Reading Quiz 4 due Wednesday
-
-- Guest speaker on Wednesday: Kieran Healy
-
----
-
 ## Setup
 
-.midi[
+.small[
 ```{r message = FALSE, warning = FALSE}
 # load packages
 library(tidyverse)
@@ -157,21 +141,22 @@ love_actually %>%
 
 - In computing, stop words are words which are filtered out before or after processing of natural language data (text)
 
-- They usually refer to Most common words in a language, but there is not a single list of stop words used by all natural language processing tools
+- They usually refer to most common words in a language, but there is not a single list of stop words used by all natural language processing tools
 
 .pull-left[
 English:
 .small[
 ```{r}
-get_stopwords()
+get_stopwords("en")
 ```
 ]
 ]
+
 .pull-right[
 Spanish:
 .small[
 ```{r}
-get_stopwords()
+get_stopwords("es")
 ```
 ]
 ]
@@ -218,7 +203,7 @@ love_actually %>%
 
 ## Most common words
 
-without "Portuguese"
+Without "Portuguese"
 
 ```{r}
 love_actually %>%
@@ -346,15 +331,15 @@ love_actually %>%
   count(word, sort = TRUE) %>%
   filter(n > 5) %>%
   ggplot(aes(label = word, size = n)) +
-  geom_text_wordcloud(aes(color = n)) +
+  geom_text_wordcloud(aes(color = n)) + #<<
   scale_size_area(max_size = 10) +
-  scale_color_distiller(palette = "Reds")
+  scale_color_distiller(palette = "Reds") #<<
 ```
 ]
 
 ---
 
-class: middle
+class: inverse, middle
 
 # Network data
 
@@ -616,7 +601,7 @@ ggraph(bigram_graph) +
 
 Step 5. Consider layouts
 
-```{r out.width = "35%", echo = FALSE}
+```{r out.width = "35%", echo = FALSE, fig.align = "default"}
 set.seed(1015)
 ggraph(bigram_graph, layout = "stress") +
   geom_edge_link() +
@@ -632,7 +617,7 @@ ggraph(bigram_graph, layout = "fr") +
   labs(title = "layout: fr")
 ```
 
-```{r out.width = "35%", echo = FALSE}
+```{r out.width = "35%", echo = FALSE, fig.align = "default"}
 set.seed(1015)
 ggraph(bigram_graph, layout = "lgl") +
   geom_edge_link() +
@@ -741,7 +726,7 @@ character_scene_counts
 
 ## Look who's talking to whom
 
-```{r}
+```{r out.width = "60%"}
 character_scene_counts %>%
   ggplot(aes(x = scene, y = character)) +
   geom_point() +

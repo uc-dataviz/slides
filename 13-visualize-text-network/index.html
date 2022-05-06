@@ -21,25 +21,9 @@ class: center, middle, inverse, title-slide
 
 
 
-class: middle, inverse
-
-# Welcome
-
----
-
-## Announcements
-
-- Project 2 work starts on Monday
-
-- Reading Quiz 4 due Wednesday
-
-- Guest speaker on Wednesday: Kieran Healy
-
----
-
 ## Setup
 
-.midi[
+.small[
 
 ```r
 # load packages
@@ -194,14 +178,14 @@ love_actually %&gt;%
 
 - In computing, stop words are words which are filtered out before or after processing of natural language data (text)
 
-- They usually refer to Most common words in a language, but there is not a single list of stop words used by all natural language processing tools
+- They usually refer to most common words in a language, but there is not a single list of stop words used by all natural language processing tools
 
 .pull-left[
 English:
 .small[
 
 ```r
-get_stopwords()
+get_stopwords("en")
 ```
 
 ```
@@ -222,29 +206,30 @@ get_stopwords()
 ```
 ]
 ]
+
 .pull-right[
 Spanish:
 .small[
 
 ```r
-get_stopwords()
+get_stopwords("es")
 ```
 
 ```
-## # A tibble: 175 × 2
-##    word      lexicon 
-##    &lt;chr&gt;     &lt;chr&gt;   
-##  1 i         snowball
-##  2 me        snowball
-##  3 my        snowball
-##  4 myself    snowball
-##  5 we        snowball
-##  6 our       snowball
-##  7 ours      snowball
-##  8 ourselves snowball
-##  9 you       snowball
-## 10 your      snowball
-## # … with 165 more rows
+## # A tibble: 308 × 2
+##    word  lexicon 
+##    &lt;chr&gt; &lt;chr&gt;   
+##  1 de    snowball
+##  2 la    snowball
+##  3 que   snowball
+##  4 el    snowball
+##  5 en    snowball
+##  6 y     snowball
+##  7 a     snowball
+##  8 los   snowball
+##  9 del   snowball
+## 10 se    snowball
+## # … with 298 more rows
 ```
 ]
 ]
@@ -334,7 +319,7 @@ love_actually %&gt;%
 
 ## Most common words
 
-without "Portuguese"
+Without "Portuguese"
 
 
 ```r
@@ -542,9 +527,9 @@ love_actually %&gt;%
   count(word, sort = TRUE) %&gt;%
   filter(n &gt; 5) %&gt;%
   ggplot(aes(label = word, size = n)) +
-  geom_text_wordcloud(aes(color = n)) +
+* geom_text_wordcloud(aes(color = n)) +
   scale_size_area(max_size = 10) +
-  scale_color_distiller(palette = "Reds")
+* scale_color_distiller(palette = "Reds")
 ```
 
 
@@ -560,7 +545,7 @@ love_actually %&gt;%
 
 ---
 
-class: middle
+class: inverse, middle
 
 # Network data
 
@@ -978,9 +963,9 @@ ggraph(bigram_graph) +
 
 Step 5. Consider layouts
 
-&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="35%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-35-2.png" width="35%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="35%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-35-2.png" width="35%" /&gt;
 
-&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="35%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-36-2.png" width="35%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="35%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-36-2.png" width="35%" /&gt;
 
 ---
 
@@ -1159,7 +1144,7 @@ character_scene_counts %&gt;%
   geom_path(aes(group = scene))
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
