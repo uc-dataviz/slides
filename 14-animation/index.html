@@ -36,6 +36,7 @@ library(knitr)
 library(kableExtra)
 library(transformr)
 library(palmerpenguins)
+library(colorspace)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
@@ -609,6 +610,599 @@ Sometimes you need more frames, sometimes fewer
 - Purpose: Usefulness of using animation
 
     Is animation needed? Does it provide additional value?
+
+---
+
+class: inverse, middle
+
+## Demonstrating Monte Carlo simulation
+
+---
+
+## Monte Carlo simulation
+
+Suppose that we want to compute the expected value of a function `\(g\)` of `\(X\)` where
+
+`$$\text{E}[g(X)] = \int_{-\infty}^{\infty} g(x) f_X(x) \,dx$$`
+
+but `\(f(x)\)` is **complicated**.
+
+`$$f(x) = \frac{\exp\left(- \frac{(x- \mu)^2}{2\sigma^2} \right) }{\sqrt{2\pi}}$$`
+
+--
+
+Substituting into `\(\text{E}[g(X)]\)` we have the definite integral
+
+`$$\int_{-\infty}^{\infty} x \times \frac{\exp\left(- \frac{(x- \mu)^2}{2\sigma^2} \right) }{\sqrt{2\pi}} \,dx$$`
+
+---
+
+## Monte Carlo simulation
+
+Suppose we can generate random draws of `\(X\)` `\((x_1, \ldots, x_n)\)` and we computed the arithmetic mean of `\(g(x)\)` over the sample, then we would have the **Monte Carlo estimate**
+
+`$$\tilde{g_n}(x) = \frac{1}{n} \sum_{i=1}^n g(x_i)$$`
+
+which is the Monte Carlo **estimator** of `\(\text{E}[g(x)]\)`.
+
+--
+
+As `\(n \rightarrow \infty\)`, `\(\tilde{g_n}(x) \leadsto \text{E}[g(x)]\)`.
+
+---
+
+
+
+count: false
+ 
+
+.panel1-mc-sim-data-auto[
+
+```r
+*set.seed(123)
+```
+]
+ 
+.panel2-mc-sim-data-auto[
+
+]
+
+---
+count: false
+ 
+
+.panel1-mc-sim-data-auto[
+
+```r
+set.seed(123)
+
+*rerun(.n = 10, tibble(x = rnorm(1000)))
+```
+]
+ 
+.panel2-mc-sim-data-auto[
+
+```
+## [[1]]
+## # A tibble: 1,000 × 1
+##          x
+##      &lt;dbl&gt;
+##  1 -0.560 
+##  2 -0.230 
+##  3  1.56  
+##  4  0.0705
+##  5  0.129 
+##  6  1.72  
+##  7  0.461 
+##  8 -1.27  
+##  9 -0.687 
+## 10 -0.446 
+## # … with 990 more rows
+## 
+## [[2]]
+## # A tibble: 1,000 × 1
+##          x
+##      &lt;dbl&gt;
+##  1 -0.996 
+##  2 -1.04  
+##  3 -0.0180
+##  4 -0.132 
+##  5 -2.55  
+##  6  1.04  
+##  7  0.250 
+##  8  2.42  
+##  9  0.685 
+## 10 -0.447 
+## # … with 990 more rows
+## 
+## [[3]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1 -0.512
+##  2  0.237
+##  3 -0.542
+##  4  1.22 
+##  5  0.174
+##  6 -0.615
+##  7 -1.81 
+##  8 -0.644
+##  9  2.05 
+## 10 -0.561
+## # … with 990 more rows
+## 
+## [[4]]
+## # A tibble: 1,000 × 1
+##          x
+##      &lt;dbl&gt;
+##  1 -0.150 
+##  2 -0.328 
+##  3 -1.45  
+##  4 -0.697 
+##  5  2.60  
+##  6 -0.0374
+##  7  0.913 
+##  8 -0.185 
+##  9  0.610 
+## 10 -0.0527
+## # … with 990 more rows
+## 
+## [[5]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1  0.197
+##  2  0.650
+##  3  0.671
+##  4 -1.28 
+##  5 -2.03 
+##  6  2.21 
+##  7  0.231
+##  8  0.376
+##  9 -1.19 
+## 10  1.13 
+## # … with 990 more rows
+## 
+## [[6]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1 -0.494
+##  2  1.13 
+##  3 -1.15 
+##  4  1.48 
+##  5  0.916
+##  6  0.335
+##  7  0.575
+##  8  0.204
+##  9 -0.447
+## 10 -0.344
+## # … with 990 more rows
+## 
+## [[7]]
+## # A tibble: 1,000 × 1
+##          x
+##      &lt;dbl&gt;
+##  1 -0.699 
+##  2  0.996 
+##  3 -0.693 
+##  4 -0.103 
+##  5  0.604 
+##  6 -0.608 
+##  7  0.0849
+##  8  1.58  
+##  9 -0.464 
+## 10 -1.16  
+## # … with 990 more rows
+## 
+## [[8]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1 -1.62 
+##  2  0.379
+##  3  1.90 
+##  4  0.602
+##  5  1.73 
+##  6 -0.147
+##  7 -0.273
+##  8  1.15 
+##  9  0.505
+## 10  0.801
+## # … with 990 more rows
+## 
+## [[9]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1  0.511
+##  2  1.81 
+##  3 -1.70 
+##  4  0.287
+##  5 -0.269
+##  6 -0.380
+##  7 -0.694
+##  8 -0.194
+##  9  0.937
+## 10 -0.822
+## # … with 990 more rows
+## 
+## [[10]]
+## # A tibble: 1,000 × 1
+##         x
+##     &lt;dbl&gt;
+##  1  1.93 
+##  2 -0.616
+##  3 -0.563
+##  4 -0.990
+##  5  2.73 
+##  6 -0.722
+##  7  1.33 
+##  8 -1.22 
+##  9  1.40 
+## 10  0.332
+## # … with 990 more rows
+```
+]
+
+---
+count: false
+ 
+
+.panel1-mc-sim-data-auto[
+
+```r
+set.seed(123)
+
+rerun(.n = 10, tibble(x = rnorm(1000))) %&gt;%
+* bind_rows(.id = "id")
+```
+]
+ 
+.panel2-mc-sim-data-auto[
+
+```
+## # A tibble: 10,000 × 2
+##    id          x
+##    &lt;chr&gt;   &lt;dbl&gt;
+##  1 1     -0.560 
+##  2 1     -0.230 
+##  3 1      1.56  
+##  4 1      0.0705
+##  5 1      0.129 
+##  6 1      1.72  
+##  7 1      0.461 
+##  8 1     -1.27  
+##  9 1     -0.687 
+## 10 1     -0.446 
+## # … with 9,990 more rows
+```
+]
+
+---
+count: false
+ 
+
+.panel1-mc-sim-data-auto[
+
+```r
+set.seed(123)
+
+rerun(.n = 10, tibble(x = rnorm(1000))) %&gt;%
+  bind_rows(.id = "id") %&gt;%
+* group_by(id)
+```
+]
+ 
+.panel2-mc-sim-data-auto[
+
+```
+## # A tibble: 10,000 × 2
+## # Groups:   id [10]
+##    id          x
+##    &lt;chr&gt;   &lt;dbl&gt;
+##  1 1     -0.560 
+##  2 1     -0.230 
+##  3 1      1.56  
+##  4 1      0.0705
+##  5 1      0.129 
+##  6 1      1.72  
+##  7 1      0.461 
+##  8 1     -1.27  
+##  9 1     -0.687 
+## 10 1     -0.446 
+## # … with 9,990 more rows
+```
+]
+
+---
+count: false
+ 
+
+.panel1-mc-sim-data-auto[
+
+```r
+set.seed(123)
+
+rerun(.n = 10, tibble(x = rnorm(1000))) %&gt;%
+  bind_rows(.id = "id") %&gt;%
+  group_by(id) %&gt;%
+* mutate(x_bar = cummean(x),
+*        n_id = row_number())
+```
+]
+ 
+.panel2-mc-sim-data-auto[
+
+```
+## # A tibble: 10,000 × 4
+## # Groups:   id [10]
+##    id          x   x_bar  n_id
+##    &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;
+##  1 1     -0.560  -0.560      1
+##  2 1     -0.230  -0.395      2
+##  3 1      1.56    0.256      3
+##  4 1      0.0705  0.210      4
+##  5 1      0.129   0.194      5
+##  6 1      1.72    0.447      6
+##  7 1      0.461   0.449      7
+##  8 1     -1.27    0.235      8
+##  9 1     -0.687   0.132      9
+## 10 1     -0.446   0.0746    10
+## # … with 9,990 more rows
+```
+]
+
+&lt;style&gt;
+.panel1-mc-sim-data-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-mc-sim-data-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-mc-sim-data-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+
+
+
+
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+*mc_sim
+```
+]
+ 
+.panel2-mc-plot-auto[
+
+```
+## # A tibble: 10,000 × 4
+## # Groups:   id [10]
+##    id          x   x_bar  n_id
+##    &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;
+##  1 1     -0.560  -0.560      1
+##  2 1     -0.230  -0.395      2
+##  3 1      1.56    0.256      3
+##  4 1      0.0705  0.210      4
+##  5 1      0.129   0.194      5
+##  6 1      1.72    0.447      6
+##  7 1      0.461   0.449      7
+##  8 1     -1.27    0.235      8
+##  9 1     -0.687   0.132      9
+## 10 1     -0.446   0.0746    10
+## # … with 9,990 more rows
+```
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+* ggplot(
+*   mapping = aes(x = n_id, y = x_bar,
+*                 color = factor(id))
+* )
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_02_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+* geom_line()
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_03_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+  geom_line() +
+* scale_color_discrete_qualitative(
+*   palette = "Set3",
+*   guide = "none"
+* )
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_04_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+  geom_line() +
+  scale_color_discrete_qualitative(
+    palette = "Set3",
+    guide = "none"
+  ) +
+* labs(
+*   title = "Expected value of a standard normal distribution",
+*   x = "Number of draws",
+*   y = "Estimate",
+*   caption = "Each line is a separate simulation"
+* )
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_05_output-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+  geom_line() +
+  scale_color_discrete_qualitative(
+    palette = "Set3",
+    guide = "none"
+  ) +
+  labs(
+    title = "Expected value of a standard normal distribution",
+    x = "Number of draws",
+    y = "Estimate",
+    caption = "Each line is a separate simulation"
+  ) +
+* transition_reveal(along = n_id)
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_06_output-1.gif" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-mc-plot-auto[
+
+```r
+mc_sim %&gt;%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+  geom_line() +
+  scale_color_discrete_qualitative(
+    palette = "Set3",
+    guide = "none"
+  ) +
+  labs(
+    title = "Expected value of a standard normal distribution",
+    x = "Number of draws",
+    y = "Estimate",
+    caption = "Each line is a separate simulation"
+  ) +
+  transition_reveal(along = n_id) +
+* view_follow(fixed_y = TRUE)
+```
+]
+ 
+.panel2-mc-plot-auto[
+&lt;img src="index_files/figure-html/mc-plot_auto_07_output-1.gif" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+&lt;style&gt;
+.panel1-mc-plot-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-mc-plot-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-mc-plot-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
 
 ---
 

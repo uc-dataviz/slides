@@ -54,6 +54,7 @@ library(knitr)
 library(kableExtra)
 library(transformr)
 library(palmerpenguins)
+library(colorspace)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
@@ -668,6 +669,93 @@ Sometimes you need more frames, sometimes fewer
 - Purpose: Usefulness of using animation
 
     Is animation needed? Does it provide additional value?
+
+---
+
+class: inverse, middle
+
+## Demonstrating Monte Carlo simulation
+
+---
+
+## Monte Carlo simulation
+
+Suppose that we want to compute the expected value of a function $g$ of $X$ where
+
+$$\text{E}[g(X)] = \int_{-\infty}^{\infty} g(x) f_X(x) \,dx$$
+
+but $f(x)$ is **complicated**.
+
+$$f(x) = \frac{\exp\left(- \frac{(x- \mu)^2}{2\sigma^2} \right) }{\sqrt{2\pi}}$$
+
+--
+
+Substituting into $\text{E}[g(X)]$ we have the definite integral
+
+$$\int_{-\infty}^{\infty} x \times \frac{\exp\left(- \frac{(x- \mu)^2}{2\sigma^2} \right) }{\sqrt{2\pi}} \,dx$$
+
+---
+
+## Monte Carlo simulation
+
+Suppose we can generate random draws of $X$ $(x_1, \ldots, x_n)$ and we computed the arithmetic mean of $g(x)$ over the sample, then we would have the **Monte Carlo estimate**
+
+$$\tilde{g_n}(x) = \frac{1}{n} \sum_{i=1}^n g(x_i)$$
+
+which is the Monte Carlo **estimator** of $\text{E}[g(x)]$.
+
+--
+
+As $n \rightarrow \infty$, $\tilde{g_n}(x) \leadsto \text{E}[g(x)]$.
+
+---
+
+```{r mc-sim-data, eval = FALSE, echo = FALSE}
+set.seed(123)
+
+rerun(.n = 10, tibble(x = rnorm(1000))) %>%
+  bind_rows(.id = "id") %>%
+  group_by(id) %>%
+  mutate(x_bar = cummean(x),
+         n_id = row_number())
+```
+
+`r chunk_reveal(chunk_name = "mc-sim-data", widths = c(50, 50))`
+
+---
+
+```{r include = FALSE}
+set.seed(123)
+
+mc_sim <- rerun(.n = 10, tibble(x = rnorm(1000))) %>%
+  bind_rows(.id = "id") %>%
+  group_by(id) %>%
+  mutate(x_bar = cummean(x),
+         n_id = row_number())
+```
+
+```{r mc-plot, eval = FALSE, echo = FALSE, out.width = "95%"}
+mc_sim %>%
+  ggplot(
+    mapping = aes(x = n_id, y = x_bar,
+                  color = factor(id))
+  ) +
+  geom_line() +
+  scale_color_discrete_qualitative(
+    palette = "Set3",
+    guide = "none"
+  ) +
+  labs(
+    title = "Expected value of a standard normal distribution",
+    x = "Number of draws",
+    y = "Estimate",
+    caption = "Each line is a separate simulation"
+  ) +
+  transition_reveal(along = n_id) +
+  view_follow(fixed_y = TRUE)
+```
+
+`r chunk_reveal(chunk_name = "mc-plot", widths = c(50, 50))`
 
 ---
 
