@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizing text and network data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualizing text and<br />network data
+### MACS 40700 <br /> University of Chicago
+
+---
+
+
+
+
+class: middle, inverse
+
+# Welcome
+
+---
+
+## Announcements
+
+- Project 2 work starts on Monday
+
+- Reading Quiz 4 due Wednesday
+
+- Guest speaker on Wednesday: Kieran Healy
+
+---
+
+## Setup
+
+.midi[
+
+```r
+# load packages
+library(tidyverse)
+library(tidytext)
+library(ggtext)
+library(glue)
+library(ggwordcloud)
+library(ggraph)
+library(igraph)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300, out.width = "60%"
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 10, dplyr.print_min = 10)
+```
+]
+
+---
+
+class: middle, inverse
+
+# Text data
+
+---
+
+## 
+
+
+
+.task[
+Do you recognize the following text?
+]
+
+&lt;br&gt;
+
+&gt;Whenever I get gloomy with the state of the world, I think about the arrivals gate at Heathrow airport. General opinion started to make out that we live in a world of hatred and greed, but I don't see that. Seems to me that love is everywhere. Often it's not particularly dignified or newsworthy but it's always there. Fathers and sons, mothers and daughters, husbands and wives, boyfriends, girlfriends, old friends. When the planes hit the Twin Towers, as far as I know, none of the phone calls from people on board were messages of hate or revenge, they were all messages of love. If you look for it, I've got a sneaky feeling, you'll find that love actually is all around.
+
+---
+
+## Text as data
+
+Text can be represented as data in a variery of ways:
+
+- String: Character vector
+
+- Corpus: Raw strings annotated with additional metadata and details
+
+- Document-term matrix: Sparse matrix describing a collection (i.e., a corpus) of documents with one row for each document and one column for each term, with word counts (or another measure of how common the word is in that text) as values
+
+---
+
+## Tidy text
+
+- Each row is a **token**
+  - A token can be a word, bigram (two words), ngram (n words), sentence, paragraph, etc.
+- Each column is a variable
+- Each type of observational unit is a table
+
+
+```r
+love_actually %&gt;%
+  slice_head(n = 6)
+```
+
+```
+## # A tibble: 6 × 4
+##   scene  line speaker dialogue                                                  
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;                                                     
+## 1     1     1 (Man)   'Whenever I get gloomy with the state of the world, I thi…
+## 2     2     2 Billy   ♪ I feel it in my fingers ♪ I feel it in my toes ♪ Feel i…
+## 3     2     3 Joe     I'm afraid you did it again, Bill.                        
+## 4     2     4 Billy   It's just I know the old version so well, you know.       
+## 5     2     5 Joe     Well, we all do. That's why we're making the new version. 
+## 6     2     6 Billy   Right, OK, let's go. ♪ I feel it in my fingers ♪ In my fi…
+```
+
+---
+
+## Tokenize into words
+
+With `tidytext::unnest_tokens()`:
+
+
+```r
+love_actually %&gt;%
+  unnest_tokens(
+    output = word,    # first argument is output
+    input = dialogue, # second argument is input
+    token = "words"   # third argument is token, with default "words"
+    )
+```
+
+```
+## # A tibble: 9,899 × 4
+##    scene  line speaker word    
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   
+##  1     1     1 (Man)   whenever
+##  2     1     1 (Man)   i       
+##  3     1     1 (Man)   get     
+##  4     1     1 (Man)   gloomy  
+##  5     1     1 (Man)   with    
+##  6     1     1 (Man)   the     
+##  7     1     1 (Man)   state   
+##  8     1     1 (Man)   of      
+##  9     1     1 (Man)   the     
+## 10     1     1 (Man)   world   
+## # … with 9,889 more rows
+```
+
+---
+
+## Most common words
+
+.task[
+Why do these words appear so commonly in Love Actually?
+]
+
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  count(word, sort = TRUE)
+```
+
+```
+## # A tibble: 1,770 × 2
+##    word      n
+##    &lt;chr&gt; &lt;int&gt;
+##  1 you     334
+##  2 i       300
+##  3 the     263
+##  4 a       201
+##  5 and     199
+##  6 to      199
+##  7 it      150
+##  8 is      124
+##  9 of      112
+## 10 no      111
+## # … with 1,760 more rows
+```
+
+---
+
+## Stop words
+
+- In computing, stop words are words which are filtered out before or after processing of natural language data (text)
+
+- They usually refer to Most common words in a language, but there is not a single list of stop words used by all natural language processing tools
+
+.pull-left[
+English:
+.small[
+
+```r
+get_stopwords()
+```
+
+```
+## # A tibble: 175 × 2
+##    word      lexicon 
+##    &lt;chr&gt;     &lt;chr&gt;   
+##  1 i         snowball
+##  2 me        snowball
+##  3 my        snowball
+##  4 myself    snowball
+##  5 we        snowball
+##  6 our       snowball
+##  7 ours      snowball
+##  8 ourselves snowball
+##  9 you       snowball
+## 10 your      snowball
+## # … with 165 more rows
+```
+]
+]
+.pull-right[
+Spanish:
+.small[
+
+```r
+get_stopwords()
+```
+
+```
+## # A tibble: 175 × 2
+##    word      lexicon 
+##    &lt;chr&gt;     &lt;chr&gt;   
+##  1 i         snowball
+##  2 me        snowball
+##  3 my        snowball
+##  4 myself    snowball
+##  5 we        snowball
+##  6 our       snowball
+##  7 ours      snowball
+##  8 ourselves snowball
+##  9 you       snowball
+## 10 your      snowball
+## # … with 165 more rows
+```
+]
+]
+
+---
+
+## Most common words
+
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE)
+```
+
+```
+## # A tibble: 1,355 × 2
+##    word           n
+##    &lt;chr&gt;      &lt;int&gt;
+##  1 christmas     49
+##  2 yeah          48
+##  3 er            45
+##  4 love          40
+##  5 erm           39
+##  6 sir           28
+##  7 portuguese    25
+##  8 god           23
+##  9 bye           21
+## 10 time          20
+## # … with 1,345 more rows
+```
+
+---
+
+## Portuguese?!
+
+
+```r
+love_actually %&gt;%
+  filter(str_detect(dialogue, "[Pp]ortuguese"))
+```
+
+```
+## # A tibble: 25 × 4
+##    scene  line speaker dialogue                                                 
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;                                                    
+##  1    32   360 woman   Unfortunately, she cannot speak French, just like you. S…
+##  2    33   367 Jamie   (Pidgin Portuguese) Bello. Er, bella. Er, mon-montagno, …
+##  3    38   421 Aurelia (Portuguese) Thank you very much but no. If you saw my s…
+##  4    38   423 Aurelia (Portuguese)Just don't go eating it all yourself, you're…
+##  5    39   426 Aurelia (Portuguese) Nao! Eu peco imensa desculpa. Oh, no. Hold …
+##  6    39   430 Aurelia (Portuguese) Fuck - it's cold!                           
+##  7    39   432 Aurelia (Portuguese) This stuff better be good.                  
+##  8    39   434 Aurelia (Portuguese) I don't want to drown saving some shit my g…
+##  9    39   436 Aurelia (Portuguese) What kind of an idiot doesn't do copies?    
+## 10    39   438 Aurelia (Portuguese) Try not to disturb the eels.                
+## # … with 15 more rows
+```
+
+---
+
+## Data cleaning
+
+- Remove language identifiers
+
+
+```r
+love_actually &lt;- love_actually %&gt;%
+  mutate(dialogue = str_remove(dialogue, "(Portuguese)"))
+```
+
+- Take another look
+
+
+```r
+love_actually %&gt;%
+  filter(str_detect(dialogue, "[Pp]ortuguese"))
+```
+
+```
+## # A tibble: 0 × 4
+## # … with 4 variables: scene &lt;dbl&gt;, line &lt;dbl&gt;, speaker &lt;chr&gt;, dialogue &lt;chr&gt;
+```
+
+---
+
+## Most common words
+
+without "Portuguese"
+
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE)
+```
+
+```
+## # A tibble: 1,354 × 2
+##    word          n
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 christmas    49
+##  2 yeah         48
+##  3 er           45
+##  4 love         40
+##  5 erm          39
+##  6 sir          28
+##  7 god          23
+##  8 bye          21
+##  9 time         20
+## 10 ah           19
+## # … with 1,344 more rows
+```
+
+---
+
+## Visualizing Most common words
+
+Visualize the top 10 words
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+* slice_head(n = 10) %&gt;%
+  ggplot(aes(y = word, x = n)) +
+  geom_col()
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Visualizing Most common words
+
+Reorder the words by frequency
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  slice_head(n = 10) %&gt;%
+* ggplot(aes(y = fct_reorder(word, n), x = n)) +
+  geom_col()
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Visualizing Most common words
+
+Bring in some color
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  slice_head(n = 10) %&gt;%
+  ggplot(aes(y = fct_reorder(word, n), x = n)) +
+* geom_col(fill = "#BD2D2A") +
+  labs(
+    x = "Count", y = NULL,
+    title = "Most common words in Love Actually"
+  )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Visualizing the most common words
+
+Use `ggtext::element_textbox_simple()` to add color to title
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+love_actually %&gt;%
+  unnest_tokens(word, dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  slice_head(n = 10) %&gt;%
+  ggplot(aes(y = fct_reorder(word, n), x = n)) +
+  geom_col(fill = "#BD2D2A") +
+  labs(
+    x = "Count", y = NULL,
+*   title = "&lt;span style = 'color:#808080'&gt;Most common words in&lt;/span&gt;",
+*   subtitle ="&lt;span style = 'color:#BD2D2A;font-weight:strong'&gt;&lt;b&gt;love&lt;/b&gt;&lt;/span&gt; actually"
+  ) +
+  theme(
+*   plot.title = element_textbox_simple(halign = 1),
+*   plot.subtitle = element_textbox_simple(size = 30, halign = 1),
+*   plot.title.position = "plot"
+    )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Wordclouds
+
+Using `ggwordcloud::geom_text_wordcloud()`:
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+set.seed(1234)
+love_actually %&gt;%
+  unnest_tokens(output = word, input = dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  filter(n &gt; 5) %&gt;%
+  ggplot(aes(label = word, size = n)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 10)
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Wordclouds, with color
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+set.seed(1234)
+love_actually %&gt;%
+  unnest_tokens(output = word, input = dialogue) %&gt;%
+  anti_join(stop_words) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  filter(n &gt; 5) %&gt;%
+  ggplot(aes(label = word, size = n)) +
+  geom_text_wordcloud(aes(color = n)) +
+  scale_size_area(max_size = 10) +
+  scale_color_distiller(palette = "Reds")
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+class: middle
+
+# Network data
+
+---
+
+## Network data
+
+- A **network** refers to an object composed of elements and relationships or connections between those elements
+
+--
+- **Network analysis** is a collection of techniques for examining the relationships between entities, and depicting the structure of those relationships
+  - Network analysis spans a number of domains, including social networks, bibliometrics, epidemiology, bioinformatics, complex systems, and text analysis
+
+--
+- **Graph theory** provides the formal basis for network analysis, across domains, and provides a common language for describing the structure of networks
+
+--
+- **Network visualization** involves the visualization of the relationships (edges or links) between data elements (nodes)
+
+---
+
+## Purpose
+
+Main concern in designing a network visualization is the purpose it has to serve:
+
+- What are the structural properties that we want to highlight?
+- What are the key concerns we want to address?
+
+&lt;img src="images/network-purpose.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: https://kateto.net/network-visualization
+]
+
+---
+
+## Format
+
+- Network maps are not the only visualization appropriate for graphs
+
+- Other network representation formats, including simple charts of key characteristics, may be more appropriate in some cases
+
+&lt;img src="images/network-format.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+.footnote[
+Source: https://kateto.net/network-visualization
+]
+
+---
+
+## Bigrams as tokens
+
+**Bigram** is a sequence of two adjacent elements ferom a string of tokens, e.g., two consecutive words
+
+
+```r
+bigrams &lt;- love_actually %&gt;%
+  unnest_tokens(bigram, dialogue, token = "ngrams", n = 2)
+
+bigrams
+```
+
+```
+## # A tibble: 8,966 × 4
+##    scene  line speaker bigram     
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      
+##  1     1     1 (Man)   whenever i 
+##  2     1     1 (Man)   i get      
+##  3     1     1 (Man)   get gloomy 
+##  4     1     1 (Man)   gloomy with
+##  5     1     1 (Man)   with the   
+##  6     1     1 (Man)   the state  
+##  7     1     1 (Man)   state of   
+##  8     1     1 (Man)   of the     
+##  9     1     1 (Man)   the world  
+## 10     1     1 (Man)   world i    
+## # … with 8,956 more rows
+```
+
+---
+
+## Most common bigrams
+
+
+```r
+bigrams %&gt;%
+  count(bigram, sort = TRUE)
+```
+
+```
+## # A tibble: 6,356 × 2
+##    bigram        n
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 &lt;NA&gt;        111
+##  2 thank you    32
+##  3 do you       25
+##  4 this is      25
+##  5 come on      24
+##  6 you know     24
+##  7 and i        21
+##  8 in the       21
+##  9 are you      20
+## 10 i think      20
+## # … with 6,346 more rows
+```
+
+---
+
+## Removing stop words from bigrams
+
+Step 1: Separate the bigram into words
+
+
+```r
+bigrams_separated &lt;- bigrams %&gt;%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_separated
+```
+
+```
+## # A tibble: 8,966 × 5
+##    scene  line speaker word1    word2 
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt; 
+##  1     1     1 (Man)   whenever i     
+##  2     1     1 (Man)   i        get   
+##  3     1     1 (Man)   get      gloomy
+##  4     1     1 (Man)   gloomy   with  
+##  5     1     1 (Man)   with     the   
+##  6     1     1 (Man)   the      state 
+##  7     1     1 (Man)   state    of    
+##  8     1     1 (Man)   of       the   
+##  9     1     1 (Man)   the      world 
+## 10     1     1 (Man)   world    i     
+## # … with 8,956 more rows
+```
+
+---
+
+## Removing stop words from bigrams
+
+Step 2: Remove bigram if either word is a stop word
+
+
+```r
+bigrams_filtered &lt;- bigrams_separated %&gt;%
+  filter(!(word1 %in% stop_words$word)) %&gt;%
+  filter(!(word2 %in% stop_words$word))
+
+bigrams_filtered
+```
+
+```
+## # A tibble: 930 × 5
+##    scene  line speaker word1      word2      
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;      
+##  1     1     1 (Man)   arrivals   gate       
+##  2     1     1 (Man)   heathrow   airport    
+##  3     1     1 (Man)   opinion    started    
+##  4     1     1 (Man)   sons       mothers    
+##  5     1     1 (Man)   daughters  husbands   
+##  6     1     1 (Man)   wives      boyfriends 
+##  7     1     1 (Man)   boyfriends girlfriends
+##  8     1     1 (Man)   planes     hit        
+##  9     1     1 (Man)   twin       towers     
+## 10     1     1 (Man)   phone      calls      
+## # … with 920 more rows
+```
+
+---
+
+## Removing stop words from bigrams
+
+Step 3: Put the bigrams back together
+
+
+```r
+bigrams_united &lt;- bigrams_filtered %&gt;%
+  unite(bigram, word1, word2, sep = " ")
+
+bigrams_united
+```
+
+```
+## # A tibble: 930 × 4
+##    scene  line speaker bigram                
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;                 
+##  1     1     1 (Man)   arrivals gate         
+##  2     1     1 (Man)   heathrow airport      
+##  3     1     1 (Man)   opinion started       
+##  4     1     1 (Man)   sons mothers          
+##  5     1     1 (Man)   daughters husbands    
+##  6     1     1 (Man)   wives boyfriends      
+##  7     1     1 (Man)   boyfriends girlfriends
+##  8     1     1 (Man)   planes hit            
+##  9     1     1 (Man)   twin towers           
+## 10     1     1 (Man)   phone calls           
+## # … with 920 more rows
+```
+
+---
+
+## Most common bigrams, again
+
+Hmm...
+
+
+```r
+bigrams_united %&gt;%
+  count(bigram, sort = TRUE)
+```
+
+```
+## # A tibble: 708 × 2
+##    bigram              n
+##    &lt;chr&gt;           &lt;int&gt;
+##  1 NA NA             111
+##  2 prime minister     13
+##  3 bye bye            11
+##  4 baby baby           6
+##  5 merry christmas     6
+##  6 uncle jamie         5
+##  7 baby bye            4
+##  8 billy mack          4
+##  9 bye baby            4
+## 10 goodbye baby        4
+## # … with 698 more rows
+```
+
+---
+
+## Most common bigrams, again
+
+
+```r
+bigrams_united &lt;- bigrams_united %&gt;%
+  filter(bigram != "NA NA")
+
+bigrams_united %&gt;%
+  count(bigram, sort = TRUE)
+```
+
+```
+## # A tibble: 707 × 2
+##    bigram              n
+##    &lt;chr&gt;           &lt;int&gt;
+##  1 prime minister     13
+##  2 bye bye            11
+##  3 baby baby           6
+##  4 merry christmas     6
+##  5 uncle jamie         5
+##  6 baby bye            4
+##  7 billy mack          4
+##  8 bye baby            4
+##  9 goodbye baby        4
+## 10 joni mitchell       4
+## # … with 697 more rows
+```
+
+---
+
+## Visualizing the most common bigrams
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+bigrams_united %&gt;%
+  count(bigram, sort = TRUE) %&gt;%
+  slice_head(n = 10) %&gt;%
+  ggplot(aes(y = fct_reorder(bigram, n), x = n)) +
+  geom_col(fill = "#BD2D2A") +
+  labs(
+    x = "Count", y = NULL,
+*   title = "&lt;span style = 'color:#808080'&gt;Most common bigrams in&lt;/span&gt;",
+*   subtitle ="&lt;span style = 'color:#BD2D2A;font-weight:strong'&gt;&lt;b&gt;love&lt;/b&gt;&lt;/span&gt; actually"
+  ) +
+  theme(
+*   plot.title = element_textbox_simple(halign = 1),
+*   plot.subtitle = element_textbox_simple(size = 30, halign = 1),
+*   plot.title.position = "plot"
+    )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Network of bigrams
+
+- We may be interested in visualizing all of the relationships among words simultaneously, rather than just the top few at a time
+
+- One approach is to arrange the words into a network (or "graph")
+  - Here, "graph" is not in the sense of a visualization, but as a combination of connected nodes
+  
+- A graph can be constructed from a tidy object since it has three variables:
+  - **from**: the node an edge is coming from
+  - **to**: the node an edge is going towards
+  - **weight**: a numeric value associated with each edge
+
+---
+
+## From tidy data frame to graph
+
+Using `igraph::graph_from_data_frame()`:
+
+
+```r
+bigram_graph &lt;- bigrams_united %&gt;%
+  separate(bigram, c("word1", "word2"), sep = " ") %&gt;%
+  count(word1, word2, sort = TRUE) %&gt;%
+  filter(n &gt; 1) %&gt;%       # filter for bigrams that occur more than once
+  graph_from_data_frame()
+
+bigram_graph
+```
+
+```
+## IGRAPH 1deaf70 DN-- 83 62 -- 
+## + attr: name (v/c), n (e/n)
+## + edges from 1deaf70 (vertex names):
+##  [1] prime    -&gt;minister  bye      -&gt;bye       baby     -&gt;baby     
+##  [4] merry    -&gt;christmas uncle    -&gt;jamie     baby     -&gt;bye      
+##  [7] billy    -&gt;mack      bye      -&gt;baby      goodbye  -&gt;baby     
+## [10] joni     -&gt;mitchell  uh       -&gt;huh       er       -&gt;er       
+## [13] er       -&gt;natalie   hate     -&gt;uncle     love     -&gt;christmas
+## [16] natalie  -&gt;live      toes     -&gt;feel      toes     -&gt;yeah     
+## [19] ah       -&gt;er        ah       -&gt;natalie   american -&gt;girls    
+## [22] baby     -&gt;goodbye   bad      -&gt;news      boa      -&gt;noite    
+## + ... omitted several edges
+```
+
+---
+
+## Visualizing the network of bigrams
+
+Common bigrams in Love Actually that occurred more than once and where neither word was a stop word
+
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 1. Set up the plot object with `ggraph::ggraph()`:
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 2. Add edges
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph) +
+  geom_edge_link()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 3. Add nodes
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph) +
+  geom_edge_link() +
+  geom_node_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 4. Add text
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph) +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="45%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 5. Consider layouts
+
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="35%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-35-2.png" width="35%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="35%" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-36-2.png" width="35%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 6. Pick a layout
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 7. Adjust text
+
+
+```r
+set.seed(1015)
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), hjust = 1, vjust = 1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Visualizing the network of bigrams
+
+Step 8. Add more context with `edge_alpha = n`
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+a &lt;- grid::arrow(type = "closed", length = unit(0.1, "inches"))
+
+set.seed(1015)
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link(aes(edge_alpha = n), show.legend = FALSE,
+                 arrow = a, end_cap = circle(0.01, "inches")) +
+  geom_node_point(color = "lightpink", size = 3) +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Main characters
+
+
+```r
+main_characters &lt;- read_csv(here::here("13-visualize-text-network", "data/love-actually-cast.csv"))
+```
+
+.pull-left[
+
+```r
+main_characters %&gt;% slice(1:10)
+```
+
+```
+## # A tibble: 10 × 2
+##    speaker actor             
+##    &lt;chr&gt;   &lt;chr&gt;             
+##  1 PM      Hugh Grant        
+##  2 Daniel  Liam Neeson       
+##  3 Harry   Alan Rickman      
+##  4 Jamie   Colin Firth       
+##  5 Karen   Emma Thompson     
+##  6 Colin   Kris Marshall     
+##  7 Sam     Thomas Sangster   
+##  8 Sarah   Laura Linney      
+##  9 Natalie Martine McCutcheon
+## 10 Billy   Bill Nighy
+```
+]
+.pull-right[
+
+```r
+main_characters %&gt;% slice(11:20)
+```
+
+```
+## # A tibble: 10 × 2
+##    speaker actor           
+##    &lt;chr&gt;   &lt;chr&gt;           
+##  1 Mark    Andrew Lincoln  
+##  2 Aurelia Lúcia Moniz     
+##  3 Jack    Martin Freeman  
+##  4 Juliet  Keira Knightley 
+##  5 Karl    Rodrigo Santoro 
+##  6 Mia     Heike Makatsch  
+##  7 Judy    Joanna Page     
+##  8 Tony    Abdul Salis     
+##  9 Joe     Gregor Fisher   
+## 10 Peter   Chiwetel Ejiofor
+```
+]
+
+---
+
+## Dialogues for main characters
+
+
+```r
+love_actually &lt;- love_actually %&gt;%
+  inner_join(main_characters) %&gt;%
+  mutate(character = glue("{speaker} ({actor})"))
+
+dim(love_actually)
+```
+
+```
+## [1] 748   6
+```
+
+---
+
+## Lines-per-scene-per-character
+
+
+```r
+character_scene_counts &lt;- love_actually %&gt;%
+    count(scene, character)
+
+character_scene_counts
+```
+
+```
+## # A tibble: 162 × 3
+##    scene character                    n
+##    &lt;dbl&gt; &lt;glue&gt;                   &lt;int&gt;
+##  1     2 Billy (Bill Nighy)           5
+##  2     2 Joe (Gregor Fisher)          3
+##  3     3 Jamie (Colin Firth)          5
+##  4     4 Daniel (Liam Neeson)         3
+##  5     4 Karen (Emma Thompson)        6
+##  6     5 Colin (Kris Marshall)        4
+##  7     6 Jack (Martin Freeman)        2
+##  8     6 Judy (Joanna Page)           1
+##  9     7 Mark (Andrew Lincoln)        4
+## 10     7 Peter (Chiwetel Ejiofor)     4
+## # … with 152 more rows
+```
+
+---
+
+## Look who's talking to whom
+
+
+```r
+character_scene_counts %&gt;%
+  ggplot(aes(x = scene, y = character)) +
+  geom_point() +
+  geom_path(aes(group = scene))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Identify monologues
+
+
+```r
+character_scene_counts %&gt;%
+  group_by(scene) %&gt;%
+  mutate(conversation = if_else(n() == 1, "monologue", "not monologue"))
+```
+
+```
+## # A tibble: 162 × 4
+## # Groups:   scene [76]
+##    scene character                    n conversation 
+##    &lt;dbl&gt; &lt;glue&gt;                   &lt;int&gt; &lt;chr&gt;        
+##  1     2 Billy (Bill Nighy)           5 not monologue
+##  2     2 Joe (Gregor Fisher)          3 not monologue
+##  3     3 Jamie (Colin Firth)          5 monologue    
+##  4     4 Daniel (Liam Neeson)         3 not monologue
+##  5     4 Karen (Emma Thompson)        6 not monologue
+##  6     5 Colin (Kris Marshall)        4 monologue    
+##  7     6 Jack (Martin Freeman)        2 not monologue
+##  8     6 Judy (Joanna Page)           1 not monologue
+##  9     7 Mark (Andrew Lincoln)        4 not monologue
+## 10     7 Peter (Chiwetel Ejiofor)     4 not monologue
+## # … with 152 more rows
+```
+
+---
+
+## Look who's talking to whom, again
+
+.task[
+What's happening in the last scene?
+]
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+character_scene_counts %&gt;%
+  group_by(scene) %&gt;%
+  mutate(conversation = if_else(n() == 1, "monologue", "not monologue")) %&gt;%
+  filter(conversation == "not monologue") %&gt;%
+  ggplot(aes(x = scene, y = character)) +
+  geom_point() +
+  geom_path(aes(group = scene))
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Remove the last scene
+
+So that it doesn't look like everyone is connected to each other in the network
+
+
+```r
+character_scene_counts &lt;- character_scene_counts %&gt;%
+  filter(scene != max(character_scene_counts$scene))
+```
+
+---
+
+## Character scene "matrix"
+
+Each row is a character, each column is a scene
+
+.small[
+
+```r
+character_scene_counts %&gt;%
+  pivot_wider(
+    names_from = scene,
+    values_from = n
+  )
+```
+
+```
+## # A tibble: 20 × 76
+##    character     `2`   `3`   `4`   `5`   `6`   `7`   `8`   `9`  `10`  `11`  `12`
+##    &lt;glue&gt;      &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1 Billy (Bil…     5    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+##  2 Joe (Grego…     3    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+##  3 Jamie (Col…    NA     5    NA    NA    NA    NA    NA    NA     5    NA    NA
+##  4 Daniel (Li…    NA    NA     3    NA    NA    NA    NA    NA    NA    NA    NA
+##  5 Karen (Emm…    NA    NA     6    NA    NA    NA    NA    NA    NA    NA    NA
+##  6 Colin (Kri…    NA    NA    NA     4    NA    NA    NA    NA    NA    10     5
+##  7 Jack (Mart…    NA    NA    NA    NA     2    NA    NA    NA    NA    NA    NA
+##  8 Judy (Joan…    NA    NA    NA    NA     1    NA    NA    NA    NA    NA    NA
+##  9 Mark (Andr…    NA    NA    NA    NA    NA     4    NA     1    NA     1    NA
+## 10 Peter (Chi…    NA    NA    NA    NA    NA     4    NA     4    NA    NA    NA
+## 11 Natalie (M…    NA    NA    NA    NA    NA    NA     4    NA    NA    NA    NA
+## 12 PM (Hugh G…    NA    NA    NA    NA    NA    NA    12    NA    NA    NA    NA
+## 13 Juliet (Ke…    NA    NA    NA    NA    NA    NA    NA     1    NA    NA    NA
+## 14 Tony (Abdu…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA     4
+## 15 Sarah (Lau…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## 16 Harry (Ala…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## 17 Karl (Rodr…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## 18 Mia (Heike…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## 19 Sam (Thoma…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## 20 Aurelia (L…    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+## # … with 64 more variables: `13` &lt;int&gt;, `14` &lt;int&gt;, `15` &lt;int&gt;, `16` &lt;int&gt;,
+## #   `17` &lt;int&gt;, `18` &lt;int&gt;, `19` &lt;int&gt;, `20` &lt;int&gt;, `21` &lt;int&gt;, `22` &lt;int&gt;,
+## #   `23` &lt;int&gt;, `24` &lt;int&gt;, `25` &lt;int&gt;, `26` &lt;int&gt;, `27` &lt;int&gt;, `28` &lt;int&gt;,
+## #   `29` &lt;int&gt;, `30` &lt;int&gt;, `31` &lt;int&gt;, `32` &lt;int&gt;, `33` &lt;int&gt;, `34` &lt;int&gt;,
+## #   `35` &lt;int&gt;, `36` &lt;int&gt;, `37` &lt;int&gt;, `38` &lt;int&gt;, `39` &lt;int&gt;, `40` &lt;int&gt;,
+## #   `42` &lt;int&gt;, `43` &lt;int&gt;, `44` &lt;int&gt;, `45` &lt;int&gt;, `46` &lt;int&gt;, `47` &lt;int&gt;,
+## #   `48` &lt;int&gt;, `49` &lt;int&gt;, `50` &lt;int&gt;, `51` &lt;int&gt;, `52` &lt;int&gt;, `53` &lt;int&gt;, …
+```
+]
+
+---
+
+## Character scene "matrix"
+
+... and each cell is a 0/1 depending on whether that combination ever occurred
+
+.small[
+
+```r
+character_scene_occurences &lt;- character_scene_counts %&gt;%
+  pivot_wider(
+    names_from = scene,
+    names_prefix = "s",
+    values_from = n,
+    values_fn = length,
+    values_fill = 0
+  )
+
+character_scene_occurences
+```
+
+```
+## # A tibble: 20 × 76
+##    character      s2    s3    s4    s5    s6    s7    s8    s9   s10   s11   s12
+##    &lt;glue&gt;      &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+##  1 Billy (Bil…     1     0     0     0     0     0     0     0     0     0     0
+##  2 Joe (Grego…     1     0     0     0     0     0     0     0     0     0     0
+##  3 Jamie (Col…     0     1     0     0     0     0     0     0     1     0     0
+##  4 Daniel (Li…     0     0     1     0     0     0     0     0     0     0     0
+##  5 Karen (Emm…     0     0     1     0     0     0     0     0     0     0     0
+##  6 Colin (Kri…     0     0     0     1     0     0     0     0     0     1     1
+##  7 Jack (Mart…     0     0     0     0     1     0     0     0     0     0     0
+##  8 Judy (Joan…     0     0     0     0     1     0     0     0     0     0     0
+##  9 Mark (Andr…     0     0     0     0     0     1     0     1     0     1     0
+## 10 Peter (Chi…     0     0     0     0     0     1     0     1     0     0     0
+## 11 Natalie (M…     0     0     0     0     0     0     1     0     0     0     0
+## 12 PM (Hugh G…     0     0     0     0     0     0     1     0     0     0     0
+## 13 Juliet (Ke…     0     0     0     0     0     0     0     1     0     0     0
+## 14 Tony (Abdu…     0     0     0     0     0     0     0     0     0     0     1
+## 15 Sarah (Lau…     0     0     0     0     0     0     0     0     0     0     0
+## 16 Harry (Ala…     0     0     0     0     0     0     0     0     0     0     0
+## 17 Karl (Rodr…     0     0     0     0     0     0     0     0     0     0     0
+## 18 Mia (Heike…     0     0     0     0     0     0     0     0     0     0     0
+## 19 Sam (Thoma…     0     0     0     0     0     0     0     0     0     0     0
+## 20 Aurelia (L…     0     0     0     0     0     0     0     0     0     0     0
+## # … with 64 more variables: s13 &lt;int&gt;, s14 &lt;int&gt;, s15 &lt;int&gt;, s16 &lt;int&gt;,
+## #   s17 &lt;int&gt;, s18 &lt;int&gt;, s19 &lt;int&gt;, s20 &lt;int&gt;, s21 &lt;int&gt;, s22 &lt;int&gt;,
+## #   s23 &lt;int&gt;, s24 &lt;int&gt;, s25 &lt;int&gt;, s26 &lt;int&gt;, s27 &lt;int&gt;, s28 &lt;int&gt;,
+## #   s29 &lt;int&gt;, s30 &lt;int&gt;, s31 &lt;int&gt;, s32 &lt;int&gt;, s33 &lt;int&gt;, s34 &lt;int&gt;,
+## #   s35 &lt;int&gt;, s36 &lt;int&gt;, s37 &lt;int&gt;, s38 &lt;int&gt;, s39 &lt;int&gt;, s40 &lt;int&gt;,
+## #   s42 &lt;int&gt;, s43 &lt;int&gt;, s44 &lt;int&gt;, s45 &lt;int&gt;, s46 &lt;int&gt;, s47 &lt;int&gt;,
+## #   s48 &lt;int&gt;, s49 &lt;int&gt;, s50 &lt;int&gt;, s51 &lt;int&gt;, s52 &lt;int&gt;, s53 &lt;int&gt;, …
+```
+]
+
+---
+
+## Actually as a matrix
+
+.small[
+
+```r
+character_scene_matrix &lt;- character_scene_occurences %&gt;%
+  column_to_rownames(var = "character") %&gt;%
+  as.matrix()
+
+character_scene_matrix
+```
+
+```
+##                              s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15
+## Billy (Bill Nighy)            1  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Joe (Gregor Fisher)           1  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Jamie (Colin Firth)           0  1  0  0  0  0  0  0   1   0   0   0   0   0
+## Daniel (Liam Neeson)          0  0  1  0  0  0  0  0   0   0   0   0   1   0
+## Karen (Emma Thompson)         0  0  1  0  0  0  0  0   0   0   0   0   0   0
+## Colin (Kris Marshall)         0  0  0  1  0  0  0  0   0   1   1   0   0   0
+## Jack (Martin Freeman)         0  0  0  0  1  0  0  0   0   0   0   1   0   0
+## Judy (Joanna Page)            0  0  0  0  1  0  0  0   0   0   0   1   0   0
+## Mark (Andrew Lincoln)         0  0  0  0  0  1  0  1   0   1   0   0   0   1
+## Peter (Chiwetel Ejiofor)      0  0  0  0  0  1  0  1   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)  0  0  0  0  0  0  1  0   0   0   0   0   0   0
+## PM (Hugh Grant)               0  0  0  0  0  0  1  0   0   0   0   0   0   0
+## Juliet (Keira Knightley)      0  0  0  0  0  0  0  1   0   0   0   0   0   0
+## Tony (Abdul Salis)            0  0  0  0  0  0  0  0   0   0   1   0   0   0
+## Sarah (Laura Linney)          0  0  0  0  0  0  0  0   0   0   0   0   0   1
+## Harry (Alan Rickman)          0  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Karl (Rodrigo Santoro)        0  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Mia (Heike Makatsch)          0  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Sam (Thomas Sangster)         0  0  0  0  0  0  0  0   0   0   0   0   0   0
+## Aurelia (Lúcia Moniz)         0  0  0  0  0  0  0  0   0   0   0   0   0   0
+##                              s16 s17 s18 s19 s20 s21 s22 s23 s24 s25 s26 s27
+## Billy (Bill Nighy)             0   1   0   0   0   0   0   0   0   0   0   0
+## Joe (Gregor Fisher)            0   1   0   0   0   0   0   0   0   0   0   0
+## Jamie (Colin Firth)            0   0   0   0   0   0   0   0   0   0   1   0
+## Daniel (Liam Neeson)           0   0   0   0   0   0   0   1   1   0   0   0
+## Karen (Emma Thompson)          0   0   0   0   0   0   0   1   0   0   0   0
+## Colin (Kris Marshall)          0   0   0   0   0   1   0   0   0   0   0   0
+## Jack (Martin Freeman)          0   0   0   0   1   0   0   0   0   0   0   0
+## Judy (Joanna Page)             0   0   0   0   1   0   0   0   0   0   0   0
+## Mark (Andrew Lincoln)          0   0   0   0   0   0   0   0   0   0   0   0
+## Peter (Chiwetel Ejiofor)       0   0   0   0   0   0   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)   0   0   0   1   0   0   0   0   0   0   0   1
+## PM (Hugh Grant)                0   0   1   1   0   0   0   0   0   0   0   1
+## Juliet (Keira Knightley)       0   0   0   0   0   0   0   0   0   0   0   0
+## Tony (Abdul Salis)             0   0   0   0   0   1   0   0   0   0   0   0
+## Sarah (Laura Linney)           1   0   0   0   0   0   0   0   0   1   0   0
+## Harry (Alan Rickman)           1   0   0   0   0   0   1   0   0   0   0   0
+## Karl (Rodrigo Santoro)         1   0   0   0   0   0   0   0   0   1   0   0
+## Mia (Heike Makatsch)           1   0   0   0   0   0   1   0   0   0   0   0
+## Sam (Thomas Sangster)          0   0   0   0   0   0   0   0   1   0   0   0
+## Aurelia (Lúcia Moniz)          0   0   0   0   0   0   0   0   0   0   0   0
+##                              s28 s29 s30 s31 s32 s33 s34 s35 s36 s37 s38 s39
+## Billy (Bill Nighy)             0   1   0   0   0   0   0   0   0   0   0   0
+## Joe (Gregor Fisher)            0   0   0   0   0   0   0   0   0   0   0   0
+## Jamie (Colin Firth)            0   0   0   0   1   1   0   0   0   0   1   1
+## Daniel (Liam Neeson)           1   0   0   0   0   0   0   0   0   0   0   0
+## Karen (Emma Thompson)          0   0   0   0   0   0   0   0   1   0   0   0
+## Colin (Kris Marshall)          0   0   0   0   0   0   0   0   0   0   0   0
+## Jack (Martin Freeman)          0   0   0   0   0   0   0   0   0   0   0   0
+## Judy (Joanna Page)             0   0   0   0   0   0   0   0   0   0   0   0
+## Mark (Andrew Lincoln)          0   0   1   0   0   0   0   0   0   0   0   0
+## Peter (Chiwetel Ejiofor)       0   0   1   0   0   0   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)   0   0   0   0   0   0   1   0   0   0   0   0
+## PM (Hugh Grant)                0   0   0   0   0   0   1   1   1   1   0   0
+## Juliet (Keira Knightley)       0   0   1   0   0   0   0   0   0   0   0   0
+## Tony (Abdul Salis)             0   0   0   0   0   0   0   0   0   0   0   0
+## Sarah (Laura Linney)           0   0   0   1   0   0   0   0   0   0   0   0
+## Harry (Alan Rickman)           0   0   0   1   0   0   0   0   1   0   0   0
+## Karl (Rodrigo Santoro)         0   0   0   0   0   0   0   0   0   0   0   0
+## Mia (Heike Makatsch)           0   0   0   1   0   0   0   0   0   0   0   0
+## Sam (Thomas Sangster)          1   0   0   0   0   0   0   0   0   0   0   0
+## Aurelia (Lúcia Moniz)          0   0   0   0   1   0   0   0   0   0   1   1
+##                              s40 s42 s43 s44 s45 s46 s47 s48 s49 s50 s51 s52
+## Billy (Bill Nighy)             0   0   0   0   0   0   0   1   0   0   0   0
+## Joe (Gregor Fisher)            0   0   0   0   0   0   0   0   0   0   0   0
+## Jamie (Colin Firth)            0   0   0   0   1   0   0   0   0   0   0   0
+## Daniel (Liam Neeson)           0   0   1   0   0   1   0   0   0   0   0   0
+## Karen (Emma Thompson)          0   0   0   0   0   0   1   0   1   0   1   0
+## Colin (Kris Marshall)          0   0   0   0   0   0   0   0   0   0   0   0
+## Jack (Martin Freeman)          0   0   0   0   0   0   0   0   0   0   0   0
+## Judy (Joanna Page)             0   0   0   0   0   0   0   0   0   0   0   0
+## Mark (Andrew Lincoln)          1   0   0   0   0   0   0   0   0   0   0   0
+## Peter (Chiwetel Ejiofor)       0   0   0   0   0   0   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)   0   0   0   0   0   0   0   0   0   0   0   0
+## PM (Hugh Grant)                0   1   0   1   0   0   0   0   0   0   0   0
+## Juliet (Keira Knightley)       1   0   0   0   0   0   0   0   0   0   0   0
+## Tony (Abdul Salis)             0   0   0   0   0   0   0   0   0   0   0   0
+## Sarah (Laura Linney)           0   0   0   0   0   0   0   0   1   1   0   1
+## Harry (Alan Rickman)           0   0   0   0   0   0   1   0   0   0   1   0
+## Karl (Rodrigo Santoro)         0   0   0   0   0   0   0   0   1   1   0   0
+## Mia (Heike Makatsch)           0   0   0   0   0   0   1   0   0   0   0   0
+## Sam (Thomas Sangster)          0   0   1   0   0   1   0   0   0   0   0   0
+## Aurelia (Lúcia Moniz)          0   0   0   0   1   0   0   0   0   0   0   0
+##                              s53 s54 s55 s56 s57 s58 s59 s60 s61 s62 s63 s64
+## Billy (Bill Nighy)             0   0   0   0   0   0   0   1   0   0   0   0
+## Joe (Gregor Fisher)            0   0   0   0   0   0   0   0   0   0   0   0
+## Jamie (Colin Firth)            0   0   0   1   0   0   0   0   0   1   0   0
+## Daniel (Liam Neeson)           0   0   0   0   0   0   1   0   0   0   0   1
+## Karen (Emma Thompson)          1   0   0   1   0   1   0   0   0   0   0   0
+## Colin (Kris Marshall)          0   1   0   0   1   0   0   0   0   0   0   0
+## Jack (Martin Freeman)          0   0   0   0   0   0   0   0   1   0   0   0
+## Judy (Joanna Page)             0   0   1   0   0   0   0   0   1   0   0   0
+## Mark (Andrew Lincoln)          0   0   0   0   0   0   0   0   0   0   0   0
+## Peter (Chiwetel Ejiofor)       0   0   0   0   0   0   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)   0   0   0   0   0   0   0   0   0   0   0   0
+## PM (Hugh Grant)                0   0   0   0   0   0   0   0   0   0   0   0
+## Juliet (Keira Knightley)       0   0   0   0   0   0   0   0   0   0   0   0
+## Tony (Abdul Salis)             0   1   0   0   1   0   0   0   0   0   0   0
+## Sarah (Laura Linney)           0   0   0   0   0   0   0   0   0   0   1   0
+## Harry (Alan Rickman)           1   0   0   1   0   1   0   0   0   0   0   0
+## Karl (Rodrigo Santoro)         0   0   0   0   0   0   0   0   0   0   1   0
+## Mia (Heike Makatsch)           1   0   0   0   0   0   0   0   0   0   0   0
+## Sam (Thomas Sangster)          0   0   0   0   0   0   1   0   0   0   0   1
+## Aurelia (Lúcia Moniz)          0   0   0   0   0   0   0   0   0   0   0   0
+##                              s65 s66 s67 s68 s69 s70 s71 s72 s73 s74 s75 s77
+## Billy (Bill Nighy)             0   1   0   0   0   0   0   0   0   0   0   0
+## Joe (Gregor Fisher)            0   1   0   0   0   0   0   0   0   0   0   0
+## Jamie (Colin Firth)            0   0   0   0   0   0   0   0   0   1   0   0
+## Daniel (Liam Neeson)           0   0   0   0   0   0   0   0   1   0   1   0
+## Karen (Emma Thompson)          0   0   0   0   0   1   0   1   0   0   0   0
+## Colin (Kris Marshall)          0   0   0   0   0   0   0   0   0   0   0   0
+## Jack (Martin Freeman)          0   0   0   0   1   0   0   0   0   0   0   0
+## Judy (Joanna Page)             0   0   0   0   1   0   0   0   0   0   0   0
+## Mark (Andrew Lincoln)          1   0   0   0   0   0   0   0   0   0   0   0
+## Peter (Chiwetel Ejiofor)       1   0   0   0   0   0   0   0   0   0   0   0
+## Natalie (Martine McCutcheon)   0   0   1   1   1   1   1   0   0   0   0   0
+## PM (Hugh Grant)                0   0   1   1   1   1   1   0   0   0   0   0
+## Juliet (Keira Knightley)       1   0   0   0   0   0   0   0   0   0   0   0
+## Tony (Abdul Salis)             0   0   0   0   0   0   0   0   0   0   0   0
+## Sarah (Laura Linney)           0   0   0   0   0   0   0   0   0   0   0   0
+## Harry (Alan Rickman)           0   0   0   0   0   0   0   1   0   0   0   0
+## Karl (Rodrigo Santoro)         0   0   0   0   0   0   0   0   0   0   0   0
+## Mia (Heike Makatsch)           0   0   1   0   0   0   0   0   0   0   0   0
+## Sam (Thomas Sangster)          0   0   0   0   1   0   0   0   1   0   1   1
+## Aurelia (Lúcia Moniz)          0   0   0   0   0   0   0   0   0   0   0   0
+##                              s78
+## Billy (Bill Nighy)             0
+## Joe (Gregor Fisher)            0
+## Jamie (Colin Firth)            1
+## Daniel (Liam Neeson)           0
+## Karen (Emma Thompson)          0
+## Colin (Kris Marshall)          0
+## Jack (Martin Freeman)          0
+## Judy (Joanna Page)             0
+## Mark (Andrew Lincoln)          0
+## Peter (Chiwetel Ejiofor)       0
+## Natalie (Martine McCutcheon)   0
+## PM (Hugh Grant)                0
+## Juliet (Keira Knightley)       0
+## Tony (Abdul Salis)             0
+## Sarah (Laura Linney)           0
+## Harry (Alan Rickman)           0
+## Karl (Rodrigo Santoro)         0
+## Mia (Heike Makatsch)           0
+## Sam (Thomas Sangster)          0
+## Aurelia (Lúcia Moniz)          1
+```
+]
+
+---
+
+## Calculate co-occurrences
+
+.small[
+
+```r
+cooccur &lt;- character_scene_matrix %*% t(character_scene_matrix)
+
+cooccur
+```
+
+```
+##                              Billy (Bill Nighy) Joe (Gregor Fisher)
+## Billy (Bill Nighy)                            6                   3
+## Joe (Gregor Fisher)                           3                   3
+## Jamie (Colin Firth)                           0                   0
+## Daniel (Liam Neeson)                          0                   0
+## Karen (Emma Thompson)                         0                   0
+## Colin (Kris Marshall)                         0                   0
+## Jack (Martin Freeman)                         0                   0
+## Judy (Joanna Page)                            0                   0
+## Mark (Andrew Lincoln)                         0                   0
+## Peter (Chiwetel Ejiofor)                      0                   0
+## Natalie (Martine McCutcheon)                  0                   0
+## PM (Hugh Grant)                               0                   0
+## Juliet (Keira Knightley)                      0                   0
+## Tony (Abdul Salis)                            0                   0
+## Sarah (Laura Linney)                          0                   0
+## Harry (Alan Rickman)                          0                   0
+## Karl (Rodrigo Santoro)                        0                   0
+## Mia (Heike Makatsch)                          0                   0
+## Sam (Thomas Sangster)                         0                   0
+## Aurelia (Lúcia Moniz)                         0                   0
+##                              Jamie (Colin Firth) Daniel (Liam Neeson)
+## Billy (Bill Nighy)                             0                    0
+## Joe (Gregor Fisher)                            0                    0
+## Jamie (Colin Firth)                           12                    0
+## Daniel (Liam Neeson)                           0                   11
+## Karen (Emma Thompson)                          1                    2
+## Colin (Kris Marshall)                          0                    0
+## Jack (Martin Freeman)                          0                    0
+## Judy (Joanna Page)                             0                    0
+## Mark (Andrew Lincoln)                          0                    0
+## Peter (Chiwetel Ejiofor)                       0                    0
+## Natalie (Martine McCutcheon)                   0                    0
+## PM (Hugh Grant)                                0                    0
+## Juliet (Keira Knightley)                       0                    0
+## Tony (Abdul Salis)                             0                    0
+## Sarah (Laura Linney)                           0                    0
+## Harry (Alan Rickman)                           1                    0
+## Karl (Rodrigo Santoro)                         0                    0
+## Mia (Heike Makatsch)                           0                    0
+## Sam (Thomas Sangster)                          0                    8
+## Aurelia (Lúcia Moniz)                          5                    0
+##                              Karen (Emma Thompson) Colin (Kris Marshall)
+## Billy (Bill Nighy)                               0                     0
+## Joe (Gregor Fisher)                              0                     0
+## Jamie (Colin Firth)                              1                     0
+## Daniel (Liam Neeson)                             2                     0
+## Karen (Emma Thompson)                           11                     0
+## Colin (Kris Marshall)                            0                     6
+## Jack (Martin Freeman)                            0                     0
+## Judy (Joanna Page)                               0                     0
+## Mark (Andrew Lincoln)                            0                     1
+## Peter (Chiwetel Ejiofor)                         0                     0
+## Natalie (Martine McCutcheon)                     1                     0
+## PM (Hugh Grant)                                  2                     0
+## Juliet (Keira Knightley)                         0                     0
+## Tony (Abdul Salis)                               0                     4
+## Sarah (Laura Linney)                             1                     0
+## Harry (Alan Rickman)                             7                     0
+## Karl (Rodrigo Santoro)                           1                     0
+## Mia (Heike Makatsch)                             2                     0
+## Sam (Thomas Sangster)                            0                     0
+## Aurelia (Lúcia Moniz)                            0                     0
+##                              Jack (Martin Freeman) Judy (Joanna Page)
+## Billy (Bill Nighy)                               0                  0
+## Joe (Gregor Fisher)                              0                  0
+## Jamie (Colin Firth)                              0                  0
+## Daniel (Liam Neeson)                             0                  0
+## Karen (Emma Thompson)                            0                  0
+## Colin (Kris Marshall)                            0                  0
+## Jack (Martin Freeman)                            5                  5
+## Judy (Joanna Page)                               5                  6
+## Mark (Andrew Lincoln)                            0                  0
+## Peter (Chiwetel Ejiofor)                         0                  0
+## Natalie (Martine McCutcheon)                     1                  1
+## PM (Hugh Grant)                                  1                  1
+## Juliet (Keira Knightley)                         0                  0
+## Tony (Abdul Salis)                               0                  0
+## Sarah (Laura Linney)                             0                  0
+## Harry (Alan Rickman)                             0                  0
+## Karl (Rodrigo Santoro)                           0                  0
+## Mia (Heike Makatsch)                             0                  0
+## Sam (Thomas Sangster)                            1                  1
+## Aurelia (Lúcia Moniz)                            0                  0
+##                              Mark (Andrew Lincoln) Peter (Chiwetel Ejiofor)
+## Billy (Bill Nighy)                               0                        0
+## Joe (Gregor Fisher)                              0                        0
+## Jamie (Colin Firth)                              0                        0
+## Daniel (Liam Neeson)                             0                        0
+## Karen (Emma Thompson)                            0                        0
+## Colin (Kris Marshall)                            1                        0
+## Jack (Martin Freeman)                            0                        0
+## Judy (Joanna Page)                               0                        0
+## Mark (Andrew Lincoln)                            7                        4
+## Peter (Chiwetel Ejiofor)                         4                        4
+## Natalie (Martine McCutcheon)                     0                        0
+## PM (Hugh Grant)                                  0                        0
+## Juliet (Keira Knightley)                         4                        3
+## Tony (Abdul Salis)                               0                        0
+## Sarah (Laura Linney)                             1                        0
+## Harry (Alan Rickman)                             0                        0
+## Karl (Rodrigo Santoro)                           0                        0
+## Mia (Heike Makatsch)                             0                        0
+## Sam (Thomas Sangster)                            0                        0
+## Aurelia (Lúcia Moniz)                            0                        0
+##                              Natalie (Martine McCutcheon) PM (Hugh Grant)
+## Billy (Bill Nighy)                                      0               0
+## Joe (Gregor Fisher)                                     0               0
+## Jamie (Colin Firth)                                     0               0
+## Daniel (Liam Neeson)                                    0               0
+## Karen (Emma Thompson)                                   1               2
+## Colin (Kris Marshall)                                   0               0
+## Jack (Martin Freeman)                                   1               1
+## Judy (Joanna Page)                                      1               1
+## Mark (Andrew Lincoln)                                   0               0
+## Peter (Chiwetel Ejiofor)                                0               0
+## Natalie (Martine McCutcheon)                            9               9
+## PM (Hugh Grant)                                         9              15
+## Juliet (Keira Knightley)                                0               0
+## Tony (Abdul Salis)                                      0               0
+## Sarah (Laura Linney)                                    0               0
+## Harry (Alan Rickman)                                    0               1
+## Karl (Rodrigo Santoro)                                  0               0
+## Mia (Heike Makatsch)                                    1               1
+## Sam (Thomas Sangster)                                   1               1
+## Aurelia (Lúcia Moniz)                                   0               0
+##                              Juliet (Keira Knightley) Tony (Abdul Salis)
+## Billy (Bill Nighy)                                  0                  0
+## Joe (Gregor Fisher)                                 0                  0
+## Jamie (Colin Firth)                                 0                  0
+## Daniel (Liam Neeson)                                0                  0
+## Karen (Emma Thompson)                               0                  0
+## Colin (Kris Marshall)                               0                  4
+## Jack (Martin Freeman)                               0                  0
+## Judy (Joanna Page)                                  0                  0
+## Mark (Andrew Lincoln)                               4                  0
+## Peter (Chiwetel Ejiofor)                            3                  0
+## Natalie (Martine McCutcheon)                        0                  0
+## PM (Hugh Grant)                                     0                  0
+## Juliet (Keira Knightley)                            4                  0
+## Tony (Abdul Salis)                                  0                  4
+## Sarah (Laura Linney)                                0                  0
+## Harry (Alan Rickman)                                0                  0
+## Karl (Rodrigo Santoro)                              0                  0
+## Mia (Heike Makatsch)                                0                  0
+## Sam (Thomas Sangster)                               0                  0
+## Aurelia (Lúcia Moniz)                               0                  0
+##                              Sarah (Laura Linney) Harry (Alan Rickman)
+## Billy (Bill Nighy)                              0                    0
+## Joe (Gregor Fisher)                             0                    0
+## Jamie (Colin Firth)                             0                    1
+## Daniel (Liam Neeson)                            0                    0
+## Karen (Emma Thompson)                           1                    7
+## Colin (Kris Marshall)                           0                    0
+## Jack (Martin Freeman)                           0                    0
+## Judy (Joanna Page)                              0                    0
+## Mark (Andrew Lincoln)                           1                    0
+## Peter (Chiwetel Ejiofor)                        0                    0
+## Natalie (Martine McCutcheon)                    0                    0
+## PM (Hugh Grant)                                 0                    1
+## Juliet (Keira Knightley)                        0                    0
+## Tony (Abdul Salis)                              0                    0
+## Sarah (Laura Linney)                            8                    2
+## Harry (Alan Rickman)                            2                   10
+## Karl (Rodrigo Santoro)                          5                    1
+## Mia (Heike Makatsch)                            2                    5
+## Sam (Thomas Sangster)                           0                    0
+## Aurelia (Lúcia Moniz)                           0                    0
+##                              Karl (Rodrigo Santoro) Mia (Heike Makatsch)
+## Billy (Bill Nighy)                                0                    0
+## Joe (Gregor Fisher)                               0                    0
+## Jamie (Colin Firth)                               0                    0
+## Daniel (Liam Neeson)                              0                    0
+## Karen (Emma Thompson)                             1                    2
+## Colin (Kris Marshall)                             0                    0
+## Jack (Martin Freeman)                             0                    0
+## Judy (Joanna Page)                                0                    0
+## Mark (Andrew Lincoln)                             0                    0
+## Peter (Chiwetel Ejiofor)                          0                    0
+## Natalie (Martine McCutcheon)                      0                    1
+## PM (Hugh Grant)                                   0                    1
+## Juliet (Keira Knightley)                          0                    0
+## Tony (Abdul Salis)                                0                    0
+## Sarah (Laura Linney)                              5                    2
+## Harry (Alan Rickman)                              1                    5
+## Karl (Rodrigo Santoro)                            5                    1
+## Mia (Heike Makatsch)                              1                    6
+## Sam (Thomas Sangster)                             0                    0
+## Aurelia (Lúcia Moniz)                             0                    0
+##                              Sam (Thomas Sangster) Aurelia (Lúcia Moniz)
+## Billy (Bill Nighy)                               0                     0
+## Joe (Gregor Fisher)                              0                     0
+## Jamie (Colin Firth)                              0                     5
+## Daniel (Liam Neeson)                             8                     0
+## Karen (Emma Thompson)                            0                     0
+## Colin (Kris Marshall)                            0                     0
+## Jack (Martin Freeman)                            1                     0
+## Judy (Joanna Page)                               1                     0
+## Mark (Andrew Lincoln)                            0                     0
+## Peter (Chiwetel Ejiofor)                         0                     0
+## Natalie (Martine McCutcheon)                     1                     0
+## PM (Hugh Grant)                                  1                     0
+## Juliet (Keira Knightley)                         0                     0
+## Tony (Abdul Salis)                               0                     0
+## Sarah (Laura Linney)                             0                     0
+## Harry (Alan Rickman)                             0                     0
+## Karl (Rodrigo Santoro)                           0                     0
+## Mia (Heike Makatsch)                             0                     0
+## Sam (Thomas Sangster)                           10                     0
+## Aurelia (Lúcia Moniz)                            0                     5
+```
+]
+
+---
+
+## Convert to a graph
+
+Using `igraph::graph_from_adjacency_matrix()`:
+
+.small[
+
+```r
+cooccur_graph &lt;- graph_from_adjacency_matrix(
+  cooccur, 
+  weighted = TRUE, 
+  mode = "undirected", 
+  diag = FALSE         # don't include diagonals
+  )
+
+cooccur_graph
+```
+
+```
+## IGRAPH 9816f12 UNW- 20 37 -- 
+## + attr: name (v/c), weight (e/n)
+## + edges from 9816f12 (vertex names):
+##  [1] Billy (Bill Nighy)   --Joe (Gregor Fisher)         
+##  [2] Jamie (Colin Firth)  --Karen (Emma Thompson)       
+##  [3] Jamie (Colin Firth)  --Harry (Alan Rickman)        
+##  [4] Jamie (Colin Firth)  --Aurelia (Lúcia Moniz)       
+##  [5] Daniel (Liam Neeson) --Karen (Emma Thompson)       
+##  [6] Daniel (Liam Neeson) --Sam (Thomas Sangster)       
+##  [7] Karen (Emma Thompson)--Natalie (Martine McCutcheon)
+##  [8] Karen (Emma Thompson)--PM (Hugh Grant)             
+## + ... omitted several edges
+```
+]
+
+---
+
+## Visualizing co-occurences
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+set.seed(1234)
+ggraph(cooccur_graph, layout = "fr") +
+  geom_edge_link(color = "gray") +
+  geom_node_point(color = "lightpink", size = 3) +
+  geom_node_text(aes(label = name), hjust = 0.2, vjust = 1)
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-54-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## Acknowledgements
+
+- [Analyzing networks of characters in 'Love Actually'](http://varianceexplained.org/r/love-actually-network/) by David Robinson
+
+- [Text Mining with R](https://www.tidytextmining.com/) by Julia Silge and David Robinson
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLines": true,
+"highlightLanguage": "r",
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
