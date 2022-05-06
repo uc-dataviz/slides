@@ -1214,6 +1214,10 @@ livecoding
 ]
 ]
 
+```r
+usethis::use_course("uc-dataviz/animation")
+```
+
 (See next slide for code developed during live coding session)
 
 ---
@@ -1243,7 +1247,7 @@ freedom_ranked &lt;- freedom_to_plot %&gt;%
     names_transform = list(year = as.numeric)
   ) %&gt;%
   group_by(year) %&gt;%
-  mutate(rank_in_year = rank(civil_liberty, ties.method = "first")) %&gt;%
+  mutate(rank_in_year = rank(-civil_liberty, ties.method = "first")) %&gt;%
   ungroup() %&gt;%
   mutate(is_turkey = if_else(country == "Turkey", TRUE, FALSE))
 ```
@@ -1287,7 +1291,7 @@ freedom_faceted_plot &lt;- freedom_ranked %&gt;%
 freedom_bar_race &lt;- freedom_faceted_plot +
   facet_null() +
   geom_text(
-    x = 5, y = 1,
+    x = 5, y = 11,
     hjust = "left",
     aes(label = as.character(year)),
     size = 10

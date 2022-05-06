@@ -129,7 +129,7 @@ freedom_ranked <- freedom_to_plot %>%
     names_transform = list(year = as.numeric)
   ) %>%
   group_by(year) %>%
-  mutate(rank_in_year = rank(civil_liberty, ties.method = "first")) %>%
+  mutate(rank_in_year = rank(-civil_liberty, ties.method = "first")) %>%
   ungroup() %>%
   mutate(is_turkey = if_else(country == "Turkey", TRUE, FALSE))
 
@@ -158,7 +158,7 @@ freedom_faceted_plot <- freedom_ranked %>%
 freedom_bar_race <- freedom_faceted_plot +
   facet_null() +
   geom_text(
-    x = 5, y = 1,
+    x = 5, y = 11,
     hjust = "left",
     aes(label = as.character(year)),
     size = 10
@@ -767,6 +767,10 @@ livecoding
 ]
 ]
 
+```r
+usethis::use_course("uc-dataviz/animation")
+```
+
 (See next slide for code developed during live coding session)
 
 ---
@@ -795,7 +799,7 @@ freedom_ranked <- freedom_to_plot %>%
     names_transform = list(year = as.numeric)
   ) %>%
   group_by(year) %>%
-  mutate(rank_in_year = rank(civil_liberty, ties.method = "first")) %>%
+  mutate(rank_in_year = rank(-civil_liberty, ties.method = "first")) %>%
   ungroup() %>%
   mutate(is_turkey = if_else(country == "Turkey", TRUE, FALSE))
 ```
@@ -837,7 +841,7 @@ freedom_faceted_plot <- freedom_ranked %>%
 freedom_bar_race <- freedom_faceted_plot +
   facet_null() +
   geom_text(
-    x = 5, y = 1,
+    x = 5, y = 11,
     hjust = "left",
     aes(label = as.character(year)),
     size = 10
