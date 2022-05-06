@@ -60,7 +60,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300, out.width = "60%"
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
 )
 
 # dplyr print min and max
@@ -102,7 +102,7 @@ knitr::include_graphics("images/gganimate.png")
 
 ## Animation example
 
-```{r freedom-race, cache = TRUE, echo = FALSE, message = FALSE, warning = FALSE, gganimate = list(nframes = 30, fps = 2), out.width = "80%", cache = TRUE}
+```{r freedom-race, cache = TRUE, echo = FALSE, message = FALSE, warning = FALSE, gganimate = list(nframes = 300, fps = 15, start_pause = 10, end_pause = 10), out.width = "80%", cache = TRUE}
 freedom <- read_csv(here::here("14-animation", "data/freedom.csv"), na = "-")
 
 countries_to_plot <- freedom %>%
@@ -165,7 +165,7 @@ freedom_bar_race <- freedom_faceted_plot +
   aes(group = country) +
   transition_time(as.integer(year)) +
   labs(
-    title = "Civil liberties rating, {frame_time}",
+    title = "Civil liberties rating",
     subtitle = "1: Highest degree of freedom - 7: Lowest degree of freedom"
   )
 
@@ -400,7 +400,7 @@ Which view was used in the following animations?
 ]
 
 .pull-left[
-```{r view-follow, echo = FALSE, gganimate = list(nframes = 20), cache = TRUE, out.width = "100%"}
+```{r view-follow, echo = FALSE, gganimate = list(nframes = 60), cache = TRUE, out.width = "100%"}
 penguins %>%
   drop_na() %>%
   ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
@@ -408,7 +408,7 @@ penguins %>%
   labs(title = "{closest_state}") +
   transition_states(species, 
                     transition_length = 4, 
-                    state_length = 1) +
+                    state_length = 2) +
   view_follow()
 ```
 ]
@@ -597,7 +597,7 @@ We can use facets to split up by dataset, revealing the different distributions
 ggplot(datasaurus_dozen,
        aes(x, y, color = dataset)) +
   geom_point() +
-  facet_wrap(~dataset)#<<
+  facet_wrap(vars(dataset))#<<
 ```
 ]
 .pull-right[
@@ -621,7 +621,7 @@ ggplot(datasaurus_dozen,
 ```
 ]
 .pull-right[
-```{r ref.label="dino-5", echo=FALSE, cache=TRUE, gganimate = list(nframes = 50), cache = TRUE, out.width = "100%"}
+```{r ref.label="dino-5", echo=FALSE, cache=TRUE, gganimate = list(nframes = 100), cache = TRUE, out.width = "100%"}
 ```
 ]
 
@@ -654,15 +654,20 @@ Sometimes you need more frames, sometimes fewer
 ## Considerations in making effective animations
 
 - Pace: speed of animation
-Quick animations may be hard to follow. Slow animations are boring and tedious.
+
+    Quick animations may be hard to follow. Slow animations are boring and tedious.
 
 --
+
 - Perplex: amount of information
-It is easy for animations to be overwhelming and confusing. Multiple simple animations can be easier to digest.
+    
+    It is easy for animations to be overwhelming and confusing. Multiple simple animations can be easier to digest.
 
 --
+
 - Purpose: Usefulness of using animation
-Is animation needed? Does it provide additional value?
+
+    Is animation needed? Does it provide additional value?
 
 ---
 
@@ -680,7 +685,7 @@ livecoding
 
 ## Data wrangling
 
-.midi[
+.tiny[
 ```{r eval = FALSE}
 freedom <- read_csv(here::here("14-animation", "data/freedom.csv"), na = "-")
 

@@ -42,7 +42,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300, out.width = "60%"
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
 )
 
 # dplyr print min and max
@@ -539,7 +539,7 @@ We can use facets to split up by dataset, revealing the different distributions
 ggplot(datasaurus_dozen,
        aes(x, y, color = dataset)) +
   geom_point() +
-* facet_wrap(~dataset)
+* facet_wrap(vars(dataset))
 ```
 ]
 .pull-right[
@@ -595,15 +595,20 @@ Sometimes you need more frames, sometimes fewer
 ## Considerations in making effective animations
 
 - Pace: speed of animation
-Quick animations may be hard to follow. Slow animations are boring and tedious.
+
+    Quick animations may be hard to follow. Slow animations are boring and tedious.
 
 --
+
 - Perplex: amount of information
-It is easy for animations to be overwhelming and confusing. Multiple simple animations can be easier to digest.
+    
+    It is easy for animations to be overwhelming and confusing. Multiple simple animations can be easier to digest.
 
 --
+
 - Purpose: Usefulness of using animation
-Is animation needed? Does it provide additional value?
+
+    Is animation needed? Does it provide additional value?
 
 ---
 
@@ -621,7 +626,7 @@ livecoding
 
 ## Data wrangling
 
-.midi[
+.tiny[
 
 ```r
 freedom &lt;- read_csv(here::here("14-animation", "data/freedom.csv"), na = "-")
