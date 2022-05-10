@@ -50,7 +50,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300, out.width = "60%"
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
 )
 
 # dplyr print min and max
@@ -82,6 +82,20 @@ Do you recognize the following text?
 
 ---
 
+class: middle
+
+```{r echo = FALSE}
+include_graphics(path = "https://media.giphy.com/media/l1Kss6txsK9OQCJ56/giphy.gif")
+```
+
+---
+
+class: middle, center
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/giq7KdN4X-Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+---
+
 ## Text as data
 
 Text can be represented as data in a variery of ways:
@@ -92,6 +106,8 @@ Text can be represented as data in a variery of ways:
 
 - Document-term matrix: Sparse matrix describing a collection (i.e., a corpus) of documents with one row for each document and one column for each term, with word counts (or another measure of how common the word is in that text) as values
 
+- Word embeddings: A dense array structure (typically a 3D array) describing a collection of documents where each word is projected onto an $n$-dimensional feature space that encodes the meaning of the words based on their semantic similarity
+
 ---
 
 ## Tidy text
@@ -99,7 +115,7 @@ Text can be represented as data in a variery of ways:
 - Each row is a **token**
   - A token can be a word, bigram (two words), ngram (n words), sentence, paragraph, etc.
 - Each column is a variable
-- Each type of observational unit is a table
+- Each type of observational unit is a row
 
 ```{r}
 love_actually %>%

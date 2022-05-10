@@ -40,7 +40,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
-  fig.width = 8, fig.asp = 0.618, fig.retina = 3, dpi = 300, out.width = "60%"
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
 )
 
 # dplyr print min and max
@@ -70,6 +70,18 @@ Do you recognize the following text?
 
 ---
 
+class: middle
+
+&lt;img src="https://media.giphy.com/media/l1Kss6txsK9OQCJ56/giphy.gif" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: middle, center
+
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/giq7KdN4X-Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+
+---
+
 ## Text as data
 
 Text can be represented as data in a variery of ways:
@@ -80,6 +92,8 @@ Text can be represented as data in a variery of ways:
 
 - Document-term matrix: Sparse matrix describing a collection (i.e., a corpus) of documents with one row for each document and one column for each term, with word counts (or another measure of how common the word is in that text) as values
 
+- Word embeddings: A dense array structure (typically a 3D array) describing a collection of documents where each word is projected onto an `\(n\)`-dimensional feature space that encodes the meaning of the words based on their semantic similarity
+
 ---
 
 ## Tidy text
@@ -87,7 +101,7 @@ Text can be represented as data in a variery of ways:
 - Each row is a **token**
   - A token can be a word, bigram (two words), ngram (n words), sentence, paragraph, etc.
 - Each column is a variable
-- Each type of observational unit is a table
+- Each type of observational unit is a row
 
 
 ```r
@@ -371,7 +385,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -401,7 +415,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -435,7 +449,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -475,7 +489,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -507,7 +521,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -538,7 +552,7 @@ love_actually %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -836,7 +850,7 @@ bigrams_united %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -873,9 +887,9 @@ bigram_graph
 ```
 
 ```
-## IGRAPH 1deaf70 DN-- 83 62 -- 
+## IGRAPH 39a31c9 DN-- 83 62 -- 
 ## + attr: name (v/c), n (e/n)
-## + edges from 1deaf70 (vertex names):
+## + edges from 39a31c9 (vertex names):
 ##  [1] prime    -&gt;minister  bye      -&gt;bye       baby     -&gt;baby     
 ##  [4] merry    -&gt;christmas uncle    -&gt;jamie     baby     -&gt;bye      
 ##  [7] billy    -&gt;mack      bye      -&gt;baby      goodbye  -&gt;baby     
@@ -893,7 +907,7 @@ bigram_graph
 
 Common bigrams in Love Actually that occurred more than once and where neither word was a stop word
 
-&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="75%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -907,7 +921,7 @@ set.seed(1015)
 ggraph(bigram_graph)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="75%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -922,7 +936,7 @@ ggraph(bigram_graph) +
   geom_edge_link()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -938,7 +952,7 @@ ggraph(bigram_graph) +
   geom_node_point()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -955,7 +969,7 @@ ggraph(bigram_graph) +
   geom_node_text(aes(label = name))
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="45%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="45%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -963,9 +977,9 @@ ggraph(bigram_graph) +
 
 Step 5. Consider layouts
 
-&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" width="35%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-35-2.png" width="35%" /&gt;
-
 &lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="35%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-36-2.png" width="35%" /&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="35%" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-37-2.png" width="35%" /&gt;
 
 ---
 
@@ -982,7 +996,7 @@ ggraph(bigram_graph, layout = "fr") +
   geom_node_text(aes(label = name))
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -999,7 +1013,7 @@ ggraph(bigram_graph, layout = "fr") +
   geom_node_text(aes(label = name), hjust = 1, vjust = 1)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -1027,7 +1041,7 @@ ggraph(bigram_graph, layout = "fr") +
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-40-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1144,7 +1158,7 @@ character_scene_counts %&gt;%
   geom_path(aes(group = scene))
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-46-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -1202,7 +1216,7 @@ character_scene_counts %&gt;%
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-47-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-48-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
@@ -1735,9 +1749,9 @@ cooccur_graph
 ```
 
 ```
-## IGRAPH 9816f12 UNW- 20 37 -- 
+## IGRAPH 20e0175 UNW- 20 37 -- 
 ## + attr: name (v/c), weight (e/n)
-## + edges from 9816f12 (vertex names):
+## + edges from 20e0175 (vertex names):
 ##  [1] Billy (Bill Nighy)   --Joe (Gregor Fisher)         
 ##  [2] Jamie (Colin Firth)  --Karen (Emma Thompson)       
 ##  [3] Jamie (Colin Firth)  --Harry (Alan Rickman)        
@@ -1771,7 +1785,7 @@ ggraph(cooccur_graph, layout = "fr") +
 
 .panel[.panel-name[Plot]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-54-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-55-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]
