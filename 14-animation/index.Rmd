@@ -30,6 +30,7 @@ library(here)
 library(countdown)
 library(patchwork)
 library(flipbookr)
+library(scales)
 
 mp4_vid <- function(src){
   HTML(
@@ -99,6 +100,103 @@ knitr::include_graphics("images/gganimate.png")
 ```
 ]
 
+---
+
+## Animation example
+
+```{r gapminder-over-time, echo = FALSE, out.width = "80%"}
+library(gapminder)
+
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, color = country)) +
+  geom_point(alpha = 0.5, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10(labels = label_dollar(scale_cut = cut_short_scale())) +
+  facet_wrap(vars(continent)) +
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
+  transition_time(year) +
+  ease_aes('linear') +
+  shadow_wake(wake_length = 0.1)
+```
+
+.footnote[Source: [Animated bubble chart with R and gganimate](https://r-graph-gallery.com/271-ggplot2-animated-gif-chart-with-gganimate.html)]
+
+---
+
+## Animation example
+
+```{r babynames-over-time, echo = FALSE, out.width = "95%"}
+library(babynames)
+library(hrbrthemes)
+library(magick)
+
+# keep top 5 in each gender
+babynames_top5 <- babynames %>%
+  filter(year == 2020) %>%
+  group_by(sex) %>%
+  slice_max(order_by = n, n = 5) %>%
+  select(sex, name) %>%
+  # get all their appearances over time
+  semi_join(babynames, .)
+  
+# Plot females
+p_female <- babynames_top5 %>%
+  filter(sex == "F") %>%
+  mutate(name = fct_reorder2(.f = name, .x = year, .y = n)) %>%
+  ggplot(mapping = aes(x = year, y = n, group = name, color = name)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = label_comma()) +
+  scale_color_discrete_qualitative(palette = "Dynamic") +
+  labs(
+    title = "Baby name popularity in the United States",
+    subtitle = "Most popular female names in 2020",
+    x = "Year",
+    y = "Number of babies born",
+    color = NULL,
+    caption = "Source: Social Security Administration and the babynames package"
+    ) +
+  theme_ipsum(base_size = 18) +
+  transition_reveal(year)
+f_gif <- animate(p_female)
+
+p_male <- babynames_top5 %>%
+  filter(sex == "M") %>%
+  mutate(name = fct_reorder2(.f = name, .x = year, .y = n)) %>%
+  ggplot(mapping = aes(x = year, y = n, group = name, color = name)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = label_comma()) +
+  scale_color_discrete_qualitative(palette = "Dynamic") +
+  labs(
+    title = "Baby name popularity in the United States",
+    subtitle = "Most popular male names in 2020",
+    x = "Year",
+    y = "Number of babies born",
+    color = NULL,
+    caption = "Source: Social Security Administration and the babynames package"
+    ) +
+  theme_ipsum(base_size = 18) +
+  transition_reveal(year)
+m_gif <- animate(p_male)
+
+# combine into a single plot for the slides
+# faceting doesn't work due to the use of color
+a_mgif <- image_read(f_gif)
+b_mgif <- image_read(m_gif)
+
+#
+new_gif <- image_append(c(a_mgif[1], b_mgif[1]))
+for(i in 2:100){
+  combined <- image_append(c(a_mgif[i], b_mgif[i]))
+  new_gif <- c(new_gif, combined)
+}
+
+image_animate(new_gif)
+```
+
+.footnote[Source: Extension from [here](https://r-graph-gallery.com/287-smooth-animation-with-tweenr.html)]
 ---
 
 ## Animation example
