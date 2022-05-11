@@ -9,7 +9,7 @@ output:
       highlightLines: true
       highlightLanguage: r
       ratio: 16:9
-      countIncrementalSlides: true
+      countIncrementalSlides: false
 ---
 
 ```{r setup, include = FALSE, cache = FALSE}
@@ -126,10 +126,10 @@ ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, color = country)) +
 
 ## Animation example
 
-```{r babynames-over-time, echo = FALSE, out.width = "95%"}
+```{r babynames-over-time, echo = FALSE, gganimate = list(end_pause = 15), out.width = "80%"}
 library(babynames)
 library(hrbrthemes)
-library(magick)
+library(ggnewscale)
 
 # keep top 5 in each gender
 babynames_top5 <- babynames %>%
@@ -138,62 +138,48 @@ babynames_top5 <- babynames %>%
   slice_max(order_by = n, n = 5) %>%
   select(sex, name) %>%
   # get all their appearances over time
-  semi_join(babynames, .)
-  
-# Plot females
-p_female <- babynames_top5 %>%
-  filter(sex == "F") %>%
-  mutate(name = fct_reorder2(.f = name, .x = year, .y = n)) %>%
-  ggplot(mapping = aes(x = year, y = n, group = name, color = name)) +
-  geom_line() +
-  geom_point() +
+  semi_join(babynames, .) %>%
+  mutate(sex = factor(sex, labels = c("Female", "Male")))
+
+# Plot all
+babynames_p <- ggplot(data = babynames_top5,
+                      mapping = aes(x = year, y = n)) +
+  # female names
+  geom_line(data = babynames_top5 %>%
+              filter(sex == "Female") %>%
+              mutate(name = fct_reorder2(.f = name, .x = year, .y = n)),
+            mapping = aes(group = name, color = name)) +
+  geom_point(data = babynames_top5 %>%
+               filter(sex == "Female") %>%
+               mutate(name = fct_reorder2(.f = name, .x = year, .y = n)),
+             mapping = aes(group = name, color = name)) +
+  scale_color_discrete_qualitative(palette = "Dynamic", name = "Female names") +
+  # implement second color scale for males
+  new_scale_color() +
+  # male names
+  geom_line(data = babynames_top5 %>%
+              filter(sex == "Male") %>%
+              mutate(name = fct_reorder2(.f = name, .x = year, .y = n)),
+            mapping = aes(group = name, color = name)) +
+  geom_point(data = babynames_top5 %>%
+               filter(sex == "Male") %>%
+               mutate(name = fct_reorder2(.f = name, .x = year, .y = n)),
+             mapping = aes(group = name, color = name)) +
+  scale_color_discrete_qualitative(palette = "Dynamic", name = "Male names") +
+  facet_wrap(vars(sex), scales = "free_y") +
   scale_y_continuous(labels = label_comma()) +
-  scale_color_discrete_qualitative(palette = "Dynamic") +
   labs(
     title = "Baby name popularity in the United States",
-    subtitle = "Most popular female names in 2020",
+    subtitle = "Most popular names in 2020",
     x = "Year",
     y = "Number of babies born",
     color = NULL,
     caption = "Source: Social Security Administration and the babynames package"
-    ) +
-  theme_ipsum(base_size = 18) +
+  ) +
+  theme_ipsum(base_size = 12) +
+  theme(panel.grid.minor = element_blank()) +
   transition_reveal(year)
-f_gif <- animate(p_female)
-
-p_male <- babynames_top5 %>%
-  filter(sex == "M") %>%
-  mutate(name = fct_reorder2(.f = name, .x = year, .y = n)) %>%
-  ggplot(mapping = aes(x = year, y = n, group = name, color = name)) +
-  geom_line() +
-  geom_point() +
-  scale_y_continuous(labels = label_comma()) +
-  scale_color_discrete_qualitative(palette = "Dynamic") +
-  labs(
-    title = "Baby name popularity in the United States",
-    subtitle = "Most popular male names in 2020",
-    x = "Year",
-    y = "Number of babies born",
-    color = NULL,
-    caption = "Source: Social Security Administration and the babynames package"
-    ) +
-  theme_ipsum(base_size = 18) +
-  transition_reveal(year)
-m_gif <- animate(p_male)
-
-# combine into a single plot for the slides
-# faceting doesn't work due to the use of color
-a_mgif <- image_read(f_gif)
-b_mgif <- image_read(m_gif)
-
-#
-new_gif <- image_append(c(a_mgif[1], b_mgif[1]))
-for(i in 2:100){
-  combined <- image_append(c(a_mgif[i], b_mgif[i]))
-  new_gif <- c(new_gif, combined)
-}
-
-image_animate(new_gif)
+babynames_p
 ```
 
 .footnote[Source: Extension from [here](https://r-graph-gallery.com/287-smooth-animation-with-tweenr.html)]
