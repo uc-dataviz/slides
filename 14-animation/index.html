@@ -23,6 +23,28 @@ class: center, middle, inverse, title-slide
 
 
 
+class: inverse, middle
+
+# Announcements
+
+---
+
+## Announcements
+
+- Project #2 proposals due yesterday
+
+- Team peer evaluations due by end of Fri, May 13 (but who wants to work super late on a Friday night? 🤨)
+
+- Homework #3 distributed, due by the start of class on Tue, May 17
+
+---
+
+class: inverse, middle
+
+# Setup
+
+---
+
 ## Setup
 
 
@@ -76,7 +98,7 @@ class: middle, inverse
 - It provides a range of new grammar classes that can be added to the plot object in order to customize how it should change with time
 ]
 .pull-right[
-&lt;img src="images/gganimate.png" width="40%" style="display: block; margin: auto;" /&gt;
+&lt;img src="https://raw.githubusercontent.com/thomasp85/gganimate/master/man/figures/logo.svg" width="40%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---
@@ -518,7 +540,7 @@ For each dataset we have x and y values, in addition we can map dataset to color
 
 ```r
 ggplot(datasaurus_dozen,
-* aes(x, y, color=dataset))
+*      aes(x, y, color=dataset))
 ```
 ]
 .pull-right[
@@ -579,7 +601,7 @@ ggplot(datasaurus_dozen,
 ```
 ]
 .pull-right[
-&lt;img src="index_files/figure-html/unnamed-chunk-12-1.gif" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.gif" width="80%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---
@@ -1290,8 +1312,7 @@ freedom_faceted_plot &lt;- freedom_ranked %&gt;%
   ) +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text.y = element_blank()
   ) +
   labs(x = NULL, y = NULL)
@@ -1325,7 +1346,7 @@ animate(freedom_bar_race, nframes = 30, fps = 2)
 
 ## Acknowledgements
 
-- [Getting your plots to talk back by Di Cook](http://emitanaka.org/datavis-workshop-ssavic/slides/day2-session3.pdf)
+- [Getting your plots to talk back by Di Cook](https://emitanaka.org/datavis-workshop-ssavic/)
 - [gganimate workshop by Mitchell O'Hara-Wild](https://github.com/numbats/gganimate-workshop)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

@@ -43,6 +43,28 @@ mp4_vid <- function(src){
 }
 ```
 
+class: inverse, middle
+
+# Announcements
+
+---
+
+## Announcements
+
+- Project #2 proposals due yesterday
+
+- Team peer evaluations due by end of Fri, May 13 (but who wants to work super late on a Friday night? `r emo::ji("face_with_raised_eyebrow")`)
+
+- Homework #3 distributed, due by the start of class on Tue, May 17
+
+---
+
+class: inverse, middle
+
+# Setup
+
+---
+
 ## Setup
 
 ```{r message = FALSE, warning = FALSE}
@@ -96,7 +118,7 @@ class: middle, inverse
 ]
 .pull-right[
 ```{r echo = FALSE, out.width = "40%"}
-knitr::include_graphics("images/gganimate.png")
+knitr::include_graphics("https://raw.githubusercontent.com/thomasp85/gganimate/master/man/figures/logo.svg")
 ```
 ]
 
@@ -645,7 +667,7 @@ For each dataset we have x and y values, in addition we can map dataset to color
 .pull-left[
 ```{r dino-2, eval=FALSE, echo=TRUE}
 ggplot(datasaurus_dozen,
-  aes(x, y, color=dataset)) #<<
+       aes(x, y, color=dataset)) #<<
 ```
 ]
 .pull-right[
@@ -706,7 +728,7 @@ ggplot(datasaurus_dozen,
 ```
 ]
 .pull-right[
-```{r ref.label="dino-5", echo=FALSE, cache=TRUE, gganimate = list(nframes = 100), cache = TRUE, out.width = "100%"}
+```{r ref.label="dino-5", echo=FALSE, cache=TRUE, gganimate = list(nframes = 100), cache = TRUE, fig.asp = 1}
 ```
 ]
 
@@ -839,7 +861,7 @@ mc_sim %>%
   view_follow(fixed_y = TRUE)
 ```
 
-`r chunk_reveal(chunk_name = "mc-plot", widths = c(50, 50))`
+`r chunk_reveal(chunk_name = "mc-plot", widths = c(50, 50), chunk_options = "fig.asp = 1")`
 
 ---
 
@@ -910,8 +932,7 @@ freedom_faceted_plot <- freedom_ranked %>%
   ) +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    panel.grid.minor.x = element_blank(),
+    panel.grid.minor = element_blank(),
     axis.text.y = element_blank()
   ) +
   labs(x = NULL, y = NULL)
@@ -944,5 +965,5 @@ animate(freedom_bar_race, nframes = 30, fps = 2)
 
 ## Acknowledgements
 
-- [Getting your plots to talk back by Di Cook](http://emitanaka.org/datavis-workshop-ssavic/slides/day2-session3.pdf)
+- [Getting your plots to talk back by Di Cook](https://emitanaka.org/datavis-workshop-ssavic/)
 - [gganimate workshop by Mitchell O'Hara-Wild](https://github.com/numbats/gganimate-workshop)
