@@ -1,0 +1,267 @@
+---
+title: "Interactive reporting"
+author: "MACS 40700 <br /> University of Chicago"
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: magula
+      highlightLines: true
+      highlightLanguage: r
+      ratio: 16:9
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE, cache = FALSE}
+# generate CSS file
+library(xaringanthemer)
+rcfss::xaringan_theme()
+
+# source in the default knitr options
+source(here::here("R", "slide-opts.R"))
+
+# enable panelsets and default theme
+xaringanExtra::use_panelset()
+# ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# load basic packages
+library(knitr)
+library(here)
+library(countdown)
+library(patchwork)
+library(flipbookr)
+library(scales)
+library(ggtext)
+```
+
+class: middle, inverse
+
+# Setup
+
+---
+
+## Setup
+
+```{r message = FALSE, warning = FALSE}
+# load packages
+library(tidyverse)
+library(shiny)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 10, dplyr.print_min = 10)
+```
+
+---
+
+class: middle, inverse
+
+# Shiny: High level view
+
+---
+
+class: middle, center
+
+.center[
+Every Shiny app has a webpage that the user visits, <br> and behind this webpage there is a computer that serves this webpage by running R.
+]
+
+```{r echo = FALSE, out.width = "80%"}
+knitr::include_graphics("images/high-level-1.png")
+```
+
+---
+
+class: middle, center
+
+.center[
+When running your app locally, the computer serving your app is your computer.
+]
+
+```{r echo = FALSE, out.width = "100%"}
+knitr::include_graphics("images/high-level-2.png")
+```
+
+---
+
+class: middle, center
+
+.center[
+When your app is deployed, the computer serving your app is a web server.
+]
+
+```{r echo = FALSE, out.width = "100%"}
+knitr::include_graphics("images/high-level-3.png")
+```
+
+---
+
+class: middle, center
+
+```{r echo = FALSE, out.width = "100%"}
+knitr::include_graphics("images/high-level-4.png")
+```
+
+---
+
+class: inverse, middle
+
+# Dating rules
+
+---
+
+## Age gaps
+
+```{r aged, include = FALSE}
+# source: Dataclysm, pages 42-43
+pref_women <- tibble(
+  age = 20:50,
+  pref = c(23, 23, 24, 25, 25, 26, 27, 28, 29, 29, 30, 31, 31, 32, 32,34, 35, 36, 37, 38, 38, 38, 39, 39, 39, 40, 38, 39, 40, 45, 46)
+)
+pref_men <- tibble(
+  age = 20:50,
+  pref = c(20, 20, 21, 21, 21, 21, 22, 21, rep(20, times = 9), 22, 20, 20, 21, 21, 20, 23, 21, 24, 20, 20, 23, 20, 22)
+)
+```
+
+.pull-left[
+
+```{r women, echo = FALSE, fig.asp = 1, out.width = "100%"}
+ggplot(data = pref_women, mapping = aes(x = pref, y = age, label = pref)) +
+  geom_abline(slope = -1, linetype = 2, alpha = .5) +
+  geom_text(color = "#f542b3", family = "Roboto Condensed", size = 4) +
+  scale_x_continuous(breaks = NULL, limits = c(20, 50)) +
+  scale_y_reverse(breaks = 20:50) +
+  coord_fixed() +
+  labs(
+    title = "A woman's age <span style = 'color:#f542b3'>vs. the age of the men who look best to her</span>",
+    x = NULL,
+    y = NULL,
+    caption = "Source: *Cataclysm* and OKCupid.com"
+  ) +
+  theme_classic(base_family = "Roboto Condensed", base_size = 16) +
+  theme(
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_markdown(face = "italic"),
+    plot.caption = element_markdown()
+  )
+```
+]
+
+--
+
+.pull-right[
+
+```{r men, echo = FALSE, fig.asp = 1, out.width = "100%"}
+ggplot(data = pref_men, mapping = aes(x = pref, y = age, label = pref)) +
+  geom_abline(slope = -1, linetype = 2, alpha = .5) +
+  geom_text(color = "#f542b3", family = "Roboto Condensed", size = 4) +
+  scale_x_continuous(breaks = NULL, limits = c(20, 50)) +
+  scale_y_reverse(breaks = 20:50) +
+  coord_fixed() +
+  labs(
+    title = "A man's age <span style = 'color:#f542b3'>vs. the age of the women who look best to him</span>",
+    x = NULL,
+    y = NULL,
+    caption = "Source: *Cataclysm* and OKCupid.com"
+  ) +
+  theme_classic(base_family = "Roboto Condensed", base_size = 16) +
+  theme(
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_markdown(face = "italic"),
+    plot.caption = element_markdown()
+  )
+```
+
+]
+
+---
+
+## Dating rules
+
+- [A Shiny app for determining if this relationship is skeezy](https://bensoltoff.shinyapps.io/age-rule/)
+
+---
+
+.pull-left[
+
+```r
+usethis::use_course("uc-dataviz/shiny")
+```
+
+.task[
+
+- Navigate to the `age-rule` folder, and launch the app by opening the `app.R` file and clicking on *Run App*.
+- Close the app by clicking the stop icon
+- Select view mode in the drop down menu next to Run App
+
+]
+]
+
+.pull-right[
+```{r echo = FALSE, fig.align = "center", out.width = "100%"}
+knitr::include_app("https://bensoltoff.shinyapps.io/age-rule/", height = "650px")
+```
+]
+
+---
+
+class: middle, inverse
+
+# Anatomy of a Shiny app
+
+---
+
+## What's in an app?
+
+.pull-left[
+```{r eval = FALSE}
+library(shiny)
+ui <- fluidPage()
+
+
+server <- function(input, output, session) {}
+
+
+shinyApp(ui = ui, server = server)
+```
+]
+.pull-right[
+- **User interface** controls the layout and appearance of app
+
+- **Server function** contains instructions needed to build app
+]
+
+---
+
+## Data: Ask a manager
+
+Source: Ask a Manager Survey via [TidyTuesday](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-05-18)
+
+> This data does not reflect the general population; it reflects Ask a Manager readers who self-selected to respond, which is a very different group (as you can see just from the demographic breakdown below, which is very white and very female).
+
+Some findings [here](https://www.askamanager.org/2021/05/some-findings-from-24000-peoples-salaries.html).
+
+```{r message = FALSE}
+manager <- read_csv(here::here("15-interactive-reporting", "data/survey.csv"))
+manager
+```
+
+---
+
+class: middle
+
+.large[.hand[livecoding]]
+
+.task[
+Go to the `shiny` project and code along in `manager-survey/app.R`.
+]
