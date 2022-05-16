@@ -65,7 +65,8 @@ ui <- fluidPage(
     mainPanel(
       # use HTML tags to format structure of text
       hr(),
-      "Showing only results for those with salaries in USD who have provided information on their industry and highest level of education completed.",
+      "Showing only results for those with salaries in USD who have provided information
+      on their industry and highest level of education completed.",
       br(), br(),
       # placeholder for selected industries
       textOutput(outputId = "selected_industries"),
