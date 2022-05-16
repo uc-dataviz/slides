@@ -1,0 +1,70 @@
+---
+title: "Interactive visualization"
+author: "MACS 40700 <br /> University of Chicago"
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: magula
+      highlightLines: true
+      highlightLanguage: r
+      ratio: 16:9
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE, cache = FALSE}
+# generate CSS file
+library(xaringanthemer)
+rcfss::xaringan_theme()
+
+# source in the default knitr options
+source(here::here("R", "slide-opts.R"))
+
+# enable panelsets and default theme
+xaringanExtra::use_panelset()
+# ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# load basic packages
+library(knitr)
+library(here)
+library(countdown)
+library(patchwork)
+library(flipbookr)
+library(scales)
+```
+
+## Interactive visualizations with Shiny
+
+We will build an app with
+
+- Data pre-processing
+- Dynamic UI elements
+- Linked brushing
+
+---
+
+class: center, middle
+
+[https://bensoltoff.shinyapps.io/manager-survey/](https://bensoltoff.shinyapps.io/manager-survey/)
+
+```{r echo = FALSE}
+knitr::include_app("https://bensoltoff.shinyapps.io/manager-survey/", height ="550px")
+```
+
+---
+
+class: middle
+
+.large[.hand[livecoding]]
+
+.task[
+Go to the `shiny` project and code along in `manager-survey/app.R`.
+]
+
+(See next slide for code developed during live coding session)
+
+---
+
+class: middle
+
+The code for the app can be found [here](https://github.com/uc-dataviz/slides/blob/main/16-interactive-visualization/manager-survey/app.R).
