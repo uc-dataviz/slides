@@ -21,6 +21,12 @@ class: center, middle, inverse, title-slide
 
 
 
+## First lost tooth
+
+&lt;img src="images/jacob-tooth.jpg" width="30%" style="display: block; margin: auto;" /&gt;
+
+---
+
 class: middle, inverse
 
 # Setup
@@ -173,38 +179,26 @@ shinyApp(ui = ui, server = server)
 
 ## Add elements to app inside `fluidPage()`
 
-.pull-left[
 ```r
 library(shiny)
 
-ui &lt;- fluidPage("Hello CFSS")
+ui &lt;- fluidPage("Hello Data Viz!")
 
 server &lt;- function(input, output) {}
 
 shinyApp(ui = ui, server = server)
 ```
-]
-
-.pull-right[
-&lt;img src="images/shiny-basic.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
 
 ---
 
 ## Add elements to app inside `fluidPage()`
 
-.pull-left[
 ```r
 fluidPage(
   h1("My Shiny app"),
-  "Hello CFSS"
+  "Hello Data Viz!"
 )
 ```
-]
-
-.pull-right[
-&lt;img src="images/shiny-add-h1.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
 
 ---
 
@@ -223,22 +217,16 @@ fluidPage(
 
 ## Add HTML to `fluidPage()`
 
-.pull-left[
 ```r
 fluidPage(
   h1("My Shiny app"),
   h3("Subtitle"),
   "Hello",
-  "CFSS",
+  "Data Viz!",
   br(),
   strong("bold text")
 )
 ```
-]
-
-.pull-right[
-&lt;img src="images/shiny-tags.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
 
 ---
 
@@ -286,7 +274,6 @@ fluidPage(
 
 ## Inputs
 
-.pull-left[
 ```r
 library(shiny)
 
@@ -302,11 +289,6 @@ server &lt;- function(input, output) {}
 
 shinyApp(ui = ui, server = server)
 ```
-]
-
-.pull-right[
-&lt;img src="images/shiny-input.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
 
 ---
 
@@ -375,7 +357,6 @@ Function | Outputs
 
 # Outputs
 
-.pull-left[
 ```r
 library(shiny)
 
@@ -392,11 +373,12 @@ server &lt;- function(input, output) {}
 
 shinyApp(ui = ui, server = server)
 ```
-]
 
-.pull-right[
-&lt;img src="images/shiny-addplot-placeholder.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
+---
+
+class: inverse, middle
+
+&lt;img src="https://media.giphy.com/media/SRkvcNk9BIeAX2gCFX/giphy.gif" width="70%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -407,6 +389,10 @@ Source: Ask a Manager Survey via [TidyTuesday](https://github.com/rfordatascienc
 &gt; This data does not reflect the general population; it reflects Ask a Manager readers who self-selected to respond, which is a very different group (as you can see just from the demographic breakdown below, which is very white and very female).
 
 Some findings [here](https://www.askamanager.org/2021/05/some-findings-from-24000-peoples-salaries.html).
+
+---
+
+## Data: Ask a manager
 
 
 ```r
