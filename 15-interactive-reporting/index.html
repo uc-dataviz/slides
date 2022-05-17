@@ -155,11 +155,10 @@ class: middle, inverse
 
 ```r
 library(shiny)
+
 ui &lt;- fluidPage()
 
-
 server &lt;- function(input, output, session) {}
-
 
 shinyApp(ui = ui, server = server)
 ```
@@ -168,6 +167,235 @@ shinyApp(ui = ui, server = server)
 - **User interface** controls the layout and appearance of app
 
 - **Server function** contains instructions needed to build app
+]
+
+---
+
+## Add elements to app inside `fluidPage()`
+
+.pull-left[
+```r
+library(shiny)
+
+ui &lt;- fluidPage("Hello CFSS")
+
+server &lt;- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny-basic.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Add elements to app inside `fluidPage()`
+
+.pull-left[
+```r
+fluidPage(
+  h1("My Shiny app"),
+  "Hello CFSS"
+)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny-add-h1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Add HTML to `fluidPage()`
+
+* The UI simply creates HTML
+* [Can use any HTML tags](http://shiny.rstudio.com/articles/tag-glossary.html)
+    * `h1()` = header1
+    * `br()` = line break
+    * `strong()` = bold text
+* Any HTML tag can be accessed using `tags` object
+    * `h1` = `tags$h1()`, `br` = `tags$br()`
+* Common tags can be accessed without `tags`
+
+---
+
+## Add HTML to `fluidPage()`
+
+.pull-left[
+```r
+fluidPage(
+  h1("My Shiny app"),
+  h3("Subtitle"),
+  "Hello",
+  "CFSS",
+  br(),
+  strong("bold text")
+)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny-tags.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Use a layout
+
+* By default, all elements stack up one after the other
+* [Can use different layouts](http://shiny.rstudio.com/articles/layout-guide.html)
+* We’ll use `sidebarLayout()`
+
+---
+
+## `sidebarLayout()`
+
+.panelset[
+.panel[.panel-name[Code]
+```r
+fluidPage(
+  titlePanel("My Shiny app"),
+  sidebarLayout(
+    sidebarPanel(
+      "This is a side panel"
+    ),
+    mainPanel(
+      "And this is the main stuff"
+    )
+  )
+)
+```
+]
+
+.panel[.panel-name[Output]
+&lt;img src="images/shiny-sidebarlayout.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+
+## Inputs and outputs
+
+* For interactivity, app needs inputs and outputs
+* **Inputs** - things user can toggle/adjust
+* **Output** - R objects user can see, often depend on inputs
+
+---
+
+## Inputs
+
+.pull-left[
+```r
+library(shiny)
+
+ui &lt;- fluidPage(
+  sliderInput(
+    inputId = "num",
+    label = "Choose a number",
+    min = 0, max = 100,
+    value = 20)
+)
+
+server &lt;- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny-input.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Inputs
+
+```r
+sliderInput(inputId = "num", label = "Choose a number",
+            min = 0, max = 100, value = 20)
+```
+
+
+```
+## &lt;div class="form-group shiny-input-container"&gt;
+##   &lt;label class="control-label" id="num-label" for="num"&gt;Choose a number&lt;/label&gt;
+##   &lt;input class="js-range-slider" id="num" data-skin="shiny" data-min="0" data-max="100" data-from="20" data-step="1" data-grid="true" data-grid-num="10" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number"/&gt;
+## &lt;/div&gt;
+```
+
+---
+
+## Inputs
+
+&lt;img src="images/shiny-inputs.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Inputs
+
+.pull-left[
+
+```r
+sliderInput(
+  inputId = "num", 
+  label = "Choose a number",
+  min = 0,
+  max = 100, 
+  value = 20
+)
+```
+
+]
+
+.pull-right[
+
+* Input name
+* Label to display
+* Input-specific arguments
+
+]
+
+---
+
+## Outputs
+
+Function | Outputs
+---------|---------
+`plotOutput()` | plot
+`tableOutput()` | table
+`uiOutput()` | Shiny UI element
+`textOutput()` | text
+
+* Plots, tables, text - anything that R creates and users see
+* Initialize as empty placeholder space until object is created
+
+---
+
+# Outputs
+
+.pull-left[
+```r
+library(shiny)
+
+ui &lt;- fluidPage(
+  sliderInput(
+    inputId = "num",
+    label = "Choose a number",
+    min = 0, max = 100,
+    value = 20),
+    plotOutput("myplot")
+)
+
+server &lt;- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+&lt;img src="images/shiny-addplot-placeholder.png" width="80%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---

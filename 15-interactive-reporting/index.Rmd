@@ -226,11 +226,10 @@ class: middle, inverse
 .pull-left[
 ```{r eval = FALSE}
 library(shiny)
+
 ui <- fluidPage()
 
-
 server <- function(input, output, session) {}
-
 
 shinyApp(ui = ui, server = server)
 ```
@@ -239,6 +238,246 @@ shinyApp(ui = ui, server = server)
 - **User interface** controls the layout and appearance of app
 
 - **Server function** contains instructions needed to build app
+]
+
+---
+
+## Add elements to app inside `fluidPage()`
+
+.pull-left[
+```r
+library(shiny)
+
+ui <- fluidPage("Hello CFSS")
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-basic.png")
+```
+]
+
+---
+
+## Add elements to app inside `fluidPage()`
+
+.pull-left[
+```r
+fluidPage(
+  h1("My Shiny app"),
+  "Hello CFSS"
+)
+```
+]
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-add-h1.png")
+```
+]
+
+---
+
+## Add HTML to `fluidPage()`
+
+* The UI simply creates HTML
+* [Can use any HTML tags](http://shiny.rstudio.com/articles/tag-glossary.html)
+    * `h1()` = header1
+    * `br()` = line break
+    * `strong()` = bold text
+* Any HTML tag can be accessed using `tags` object
+    * `h1` = `tags$h1()`, `br` = `tags$br()`
+* Common tags can be accessed without `tags`
+
+---
+
+## Add HTML to `fluidPage()`
+
+.pull-left[
+```r
+fluidPage(
+  h1("My Shiny app"),
+  h3("Subtitle"),
+  "Hello",
+  "CFSS",
+  br(),
+  strong("bold text")
+)
+```
+]
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-tags.png")
+```
+]
+
+---
+
+## Use a layout
+
+* By default, all elements stack up one after the other
+* [Can use different layouts](http://shiny.rstudio.com/articles/layout-guide.html)
+* We’ll use `sidebarLayout()`
+
+---
+
+## `sidebarLayout()`
+
+.panelset[
+.panel[.panel-name[Code]
+```r
+fluidPage(
+  titlePanel("My Shiny app"),
+  sidebarLayout(
+    sidebarPanel(
+      "This is a side panel"
+    ),
+    mainPanel(
+      "And this is the main stuff"
+    )
+  )
+)
+```
+]
+
+.panel[.panel-name[Output]
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-sidebarlayout.png")
+```
+]
+]
+
+---
+
+## Inputs and outputs
+
+* For interactivity, app needs inputs and outputs
+* **Inputs** - things user can toggle/adjust
+* **Output** - R objects user can see, often depend on inputs
+
+---
+
+## Inputs
+
+.pull-left[
+```r
+library(shiny)
+
+ui <- fluidPage(
+  sliderInput(
+    inputId = "num",
+    label = "Choose a number",
+    min = 0, max = 100,
+    value = 20)
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-input.png")
+```
+]
+
+---
+
+## Inputs
+
+```r
+sliderInput(inputId = "num", label = "Choose a number",
+            min = 0, max = 100, value = 20)
+```
+
+```{r echo = FALSE}
+print(sliderInput(inputId = "num", label = "Choose a number",
+            min = 0, max = 100, value = 20))
+```
+
+---
+
+## Inputs
+
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-inputs.png")
+```
+
+---
+
+## Inputs
+
+.pull-left[
+
+```r
+sliderInput(
+  inputId = "num", 
+  label = "Choose a number",
+  min = 0,
+  max = 100, 
+  value = 20
+)
+```
+
+]
+
+.pull-right[
+
+* Input name
+* Label to display
+* Input-specific arguments
+
+]
+
+---
+
+## Outputs
+
+Function | Outputs
+---------|---------
+`plotOutput()` | plot
+`tableOutput()` | table
+`uiOutput()` | Shiny UI element
+`textOutput()` | text
+
+* Plots, tables, text - anything that R creates and users see
+* Initialize as empty placeholder space until object is created
+
+---
+
+# Outputs
+
+.pull-left[
+```r
+library(shiny)
+
+ui <- fluidPage(
+  sliderInput(
+    inputId = "num",
+    label = "Choose a number",
+    min = 0, max = 100,
+    value = 20),
+    plotOutput("myplot")
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+]
+
+.pull-right[
+```{r echo = FALSE}
+include_graphics(path = "images/shiny-addplot-placeholder.png")
+```
 ]
 
 ---
