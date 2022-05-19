@@ -7,9 +7,10 @@ library(scales)
 library(countrycode)
 
 # Load data ---------------------------------------------------------
-manager_survey <- read_csv("data/survey.csv",
-                           na = c("", "NA"),
-                           show_col_types = FALSE
+manager_survey <- read_csv(
+  "data/survey.csv",
+  na = c("", "NA"),
+  show_col_types = FALSE
 )
 
 # perform some basic data cleaning

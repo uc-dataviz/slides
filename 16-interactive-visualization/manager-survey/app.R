@@ -7,7 +7,8 @@ library(scales)
 library(countrycode)
 
 # Load data ---------------------------------------------------------
-manager_survey <- read_csv("data/survey.csv",
+manager_survey <- read_csv(
+  "data/survey.csv",
   na = c("", "NA"),
   show_col_types = FALSE
 )
@@ -135,24 +136,30 @@ server <- function(input, output, session) {
   })
 
   # update the slider input on the second panel based on the new filtered data
-  observeEvent(input$industry, {
-    updateSliderInput(
-      inputId = "ylim",
-      min = min(manager_survey_filtered()$annual_salary),
-      max = max(manager_survey_filtered()$annual_salary),
-      value = c(
-        min(manager_survey_filtered()$annual_salary),
-        max(manager_survey_filtered()$annual_salary)
+  observeEvent(
+    eventExpr = input$industry,
+    {
+      handlerExpr <- updateSliderInput(
+        inputId = "ylim",
+        min = min(manager_survey_filtered()$annual_salary),
+        max = max(manager_survey_filtered()$annual_salary),
+        value = c(
+          min(manager_survey_filtered()$annual_salary),
+          max(manager_survey_filtered()$annual_salary)
+        )
       )
-    )
-  })
+    }
+  )
 
   # create a stripchart of raw salaries from filtered data
   output$indiv_salary_plot <- renderPlot({
 
     # verify only 8 or fewer industries selected for optimal interpretation
     validate(
-      need(length(input$industry) <= 8, "Please select a maxiumum of 8 industries.")
+      need(
+        expr = length(input$industry) <= 8,
+        message = "Please select a maxiumum of 8 industries."
+      )
     )
 
     # draw the actual plot
@@ -182,7 +189,7 @@ server <- function(input, output, session) {
 
   # create table of brushed point observations
   output$indiv_salary_table <- renderTable({
-    brushedPoints(manager_survey_filtered(), input$indiv_salary_brush)
+    brushedPoints(df = manager_survey_filtered(), brush = input$indiv_salary_brush)
   })
 
   # plot average salary per education and industry
@@ -190,7 +197,10 @@ server <- function(input, output, session) {
 
     # verify only 8 or fewer industries selected for optimal interpretation
     validate(
-      need(length(input$industry) <= 8, "Please select a maxiumum of 8 industries.")
+      need(
+        expr = length(input$industry) <= 8,
+        message = "Please select a maxiumum of 8 industries."
+      )
     )
 
     # summarize data to get average salary per industry and education
