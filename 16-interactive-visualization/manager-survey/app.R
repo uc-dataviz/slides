@@ -168,7 +168,7 @@ server <- function(input, output, session) {
       mapping = aes(
         x = highest_level_of_education_completed,
         y = annual_salary,
-        color = industry
+        color = industry_other
       )
     ) +
       geom_jitter(size = 2, alpha = 0.6) +
@@ -205,7 +205,7 @@ server <- function(input, output, session) {
 
     # summarize data to get average salary per industry and education
     manager_survey_filtered() %>%
-      group_by(industry, highest_level_of_education_completed) %>%
+      group_by(industry_other, highest_level_of_education_completed) %>%
       summarise(
         mean_annual_salary = mean(annual_salary, na.rm = TRUE),
         .groups = "drop"
@@ -215,8 +215,8 @@ server <- function(input, output, session) {
         mapping = aes(
           x = highest_level_of_education_completed,
           y = mean_annual_salary,
-          group = industry,
-          color = industry
+          group = industry_other,
+          color = industry_other
         )
       ) +
       geom_line(size = 1) +
