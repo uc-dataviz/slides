@@ -16,66 +16,66 @@ output:
 # generate CSS file
 library(xaringanthemer)
 style_duo_accent(
-    primary_color = "#800000",
-    secondary_color = "#EAAA00",
-    inverse_header_color = "#464A53",
-    black_color = "#464A53",
-  header_font_google = google_font("Atkinson Hyperlegible"),
-  text_font_google   = google_font("Atkinson Hyperlegible"),
-  code_font_google   = google_font("Source Code Pro"),
-    base_font_size = "24px",
-    code_font_size = "20px",
-    # title_slide_background_image = "https://github.com/uc-dataviz/course-notes/raw/main/images/hexsticker.svg",
-    # title_slide_background_size = "contain",
-    # title_slide_background_position = "top",
-    header_h1_font_size = "2rem",
-    header_h2_font_size = "1.75rem",
-    header_h3_font_size = "1.5rem",
-    extra_css = list(
-      "h1" = list("margin-block-start" = "0.4rem",
-                  "margin-block-end" = "0.4rem"),
-      "h2" = list("margin-block-start" = "0.4rem",
-                  "margin-block-end" = "0.4rem"),
-      "h3" = list("margin-block-start" = "0.4rem",
-                  "margin-block-end" = "0.4rem"),
-      ".tiny" = list("font-size" = "70%"),
-      ".small" = list("font-size" = "90%"),
-      ".midi" = list("font-size" = "150%"),
-      ".tiny .remark-code" = list("font-size" = "70%"),
-      ".small .remark-code" = list("font-size" = "90%"),
-      ".midi .remark-code" = list("font-size" = "150%"),
-      ".large" = list("font-size" = "200%"),
-      ".xlarge" = list("font-size" = "600%"),
-      ".huge" = list("font-size" = "400%",
-                     "font-family" = "'Montserrat', sans-serif",
-                     "font-weight" = "bold"),
-      ".hand" = list("font-family" = "'Gochi Hand', cursive",
-                     "font-size" = "125%"),
-      ".task" = list("padding-right"    = "10px",
-                     "padding-left"     = "10px",
-                     "padding-top"      = "3px",
-                     "padding-bottom"   = "3px",
-                     "margin-bottom"    = "6px",
-                     "margin-top"       = "6px",
-                     "border-left"      = "solid 5px #F1DE67",
-                     "background-color" = "#F3D03E"),
-      ".pull-left" = list("width" = "49%",
-                          "float" = "left"),
-      ".pull-right" = list("width" = "49%",
-                           "float" = "right"),
-      ".pull-left-wide" = list("width" = "70%",
-                               "float" = "left"),
-      ".pull-right-narrow" = list("width" = "27%",
-                                  "float" = "right"),
-      ".pull-left-narrow" = list("width" = "27%",
-                                 "float" = "left"),
-      ".pull-right-wide" = list("width" = "70%",
+  primary_color = "#800000",
+  secondary_color = "#EAAA00",
+  inverse_header_color = "#464A53",
+  black_color = "#464A53",
+  header_font_google = xaringanthemer::google_font("Atkinson Hyperlegible"),
+  text_font_google   = xaringanthemer::google_font("Atkinson Hyperlegible"),
+  code_font_google   = xaringanthemer::google_font("Source Code Pro"),
+  base_font_size = "24px",
+  code_font_size = "20px",
+  # title_slide_background_image = "https://github.com/uc-dataviz/course-notes/raw/main/images/hexsticker.svg",
+  # title_slide_background_size = "contain",
+  # title_slide_background_position = "top",
+  header_h1_font_size = "2rem",
+  header_h2_font_size = "1.75rem",
+  header_h3_font_size = "1.5rem",
+  extra_css = list(
+    "h1" = list("margin-block-start" = "0.4rem",
+                "margin-block-end" = "0.4rem"),
+    "h2" = list("margin-block-start" = "0.4rem",
+                "margin-block-end" = "0.4rem"),
+    "h3" = list("margin-block-start" = "0.4rem",
+                "margin-block-end" = "0.4rem"),
+    ".tiny" = list("font-size" = "70%"),
+    ".small" = list("font-size" = "90%"),
+    ".midi" = list("font-size" = "150%"),
+    ".tiny .remark-code" = list("font-size" = "70%"),
+    ".small .remark-code" = list("font-size" = "90%"),
+    ".midi .remark-code" = list("font-size" = "150%"),
+    ".large" = list("font-size" = "200%"),
+    ".xlarge" = list("font-size" = "600%"),
+    ".huge" = list("font-size" = "400%",
+                   "font-family" = "'Montserrat', sans-serif",
+                   "font-weight" = "bold"),
+    ".hand" = list("font-family" = "'Gochi Hand', cursive",
+                   "font-size" = "125%"),
+    ".task" = list("padding-right"    = "10px",
+                   "padding-left"     = "10px",
+                   "padding-top"      = "3px",
+                   "padding-bottom"   = "3px",
+                   "margin-bottom"    = "6px",
+                   "margin-top"       = "6px",
+                   "border-left"      = "solid 5px #F1DE67",
+                   "background-color" = "#F3D03E"),
+    ".pull-left" = list("width" = "49%",
+                        "float" = "left"),
+    ".pull-right" = list("width" = "49%",
+                         "float" = "right"),
+    ".pull-left-wide" = list("width" = "70%",
+                             "float" = "left"),
+    ".pull-right-narrow" = list("width" = "27%",
                                 "float" = "right"),
-      ".blue" = list(color = "#2A9BB7"),
-      ".purple" = list(color = "#a493ba"),
-      ".yellow" = list(color = "#f1de67"),
-      ".gray" = list(color = "#464a53")
-    )
+    ".pull-left-narrow" = list("width" = "27%",
+                               "float" = "left"),
+    ".pull-right-wide" = list("width" = "70%",
+                              "float" = "right"),
+    ".blue" = list(color = "#2A9BB7"),
+    ".purple" = list(color = "#a493ba"),
+    ".yellow" = list(color = "#f1de67"),
+    ".gray" = list(color = "#464a53")
+  )
 )
 
 # source in the default knitr options
@@ -103,7 +103,7 @@ class: middle, inverse
 ## Setup
 
 .small[
-```{r message = FALSE, warning = FALSE}
+```{r message = FALSE, warning = FALSE, cache = FALSE}
 # load packages
 library(tidyverse)
 library(knitr)
@@ -116,7 +116,6 @@ library(gt)
 
 # set default theme for ggplot2
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
-update_geom_defaults("point", list(size = 2)) # 2 for full width, 2.5 for half width
 
 # set default figure parameters for knitr
 knitr::opts_chunk$set(
@@ -449,19 +448,19 @@ Example: Add **sparklines** to display trend alongside raw data
 
 ```{r sparklines-color, echo = FALSE}
 plot_spark_color <- function(df){
-  ggplot(df, aes(x = year, y = perc, color = line_color)) +
+  ggplot(df, aes(x = year, y = perc, color = line_color)) + #<<
     geom_line(size = 20) +
     theme_void() +
-    scale_color_identity()
+    scale_color_identity() #<<
 }
 
 BA_degrees_other_plots_color <- BA_degrees_other %>%
-  mutate(line_color = case_when(
-    field == "Business" ~ "#9D6C06",
-    field == "Health professions" ~ "#077DAA",
-    field == "Social sciences and history" ~ "#026D4E",
-    field == "Other" ~ "#A39A09"
-  )) %>%
+  mutate(line_color = case_when( #<<
+    field == "Business" ~ "#9D6C06", #<<
+    field == "Health professions" ~ "#077DAA", #<<
+    field == "Social sciences and history" ~ "#026D4E", #<<
+    field == "Other" ~ "#A39A09" #<<
+  )) %>% #<<
   nest(field_df = c(year, perc, line_color)) %>%
   mutate(plot = map(field_df, plot_spark_color))
 
@@ -487,20 +486,20 @@ BA_degrees_other %>%
     decimals = 0
   ) %>%
   tab_style(
-    style = cell_text(color = "#9D6C06"),
-    locations = cells_body(rows = 1, columns = field)
+    style = cell_text(color = "#9D6C06"), #<<
+    locations = cells_body(rows = 1, columns = field) #<<
   ) %>%
   tab_style(
-    style = cell_text(color = "#077DAA"),
-    locations = cells_body(rows = 2, columns = field)
+    style = cell_text(color = "#077DAA"), #<<
+    locations = cells_body(rows = 2, columns = field) #<<
   ) %>%
   tab_style(
-    style = cell_text(color = "#026D4E"),
-    locations = cells_body(rows = 3, columns = field)
+    style = cell_text(color = "#026D4E"), #<<
+    locations = cells_body(rows = 3, columns = field) #<<
   ) %>%
   tab_style(
-    style = cell_text(color = "#A39A09"),
-    locations = cells_body(rows = 4, columns = field)
+    style = cell_text(color = "#A39A09"), #<<
+    locations = cells_body(rows = 4, columns = field) #<<
   ) %>% 
   cols_label(
     field  = "Field",
@@ -518,52 +517,91 @@ BA_degrees_other %>%
 
 ---
 
-.large[.hand[livecoding]]
+## Custom function with `ggplot()`
 
-.task[
-Recreate this table of popular Bachelor's degrees awarded over time.
+.panelset[
+.panel[.panel-name[Code]
+```{r custom-ggplot, fig.show = "hide"}
+plot_spark <- function(df){ #<<
+  ggplot(df, aes(x = year, y = perc)) + #<<
+    geom_line(size = 20) + #<<
+    theme_void() #<<
+} #<<
+
+BA_degrees_other %>%
+  filter(field == "Social sciences and history") %>%
+  plot_spark()
+```
+]
+.panel[.panel-name[Plot]
+```{r ref.label = "custom-ggplot", echo = FALSE}
+
+```
+]
 ]
 
-(See next slide for code developed during live coding session)
+---
 
-<br>
+## Prep the data
 
-```{r sparklines, echo = FALSE}
-plot_spark <- function(df){
-  ggplot(df, aes(x = year, y = perc)) +
-    geom_line(size = 20) +
-    theme_void()
-}
-
+```{r data-prep}
 BA_degrees_other_plots <- BA_degrees_other %>%
-  nest(field_df = c(year, perc)) %>%
+  nest(field_df = c(year, perc)) %>% #<<
   mutate(plot = map(field_df, plot_spark))
+BA_degrees_other_plots
+```
 
+---
+
+## Widen the table
+
+```{r sparklines-1}
+BA_degrees_other %>% 
+  pivot_wider(names_from = year, values_from = perc) %>% #<<
+  mutate(ggplot = NA, .after = field)  #<<
+```
+
+---
+
+## Basic `gt` table with sparklines
+
+.small[
+```{r sparklines-2}
 BA_degrees_other %>% 
   pivot_wider(names_from = year, values_from = perc) %>%
-  mutate(ggplot = NA, .after = field) %>% 
+  mutate(ggplot = NA, .after = field) %>%
+  gt() %>% 
+  text_transform( #<<
+    locations = cells_body(columns = ggplot), #<<
+    fn = function(x){ #<<
+      map(.x = BA_degrees_other_plots$plot, .f = ggplot_image, #<<
+          height = px(15), aspect_ratio = 4) #<<
+    } #<<
+  )
+```
+]
+
+---
+
+## Final formatting
+
+.tiny[
+```{r sparklines-final, fig.show = "hide"}
+BA_degrees_other %>% 
+  pivot_wider(names_from = year, values_from = perc) %>%
+  mutate(ggplot = NA, .after = field) %>%
   gt() %>% 
   text_transform(
     locations = cells_body(columns = ggplot),
     fn = function(x){
-      map(BA_degrees_other_plots$plot, ggplot_image, height = px(15), aspect_ratio = 4)
+      map(.x = BA_degrees_other_plots$plot, .f = ggplot_image,
+          height = px(15), aspect_ratio = 4)
     }
   ) %>% 
-  cols_width(
-    ggplot ~ px(1000)
-    ) %>% 
-  cols_align(
-    align = "left",
-    columns = field
-  ) %>%
-  fmt_percent(
-    columns = where(is.numeric),
-    decimals = 0
-  ) %>%
-  cols_label(
-    field  = "Field",
-    ggplot = "Trend"
-  ) %>%
+  cols_width(ggplot ~ px(300)) %>%
+  cols_align(align = "left", columns = field) %>%
+  fmt_percent(columns = where(is.numeric), decimals = 0) %>%
+  cols_label(field  = "Field", ggplot = "Trend") %>%
   tab_spanner(
     label = "Popular Bachelor's degrees over the years",
     columns = everything()
@@ -573,33 +611,22 @@ BA_degrees_other %>%
     locations = cells_column_spanners()
   )
 ```
+]
 
 ---
 
-class: tiny
+## Generate the table
 
-```{r ref.label = "sparklines", eval = FALSE}
+```{r ref.label = "sparklines-final", echo = FALSE}
 
 ```
 
 ---
 
-.large[.hand[your turn]]
-
-.task[
-Add **color** to the previous table.
-]
-
-(See next slide for code developed during live coding session)
-
-<br>
+## Adding color text
 
 ```{r ref.label = "sparklines-color", echo = FALSE}
 
-```
-
-```{r echo = FALSE, cache = FALSE}
-countdown(minutes = 10, top = 0)
 ```
 
 ---
