@@ -392,31 +392,7 @@ knitr::include_graphics("images/gt-parts.png")
 
 ---
 
-.pull-left[
-
-.large[.hand[livecoding]]
-
-.task[
-Recreate this table of Bachelor's degrees awarded in 2015.
-
-- Go to `exercise-07` repo and clone it
-- Install the **gt** package: `install.packages("gt")`
-]
-]
-.pull-right[
-```{r ref.label = "degrees-2015-table", echo = FALSE}
-```
-]
-
-(See next slide for code developed during live coding session)
-
----
-
-class: small
-
-```{r ref.label = "degrees-2015-table", eval = FALSE}
-
-```
+`r chunk_reveal(chunk_name = "degrees-2015-table", title = '## Generating a gt table', widths = c(60, 40))`
 
 ---
 
@@ -600,7 +576,7 @@ BA_degrees_other %>%
 
 ---
 
-class: small
+class: tiny
 
 ```{r ref.label = "sparklines", eval = FALSE}
 
@@ -680,7 +656,7 @@ class: middle, inverse
 - [**gtsummary**](http://www.danieldsjoberg.com/gtsummary/): For summarizing statistical output with **gt**
 
 --
-- Interactivity: We will work with these when we learn Shiny!
+- Interactivity: useful with Shiny applications!
   - [**DT**](https://rstudio.github.io/DT/)
   - [**reactable**](https://glin.github.io/reactable/)
 
