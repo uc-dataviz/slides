@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Accessibility</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="MACS 40700   University of Chicago" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Accessibility
+]
+.author[
+### MACS 40700 <br /> University of Chicago
+]
+
+---
+
+
+
+
+class: middle, inverse
+
+# Setup
+
+---
+
+## Setup
+
+.small[
+
+```r
+# load packages
+library(tidyverse)
+library(scales)
+library(colorblindr)
+library(coloratio)
+
+# set default theme for ggplot2
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))
+
+# set default figure parameters for knitr
+knitr::opts_chunk$set(
+  fig.width = 8, fig.asp = 0.618, fig.retina = 2, dpi = 150, out.width = "60%"
+)
+
+# dplyr print min and max
+options(dplyr.print_max = 6, dplyr.print_min = 6)
+```
+]
+
+---
+
+class: middle, hand, large
+
+do you remember?
+
+---
+
+## Flatten the curve
+
+&lt;img src="images/flatten-the-curve.jpeg" width="100%" style="display: block; margin: auto;" /&gt;
+
+.small[
+Source: The New York Times. [Flattening the Coronavirus Curve](https://www.nytimes.com/article/flatten-curve-coronavirus.html)
+]
+
+---
+
+## Exponential spread
+
+&lt;iframe width="1000" height="650" src="https://www.washingtonpost.com/graphics/2020/world/corona-simulator/" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-external="1"&gt;&lt;/iframe&gt;
+
+.small[
+Source: The Washington Post. [Why outbreaks like coronavirus
+spread exponentially, and how to "flatten the curve"](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/)
+]
+
+---
+
+## JHU  COVID-19 Dashboard
+
+&lt;iframe width="1000" height="650" src="https://coronavirus.jhu.edu/map.html" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-external="1"&gt;&lt;/iframe&gt;
+
+.small[
+Source: [COVID-19 Dashboard
+by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html)
+]
+
+---
+
+class: middle, hand, large
+
+what do they all have in common?
+
+---
+
+## Accessible COVID-19 statistics tracker
+
+&lt;iframe width="1000" height="650" src="https://cvstats.net/" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-external="1"&gt;&lt;/iframe&gt;
+
+---
+
+class: middle, inverse
+
+# Accessibility and screen readers
+
+---
+
+## Alternative text
+
+&gt; It is read by screen readers in place of images allowing the content and function of the image to be accessible to those with visual or certain cognitive disabilities.
+&gt;
+&gt; It is displayed in place of the image in browsers if the image file is not loaded or when the user has chosen not to view images.
+&gt;
+&gt;It provides a semantic meaning and description to images which can be read by search engines or be used to later determine the content of the image from page context alone.
+
+.footnote[
+Source: [WebAIM](https://webaim.org/techniques/alttext/)
+]
+
+---
+
+## Alt and surrounding text
+
+```
+"CHART TYPE of TYPE OF DATA where REASON FOR INCLUDING CHART`
+
++ Link to data source somewhere in the text
+```
+
+--
+- `CHART TYPE`: It's helpful for people with partial sight to know what chart type it is and gives context for understanding the rest of the visual.
+
+--
+- `TYPE OF DATA`: What data is included in the chart? The x and y axis labels may help you figure this out.
+
+--
+- `REASON FOR INCLUDING CHART`: Think about why you're including this visual. What does it show that’s meaningful. There should be a point to every visual and you should tell people what to look for.
+
+--
+- `Link to data source`: Don't include this in your alt text, but it should be included somewhere in the surrounding text.
+
+.footnote[
+Source: [Writing Alt Text for Data Visualization](https://medium.com/nightingale/writing-alt-text-for-data-visualization-2a218ef43f81)
+]
+
+---
+
+## Data
+
+- Registered nurses by state and year
+- Number of nurses, salaries, employment
+- Source: [TidyTuesday](https://github.com/rfordatascience/tidytuesday/tree/master/data/2021/2021-10-05)
+
+.small[
+
+```r
+nurses &lt;- read_csv("data/nurses.csv") %&gt;% janitor::clean_names()
+
+names(nurses)
+```
+
+```
+##  [1] "state"                                       
+##  [2] "year"                                        
+##  [3] "total_employed_rn"                           
+##  [4] "employed_standard_error_percent"             
+##  [5] "hourly_wage_avg"                             
+##  [6] "hourly_wage_median"                          
+##  [7] "annual_salary_avg"                           
+##  [8] "annual_salary_median"                        
+##  [9] "wage_salary_standard_error_percent"          
+## [10] "hourly_10th_percentile"                      
+## [11] "hourly_25th_percentile"                      
+## [12] "hourly_75th_percentile"                      
+## [13] "hourly_90th_percentile"                      
+## [14] "annual_10th_percentile"                      
+## [15] "annual_25th_percentile"                      
+## [16] "annual_75th_percentile"                      
+## [17] "annual_90th_percentile"                      
+## [18] "location_quotient"                           
+## [19] "total_employed_national_aggregate"           
+## [20] "total_employed_healthcare_national_aggregate"
+## [21] "total_employed_healthcare_state_aggregate"   
+## [22] "yearly_total_employed_state_aggregate"
+```
+]
+
+---
+
+## Bar chart
+
+
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+- Provide the title and axis labels
+- Briefly describe the chart and give a summary of any trends it displays
+- Convert bar charts to accessible tables or lists
+- Avoid describing visual attributes of the bars (e.g., dark blue, gray, yellow) unless there's an explicit need to do so 
+]
+
+---
+
+## Developing the alt text
+
+- Total employed registered nurses in three states over time.
+
+--
+- Total employed registered nurses in California, New York, and North Carolina, in 2000, 2010, and 2020.
+
+--
+- A bar chart of total employed registered nurses in California, New York, and North Carolina, in 2000, 2010, and 2020, showing increasing numbers of nurses over time.
+
+--
+- The figure is a bar chart titled "Total employed Registered Nurses" that displays the numbers of registered nurses in three states (California, New York, and North Carolina) over a 20 year period, with data recorded in three time points (2000, 2010, and 2020). In each state, the numbers of registered nurses increase over time. The following numbers are all approximate. California started off with 200K registered nurses in 2000, 240K in 2010, and 300K in 2020.  New York had 150K in 2000, 160K in 2010, and 170K in 2020. Finally North Carolina had 60K in 2000, 90K in 2010, and 100K in 2020.
+
+---
+
+## Line graph
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+- Provide the title and axis labels
+- Briefly describe the graph and give a summary of any trends it displays
+- Convert data represented in lines to accessible tables or lists where feasible
+- Avoid describing visual attributes of the bars (e.g., purple, pink) unless there's an explicit need to do so 
+]
+
+--
+
+.task[
+Write alt text for the line graph above.
+]
+
+&lt;!--
+The figure is titled "Annual median salary of Registered Nurses". There are three lines on the plot: the top labelled California, the middle New York, the bottom North Carolina. The vertical axis is labelled "Annual median salary", beginning with $40K, up to $120K. The horizontal axis is labelled "Year", beginning with couple years before 2000 up to 2020. The following numbers are all approximate. In the graph, the California line begins around $50K in 1998 and goes up to  $120K in 2020. The increase is steady, except for stalling for about couple years between 2015 to 2017. The New York line also starts around $50K, just below where the California line starts, and steadily goes up to $90K. And the North Carolina line starts around $40K and steadily goes up to $70K.
+--&gt;
+
+---
+
+## Scatterplot
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+Scatter plots are among the more difficult graphs to describe, especially if there is a need to make specific data point accessible.
+
+- Identify the image as a scatterplot
+- Provide the title and axis labels
+- Focus on the overall trend
+- If it's necessary to be more specific, convert the data into an accessible table
+]
+
+--
+
+.task[
+Write alt text for the scatterplot above.
+]
+
+---
+
+## Recommended reading
+
+[Accessible Visualization via Natural Language Descriptions: A Four-Level Model of Semantic Content](http://vis.csail.mit.edu/pubs/vis-text-model/)
+
+Alan Lundgard, MIT CSAIL  
+Arvind Satyanarayan, MIT CSAIL
+
+IEEE Transactions on Visualization &amp; Computer Graphics (Proceedings of IEEE VIS), 2021
+
+&gt;To demonstrate how our model can be applied to evaluate the effectiveness of visualization descriptions, we conduct a mixed-methods evaluation with 30 blind and 90 sighted readers, and find that these reader groups differ significantly on which semantic content they rank as most useful. Together, our model and findings suggest that access to meaningful information is strongly reader-specific, and that research in automatic visualization captioning should orient toward descriptions that more richly communicate overall trends and statistics, sensitive to reader preferences.
+
+---
+
+class: middle, inverse
+
+# Accessibility and colors
+
+---
+
+## Color scales
+
+Use colorblind friendly color scales (e.g., Okabe Ito, viridis)
+
+.panelset.sideways[
+.panel[.panel-name[Code]
+
+```r
+nurses_subset %&gt;%
+  ggplot(aes(x = year, y = hourly_wage_median, color = state)) +
+  geom_point(size = 2) +
+* colorblindr::scale_color_OkabeIto() +
+  scale_y_continuous(labels = label_dollar()) +
+  labs(
+    x = "Year", y = "Median hourly wage", color = "State",
+    title = "Median hourly wage of Registered Nurses"
+  ) +
+  theme(
+    legend.position = c(0.15, 0.75),
+    legend.background = element_rect(fill = "white", color = "white")
+    )
+```
+
+
+
+]
+
+.panel[.panel-name[Plot]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+
+## The default ggplot2 color scale + deuteranopia
+
+Deuteranopia: A type of red-green confusion
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/default-ggplot2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with deuteranopia**
+
+&lt;img src="images/deuteranopia.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## The default ggplot2 color scale + tritanopia
+
+Tritanopia: A type of yellow-blue confusion
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with tritanopia**
+
+&lt;img src="images/tritanopia.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Testing for colorblind friendliness
+
+- Best way to test is with users (or collaborators) who have these color deficiencies
+
+- Simulation software also helps, e.g. Sim Daltonism for [Mac](https://michelf.ca/projects/sim-daltonism/) and [PC](https://pcmacstore.com/en/app/693112260/sim-daltonism)
+
+---
+
+## Color contrast
+
+- Background and foreground text should have sufficient contrast to be distinguishable by users with different vision
+
+- Web app for checking color contrast checking: [Colour Contrast Analyser](https://www.tpgi.com/color-contrast-checker/)
+
+- An WIP R package for checking for color contrast: [**coloratio**](https://matt-dray.github.io/coloratio)
+
+
+```r
+cr_get_ratio("black", "white")
+```
+
+```
+## [1] 21
+```
+
+```r
+cr_get_ratio("#FFFFFF", "#000000")
+```
+
+```
+## [1] 21
+```
+
+```r
+cr_get_ratio("black", "gray10")
+```
+
+```
+## [1] 1.206596
+```
+
+---
+
+## Double encoding
+
+Use shape *and* color where possible
+
+--
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with deuteranopia**
+
+&lt;img src="images/deuteranopia-shape.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Use direct labeling
+
+- Prefer direct labeling where color is used to display information over a legend
+
+- Quicker to read
+
+- Ensures graph can be understood without reliance on color
+
+---
+
+## Without direct labeling
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with deuteranopia**
+
+&lt;img src="images/deuteranopia-no-direct-labeling.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## With direct labeling
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with deuteranopia**
+
+&lt;img src="images/deuteranopia-direct-labeling.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Use whitespace or pattern to separate elements
+
+- Separate elements with whitespace or pattern
+
+- Allows for distinguishing between data without entirely relying on contrast between colors
+
+---
+
+## Without whitespace
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with tritanopia**
+
+&lt;img src="images/tritanopia-no-separate.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## With whitespace
+
+.pull-left[
+**Default ggplot2 scale**
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Default ggplot2 scale with tritanopia**
+
+&lt;img src="images/tritanopia-with-separate.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+class: middle
+
+.task[
+Find a colorblind friendly color palette other than viridis and those in the colorblindr package. This could be an R package that offers a colorblind friendly color palette or it could be just a palette you find online. Apply it to the scatterplot you previously wrote alt text for.
+]
+
+---
+
+class: middle, inverse
+
+# Accessibility and fonts
+
+---
+
+## Accessibility and fonts
+
+- Use a font that has been tested for accessibility (e.g., [Atkinson Hyperlegible](https://brailleinstitute.org/freefont))
+
+--
+- Keep plot labels and annotations similarly sized as the rest of your text (e.g., `ggplot2::theme_set(ggplot2::theme_minimal(base_size = 16))`)
+
+---
+
+class: middle
+
+.large[
+.hand[
+When you design for accessibility, you benefit everyone
+]
+]
+
+.footnote[
+Source: [A Comprehensive Guide to Accessible Data Visualization](https://www.betterment.com/resources/accessible-data-visualization/)
+]
+
+---
+
+## Acknowledgements
+
+- COVID visualization examples:
+  - The New York Times. [Flattening the Coronavirus Curve](https://www.nytimes.com/article/flatten-curve-coronavirus.html)
+  - The Washington Post. [Why outbreaks like coronavirus
+spread exponentially, and how to "flatten the curve"](https://www.washingtonpost.com/graphics/2020/world/corona-simulator/)
+  - [COVID-19 Dashboard
+by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html)
+  - T. Littlefield (2020) [COVID-19 Statistics Tracker](https://cvstats.net)
+
+- Lundgard, Alan, and Arvind Satyanarayan. ["Accessible Visualization via Natural Language Descriptions: A Four-Level Model of Semantic Content."](https://ieeexplore.ieee.org/abstract/document/9555469) IEEE transactions on visualization and computer graphics (2021).
+
+- [A Comprehensive Guide to Accessible Data Visualization](https://www.betterment.com/resources/accessible-data-visualization/)
+
+- Silvia Canelón and Liz Hare. [Revealing Room for Improvement in Accessibility within a Social Media Data Visualization Learning Community](https://spcanelon.github.io/csvConf2021/slides/#1)
+
+---
+
+class: middle
+
+.task[
+Revisit your Project 2 proposals with accessibility guidelines in place and use the remaining time for checking for and implementing as many of the accessibility guidelines as relevant to your project.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "magula",
+"highlightLines": true,
+"highlightLanguage": "r",
+"ratio": "16:9",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
