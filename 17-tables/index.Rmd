@@ -126,6 +126,8 @@ class: middle, inverse
 
 ## Announcements
 
+- Project #2 initial drafts due on Wednesday by 11:59pm
+
 - Project #2 presentations next Tuesday 11-12:30pm
 
 ---
