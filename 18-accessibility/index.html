@@ -33,7 +33,6 @@ class: middle, inverse
 
 ## Setup
 
-.small[
 
 ```r
 # load packages
@@ -53,7 +52,6 @@ knitr::opts_chunk$set(
 # dplyr print min and max
 options(dplyr.print_max = 6, dplyr.print_min = 6)
 ```
-]
 
 ---
 
@@ -65,11 +63,7 @@ do you remember?
 
 ## Flatten the curve
 
-&lt;img src="images/flatten-the-curve.jpeg" width="100%" style="display: block; margin: auto;" /&gt;
-
-.small[
-Source: The New York Times. [Flattening the Coronavirus Curve](https://www.nytimes.com/article/flatten-curve-coronavirus.html)
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -84,11 +78,11 @@ spread exponentially, and how to "flatten the curve"](https://www.washingtonpost
 
 ---
 
-## JHU  COVID-19 Dashboard
+## JHU COVID-19 Dashboard
 
-&lt;iframe width="1000" height="650" src="https://coronavirus.jhu.edu/map.html" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-external="1"&gt;&lt;/iframe&gt;
+- [Dashboard](https://coronavirus.jhu.edu/map.html)
 
-.small[
+.footnote[
 Source: [COVID-19 Dashboard
 by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html)
 ]
@@ -327,43 +321,17 @@ nurses_subset %&gt;%
 
 ---
 
-## The default ggplot2 color scale + deuteranopia
+## The default ggplot2 color scale
 
-Deuteranopia: A type of red-green confusion
-
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/default-ggplot2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
-
-&lt;img src="images/deuteranopia.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-## The default ggplot2 color scale + tritanopia
-
-Tritanopia: A type of yellow-blue confusion
-
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
-
-&lt;img src="images/tritanopia.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="index_files/figure-html/default-ggplot2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## Testing for colorblind friendliness
 
 - Best way to test is with users (or collaborators) who have these color deficiencies
+
+- `colorblindr::cvd_grid()`
 
 - Simulation software also helps, e.g. Sim Daltonism for [Mac](https://michelf.ca/projects/sim-daltonism/) and [PC](https://pcmacstore.com/en/app/693112260/sim-daltonism)
 
@@ -410,16 +378,7 @@ Use shape *and* color where possible
 
 --
 
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
-
-&lt;img src="images/deuteranopia-shape.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -435,31 +394,13 @@ Use shape *and* color where possible
 
 ## Without direct labeling
 
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
-
-&lt;img src="images/deuteranopia-no-direct-labeling.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## With direct labeling
 
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
-
-&lt;img src="images/deuteranopia-direct-labeling.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -473,39 +414,13 @@ Use shape *and* color where possible
 
 ## Without whitespace
 
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
-
-&lt;img src="images/tritanopia-no-separate.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## With whitespace
 
-.pull-left[
-**Default ggplot2 scale**
-
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
-
-&lt;img src="images/tritanopia-with-separate.png" width="100%" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-class: middle
-
-.task[
-Find a colorblind friendly color palette other than viridis and those in the colorblindr package. This could be an R package that offers a colorblind friendly color palette or it could be just a palette you find online. Apply it to the scatterplot you previously wrote alt text for.
-]
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 

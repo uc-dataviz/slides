@@ -126,7 +126,6 @@ class: middle, inverse
 
 ## Setup
 
-.small[
 ```{r message = FALSE, warning = FALSE}
 # load packages
 library(tidyverse)
@@ -145,7 +144,6 @@ knitr::opts_chunk$set(
 # dplyr print min and max
 options(dplyr.print_max = 6, dplyr.print_min = 6)
 ```
-]
 
 ---
 
@@ -157,13 +155,49 @@ do you remember?
 
 ## Flatten the curve
 
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/flatten-the-curve.jpeg")
-```
+```{r echo = FALSE}
+high_mean <- 12
+high_sd <- 4
+flat_mean <- 35
+flat_sd <- 12
 
-.small[
-Source: The New York Times. [Flattening the Coronavirus Curve](https://www.nytimes.com/article/flatten-curve-coronavirus.html)
-]
+ggplot(tibble(x = c(0, 70)), aes(x = x)) +
+  stat_function(geom = "area", fun = dnorm, n = 1000, 
+                args = list(mean = high_mean, sd = high_sd),
+                fill = "#FF4136", alpha = 0.8) +
+  stat_function(geom = "area", fun = dnorm, n = 1000, 
+                args = list(mean = flat_mean, sd = flat_sd),
+                fill = "#0074D9", alpha = 0.8) +
+  geom_hline(yintercept = dnorm(flat_mean, flat_mean, flat_sd), 
+             linetype = "61", color = "grey75") +
+  annotate(geom = "text", x = qnorm(0.5, high_mean, high_sd), 
+           y = dnorm(qnorm(0.5, high_mean, high_sd), high_mean, high_sd) / 2, 
+           label = "Without\nprotective\nmeasures", color = "white", size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  annotate(geom = "text", x = qnorm(0.5, flat_mean, sd = flat_sd), 
+           y = dnorm(qnorm(0.5, flat_mean, sd = flat_sd), flat_mean, sd = flat_sd) / 2, 
+           label = "With protective\nmeasures", color = "white", size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  annotate(geom = "text", x = 45, y = dnorm(flat_mean, flat_mean, sd = flat_sd), 
+           label = "Healthcare system capacity", vjust = -0.5, hjust = 0, size = 3,
+           family = "Fira Sans Condensed", fontface = "bold") +
+  labs(x = "Time since first case", 
+       y = "# of\ncases",
+       title = "Flatten the curve!", 
+       subtitle = "Slow down community spread by social distancing",
+       caption = "Adapted from the CDC and The Economist\nVisit flattenthecurve.com") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_minimal(base_family = "Fira Sans Condensed Light") +
+  theme(panel.grid = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_blank(),
+        axis.title = element_text(family = "Fira Sans Condensed", face = "bold"),
+        axis.title.y = element_text(angle = 0, vjust = 0.5),
+        plot.title = element_text(family = "Fira Sans Condensed", face = "bold", size = rel(1.7)),
+        plot.subtitle = element_text(size = rel(1.2), color = "grey50"),
+        plot.caption = element_text(color = "grey50"))
+```
 
 ---
 
@@ -178,11 +212,11 @@ spread exponentially, and how to "flatten the curve"](https://www.washingtonpost
 
 ---
 
-## JHU  COVID-19 Dashboard
+## JHU COVID-19 Dashboard
 
-<iframe width="1000" height="650" src="https://coronavirus.jhu.edu/map.html" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-external="1"></iframe>
+- [Dashboard](https://coronavirus.jhu.edu/map.html)
 
-.small[
+.footnote[
 Source: [COVID-19 Dashboard
 by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)](https://coronavirus.jhu.edu/map.html)
 ]
@@ -434,15 +468,10 @@ nurses_subset %>%
 
 ---
 
-## The default ggplot2 color scale + deuteranopia
+## The default ggplot2 color scale
 
-Deuteranopia: A type of red-green confusion
-
-.pull-left[
-**Default ggplot2 scale**
-
-```{r default-ggplot2, echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r default-ggplot2, echo = FALSE, out.width = "80%"}
+fig1 <- nurses_subset %>%
   ggplot(aes(x = year, y = hourly_wage_median, color = state)) +
   geom_point(size = 2) +
   scale_y_continuous(labels = label_dollar()) +
@@ -450,45 +479,22 @@ nurses_subset %>%
     x = "Year", y = "Median hourly wage", color = "State",
     title = "Median hourly wage of Registered Nurses"
   ) +
+  theme_minimal(base_size = 6) +
   theme(
     legend.position = c(0.15, 0.75),
     legend.background = element_rect(fill = "white", color = "white")
     )
+
+cvd_grid(fig1)
 ```
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
-
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/deuteranopia.png")
-```
-]
-
----
-
-## The default ggplot2 color scale + tritanopia
-
-Tritanopia: A type of yellow-blue confusion
-
-.pull-left[
-**Default ggplot2 scale**
-
-```{r ref.label = "default-ggplot2", echo = FALSE, out.width = "100%"}
-```
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
-
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/tritanopia.png")
-```
-]
 
 ---
 
 ## Testing for colorblind friendliness
 
 - Best way to test is with users (or collaborators) who have these color deficiencies
+
+- `colorblindr::cvd_grid()`
 
 - Simulation software also helps, e.g. Sim Daltonism for [Mac](https://michelf.ca/projects/sim-daltonism/) and [PC](https://pcmacstore.com/en/app/693112260/sim-daltonism)
 
@@ -516,11 +522,8 @@ Use shape *and* color where possible
 
 --
 
-.pull-left[
-**Default ggplot2 scale**
-
-```{r echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r echo = FALSE, out.width = "80%"}
+fig2 <- nurses_subset %>%
   ggplot(aes(x = year, y = hourly_wage_median, color = state, shape = state)) +
   geom_point(size = 2) +
   scale_y_continuous(labels = label_dollar()) +
@@ -528,19 +531,14 @@ nurses_subset %>%
     x = "Year", y = "Median hourly wage", color = "State", shape = "State",
     title = "Median hourly wage of Registered Nurses"
   ) +
+  theme_minimal(base_size = 6) +
   theme(
     legend.position = c(0.15, 0.75),
     legend.background = element_rect(fill = "white", color = "white")
     )
-```
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
 
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/deuteranopia-shape.png")
+cvd_grid(fig2)
 ```
-]
 
 ---
 
@@ -556,11 +554,8 @@ knitr::include_graphics("images/deuteranopia-shape.png")
 
 ## Without direct labeling
 
-.pull-left[
-**Default ggplot2 scale**
-
-```{r echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r echo = FALSE, out.width = "80%"}
+fig3 <- nurses_subset %>%
   ggplot(aes(x = year, y = annual_salary_median, color = state)) +
   geom_line(size = 2) +
   scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
@@ -568,35 +563,27 @@ nurses_subset %>%
     x = "Year", y = "Annual median salary", color = "State",
     title = "Annual median salary of Registered Nurses"
   ) +
+  theme_minimal(base_size = 6) +
   theme(
     legend.background = element_rect(fill = "white", color = "white"),
     legend.position = c(0.2, 0.75)
     )
-```
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
 
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/deuteranopia-no-direct-labeling.png")
+cvd_grid(fig3)
 ```
-]
 
 ---
 
 ## With direct labeling
 
-.pull-left[
-**Default ggplot2 scale**
-
-```{r echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r echo = FALSE, out.width = "80%"}
+fig4 <- nurses_subset %>%
   ggplot(aes(x = year, y = annual_salary_median, color = state)) +
   geom_line(show.legend = FALSE, size = 2) +
   geom_text(
     data = nurses_subset %>% filter(year == max(year)),
     aes(label = state), hjust = 0, nudge_x = 1,
-    show.legend = FALSE, size = 6
+    show.legend = FALSE, size = 3
   ) +
   scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
   labs(
@@ -604,18 +591,13 @@ nurses_subset %>%
     title = "Annual median salary of Registered Nurses"
   ) +
   coord_cartesian(clip = "off") +
+  theme_minimal(base_size = 6) +
   theme(
     plot.margin = margin(0.1, 0.9, 0.1, 0.1, "in")
     )
-```
-]
-.pull-right[
-**Default ggplot2 scale with deuteranopia**
 
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/deuteranopia-direct-labeling.png")
+cvd_grid(fig4)
 ```
-]
 
 ---
 
@@ -629,37 +611,26 @@ knitr::include_graphics("images/deuteranopia-direct-labeling.png")
 
 ## Without whitespace
 
-.pull-left[
-**Default ggplot2 scale**
-
-```{r echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r echo = FALSE, out.width = "80%"}
+fig5 <- nurses_subset %>%
   filter(year %in% c(2000, 2010, 2020)) %>%
   ggplot(aes(x = factor(year), y = total_employed_rn, fill = state)) +
   geom_col(position = "fill") +
   labs(
     x = "Year", y = "Proportion of Registered Nurses", fill = "State",
     title = "Total employed Registered Nurses"
-  )
-```
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
+  ) +
+  theme_minimal(base_size = 6)
 
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/tritanopia-no-separate.png")
+cvd_grid(fig5)
 ```
-]
 
 ---
 
 ## With whitespace
 
-.pull-left[
-**Default ggplot2 scale**
-
-```{r echo = FALSE, out.width = "100%"}
-nurses_subset %>%
+```{r echo = FALSE, out.width = "80%"}
+fig6 <- nurses_subset %>%
   filter(year %in% c(2000, 2010, 2020)) %>%
   ggplot(aes(x = factor(year), y = total_employed_rn, fill = state)) +
   geom_col(position = "fill", color = "white", size = 1) +
@@ -667,24 +638,11 @@ nurses_subset %>%
     x = "Year", y = "Proportion of Registered Nurses", 
     fill = "State",
     title = "Total employed Registered Nurses"
-  )
+  ) +
+  theme_minimal(base_size = 6)
+
+cvd_grid(fig6)
 ```
-]
-.pull-right[
-**Default ggplot2 scale with tritanopia**
-
-```{r echo = FALSE, out.width = "100%"}
-knitr::include_graphics("images/tritanopia-with-separate.png")
-```
-]
-
----
-
-class: middle
-
-.task[
-Find a colorblind friendly color palette other than viridis and those in the colorblindr package. This could be an R package that offers a colorblind friendly color palette or it could be just a palette you find online. Apply it to the scatterplot you previously wrote alt text for.
-]
 
 ---
 
