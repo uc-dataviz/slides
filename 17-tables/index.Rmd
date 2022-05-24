@@ -144,12 +144,8 @@ class: middle, inverse
 ```{r message = FALSE, warning = FALSE, cache = FALSE}
 # load packages
 library(tidyverse)
-library(knitr)
-library(kableExtra)
-library(glue)
 library(scales)
 library(colorspace)
-library(colorblindr)
 library(gt)
 
 # set default theme for ggplot2
@@ -437,7 +433,7 @@ knitr::include_graphics("images/gt-parts.png")
 
 ---
 
-`r chunk_reveal(chunk_name = "degrees-2015-table", title = '## Generating a gt table', widths = c(60, 40))`
+`r chunk_reveal(chunk_name = "degrees-2015-table", title = '## Generating a **gt** table', widths = c(60, 40))`
 
 ---
 
@@ -536,9 +532,7 @@ BA_degrees_other %>%
 
 ## Custom function with `ggplot()`
 
-.panelset[
-.panel[.panel-name[Code]
-```{r custom-ggplot, fig.show = "hide"}
+```{r custom-ggplot, out.width = "40%"}
 plot_spark <- function(df) { #<<
   ggplot(df, aes(x = year, y = perc)) + #<<
     geom_line(size = 20) + #<<
@@ -549,13 +543,6 @@ BA_degrees_other %>%
   filter(field == "Social sciences and history") %>%
   plot_spark()
 ```
-]
-.panel[.panel-name[Plot]
-```{r ref.label = "custom-ggplot", echo = FALSE}
-
-```
-]
-]
 
 ---
 
@@ -604,9 +591,9 @@ BA_degrees_other %>%
   text_transform( #<<
     locations = cells_body(columns = ggplot), #<<
     fn = function(x) { #<<
-      map(
+      map( #<<
         .x = BA_degrees_other_plots$plot, .f = ggplot_image, #<<
-        height = px(15), aspect_ratio = 4
+        height = px(15), aspect_ratio = 4 #<<
       ) #<<
     } #<<
   )
@@ -711,6 +698,8 @@ class: middle, inverse
 --
 - Other (than HTML) outputs:
   - LaTeX/PDF: [**kableExtra**](https://haozhu233.github.io/kableExtra/)
+      - [**stargazer**](https://cran.r-project.org/web/packages/stargazer/index.html)
+      - [**xtable**](https://cran.r-project.org/web/packages/xtable/index.html)
   - Word: [**flextable**](https://davidgohel.github.io/flextable/)
 
 --
