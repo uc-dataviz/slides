@@ -309,7 +309,15 @@ nurses_subset <- nurses %>%
 ```
 
 .pull-left[
-```{r echo = FALSE, out.width = "100%"}
+```{r nurses-bar, echo = FALSE, out.width = "100%"}
+#| fig.alt = 'The figure is a bar chart titled "Total employed Registered Nurses" that
+#|    displays the numbers of registered nurses in three states (California, New York, and
+#|    North Carolina) over a 20 year period, with data recorded in three time points (2000,
+#|    2010, and 2020). In each state, the numbers of registered nurses increase over time.
+#|    The following numbers are all approximate. California started off with 200K registered
+#|    nurses in 2000, 240K in 2010, and 300K in 2020. New York had 150K in 2000, 160K in 2010,
+#|    and 170K in 2020. Finally North Carolina had 60K in 2000, 90K in 2010, and 100K in 2020.'
+
 nurses_subset %>%
   filter(year %in% c(2000, 2010, 2020)) %>%
   ggplot(aes(x = state, y = total_employed_rn, fill = factor(year))) +
@@ -347,6 +355,53 @@ nurses_subset %>%
 
 --
 - The figure is a bar chart titled "Total employed Registered Nurses" that displays the numbers of registered nurses in three states (California, New York, and North Carolina) over a 20 year period, with data recorded in three time points (2000, 2010, and 2020). In each state, the numbers of registered nurses increase over time. The following numbers are all approximate. California started off with 200K registered nurses in 2000, 240K in 2010, and 300K in 2020.  New York had 150K in 2000, 160K in 2010, and 170K in 2020. Finally North Carolina had 60K in 2000, 90K in 2010, and 100K in 2020.
+
+---
+
+## Incorporating alt text in R Markdown
+
+- Use the [`fig.alt` `knitr` chunk option](https://www.rstudio.com/blog/knitr-fig-alt/)
+
+--
+
+````{verbatim}
+```{r fig.alt = 'The figure is a bar chart titled "Total employed Registered Nurses" that displays the numbers of registered nurses in three states (California, New York, and North Carolina) over a 20 year period, with data recorded in three time points (2000, 2010, and 2020). In each state, the numbers of registered nurses increase over time. The following numbers are all approximate. California started off with 200K registered nurses in 2000, 240K in 2010, and 300K in 2020. New York had 150K in 2000, 160K in 2010, and 170K in 2020. Finally North Carolina had 60K in 2000, 90K in 2010, and 100K in 2020.'}
+
+nurses_subset %>%
+  filter(year %in% c(2000, 2010, 2020)) %>%
+  ggplot(aes(x = state, y = total_employed_rn, fill = factor(year))) +
+  geom_col(position = "dodge") +
+  scale_fill_viridis_d(option = "E") +
+  scale_y_continuous(labels = label_number(scale = 1/1000, suffix = "K")) +
+  labs(
+    x = "State", y = "Number of Registered Nurses", fill = "Year",
+    title = "Total employed Registered Nurses"
+  ) +
+  theme(
+    legend.background = element_rect(fill = "white", color = "white"),
+    legend.position = c(0.85, 0.75)
+    )
+```
+````
+
+---
+
+## Alternate style for `knitr` chunk options
+
+````{verbatim}
+```{r}
+#| fig.alt = 'The figure is a bar chart titled "Total employed Registered Nurses" that
+#|    displays the numbers of registered nurses in three states (California, New York,
+#|    and North Carolina) over a 20 year period, with data recorded in three time points
+#|    (2000, 2010, and 2020). In each state, the numbers of registered nurses increase
+#|    over time. The following numbers are all approximate. California started off with
+#|    200K registered nurses in 2000, 240K in 2010, and 300K in 2020. New York had 150K
+#|    in 2000, 160K in 2010, and 170K in 2020. Finally North Carolina had 60K in 2000,
+#|    90K in 2010, and 100K in 2020.'
+```
+````
+
+.footnote[Requires `knitr` version 1.35+]
 
 ---
 
@@ -388,6 +443,8 @@ nurses_subset %>%
 
 .pull-left[
 ```{r echo = FALSE, out.width = "100%"}
+#| fig.alt = 'The figure is titled "Annual median salary of Registered Nurses". There are three lines on the plot: the top labelled California, the middle New York, the bottom North Carolina. The vertical axis is labelled "Annual median salary", beginning with $40K, up to $120K. The horizontal axis is labelled "Year", beginning with couple years before 2000 up to 2020. The following numbers are all approximate. In the graph, the California line begins around $50K in 1998 and goes up to  $120K in 2020. The increase is steady, except for stalling for about couple years between 2015 to 2017. The New York line also starts around $50K, just below where the California line starts, and steadily goes up to $90K. And the North Carolina line starts around $40K and steadily goes up to $70K.'
+
 nurses_subset %>%
   ggplot(aes(x = year, y = annual_salary_median, color = state)) +
   geom_line(show.legend = FALSE) +
@@ -452,6 +509,8 @@ unemp_state <- read_excel(
 
 .pull-left[
 ```{r echo = FALSE, out.width = "100%"}
+#| fig.alt = 'The figure is titled "Median hourly wage of Registered Nurses". It is a scatter plot with points for each of the 50 U.S. states from 1998 to 2008. The horizontal axis is labeled "Unemployment rate", beginning around 2% up to 14%. The horizontal axis is labelled "Median hourly wage", beginning with amounts under $20 up to approximately $50. The pattern is hard to discern but appears to show a positive correlation between the variables. As unemployment rate increases the median hourly wage also slightly increases. There is more variability in median hourly wage for unemployment rates below 7%.'
+
 nurses %>%
   left_join(unemp_state) %>%
   drop_na(unemp_rate) %>%
