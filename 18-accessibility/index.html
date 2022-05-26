@@ -56,9 +56,9 @@ options(dplyr.print_max = 6, dplyr.print_min = 6)
 
 ---
 
-class: middle, hand, large
+class: middle, large
 
-do you remember?
+.hand[do you remember?]
 
 ---
 
@@ -749,6 +749,10 @@ Scatter plots are among the more difficult graphs to describe, especially if the
 Write alt text for the scatterplot above.
 ]
 
+&lt;!--
+The figure is titled "Median hourly wage of Registered Nurses". It is a scatter plot with points for each of the 50 U.S. states from 1998 to 2008. The horizontal axis is labeled "Unemployment rate", beginning around 2% up to 14%. The horizontal axis is labelled "Median hourly wage", beginning with amounts under $20 up to approximately $50. The pattern is hard to discern but appears to show a positive correlation between the variables. As unemployment rate increases the median hourly wage also slightly increases. There is more variability in median hourly wage for unemployment rates below 7%.
+--&gt;
+
 ---
 
 ## Recommended reading
@@ -808,7 +812,15 @@ nurses_subset %&gt;%
 
 ## The default ggplot2 color scale
 
-&lt;img src="index_files/figure-html/default-ggplot2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+.panelset.sideways[
+.panel[.panel-name[Original]
+&lt;img src="index_files/figure-html/default-ggplot2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.panel[.panel-name[Vision-impaired]
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+]
 
 ---
 
@@ -826,10 +838,11 @@ nurses_subset %&gt;%
 
 - Background and foreground text should have sufficient contrast to be distinguishable by users with different vision
 
-- Web app for checking color contrast checking: [Colour Contrast Analyser](https://www.tpgi.com/color-contrast-checker/)
+- Web app for checking color contrast checking: [Color Contrast Analyser](https://www.tpgi.com/color-contrast-checker/)
 
 - An WIP R package for checking for color contrast: [**coloratio**](https://matt-dray.github.io/coloratio)
 
+.small[
 
 ```r
 cr_get_ratio("black", "white")
@@ -854,6 +867,7 @@ cr_get_ratio("black", "gray10")
 ```
 ## [1] 1.206596
 ```
+]
 
 ---
 
@@ -863,7 +877,7 @@ Use shape *and* color where possible
 
 --
 
-&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -879,13 +893,13 @@ Use shape *and* color where possible
 
 ## Without direct labeling
 
-&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## With direct labeling
 
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -899,13 +913,13 @@ Use shape *and* color where possible
 
 ## Without whitespace
 
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## With whitespace
 
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -959,7 +973,7 @@ by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins Univer
 class: middle
 
 .task[
-Revisit your Project 2 proposals with accessibility guidelines in place and use the remaining time for checking for and implementing as many of the accessibility guidelines as relevant to your project.
+Revisit your Project 2 materials with accessibility guidelines in place and use the remaining time for checking for and implementing as many of the accessibility guidelines as relevant to your project.
 ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

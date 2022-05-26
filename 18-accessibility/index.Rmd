@@ -148,9 +148,9 @@ options(dplyr.print_max = 6, dplyr.print_min = 6)
 
 ---
 
-class: middle, hand, large
+class: middle, large
 
-do you remember?
+.hand[do you remember?]
 
 ---
 
@@ -481,6 +481,10 @@ Scatter plots are among the more difficult graphs to describe, especially if the
 Write alt text for the scatterplot above.
 ]
 
+<!--
+The figure is titled "Median hourly wage of Registered Nurses". It is a scatter plot with points for each of the 50 U.S. states from 1998 to 2008. The horizontal axis is labeled "Unemployment rate", beginning around 2% up to 14%. The horizontal axis is labelled "Median hourly wage", beginning with amounts under $20 up to approximately $50. The pattern is hard to discern but appears to show a positive correlation between the variables. As unemployment rate increases the median hourly wage also slightly increases. There is more variability in median hourly wage for unemployment rates below 7%.
+-->
+
 ---
 
 ## Recommended reading
@@ -528,7 +532,9 @@ nurses_subset %>%
 
 ## The default ggplot2 color scale
 
-```{r default-ggplot2, echo = FALSE, out.width = "80%"}
+.panelset.sideways[
+.panel[.panel-name[Original]
+```{r default-ggplot2, echo = FALSE, out.width = "100%"}
 fig1 <- nurses_subset %>%
   ggplot(aes(x = year, y = hourly_wage_median, color = state)) +
   geom_line(size = 2) +
@@ -537,14 +543,24 @@ fig1 <- nurses_subset %>%
     x = "Year", y = "Median hourly wage", color = "State",
     title = "Median hourly wage of Registered Nurses"
   ) +
-  theme_minimal(base_size = 6) +
   theme(
     legend.position = c(0.15, 0.75),
     legend.background = element_rect(fill = "white", color = "white")
-    )
-
-cvd_grid(fig1)
+  )
+fig1
 ```
+]
+
+.panel[.panel-name[Vision-impaired]
+```{r echo = FALSE, out.width = "100%"}
+{
+  fig1 +
+    theme_minimal(base_size = 6)
+} %>%
+  cvd_grid()
+```
+]
+]
 
 ---
 
@@ -562,15 +578,17 @@ cvd_grid(fig1)
 
 - Background and foreground text should have sufficient contrast to be distinguishable by users with different vision
 
-- Web app for checking color contrast checking: [Colour Contrast Analyser](https://www.tpgi.com/color-contrast-checker/)
+- Web app for checking color contrast checking: [Color Contrast Analyser](https://www.tpgi.com/color-contrast-checker/)
 
 - An WIP R package for checking for color contrast: [**coloratio**](https://matt-dray.github.io/coloratio)
 
+.small[
 ```{r}
 cr_get_ratio("black", "white")
 cr_get_ratio("#FFFFFF", "#000000")
 cr_get_ratio("black", "gray10")
 ```
+]
 
 ---
 
@@ -585,6 +603,7 @@ fig2 <- nurses_subset %>%
   ggplot(aes(x = year, y = hourly_wage_median, color = state, linetype = state)) +
   geom_line(size = 2) +
   scale_y_continuous(labels = label_dollar()) +
+  colorblindr::scale_color_OkabeIto() +
   labs(
     x = "Year", y = "Median hourly wage", color = "State", linetype = "State",
     title = "Median hourly wage of Registered Nurses"
@@ -617,6 +636,7 @@ fig3 <- nurses_subset %>%
   ggplot(aes(x = year, y = annual_salary_median, color = state, linetype = state)) +
   geom_line(size = 2) +
   scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
+  colorblindr::scale_color_OkabeIto() +
   labs(
     x = "Year", y = "Annual median salary", color = "State", linetype = "State",
     title = "Annual median salary of Registered Nurses"
@@ -644,6 +664,7 @@ fig4 <- nurses_subset %>%
     show.legend = FALSE, size = 3
   ) +
   scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "K")) +
+  colorblindr::scale_color_OkabeIto() +
   labs(
     x = "Year", y = "Annual median salary", color = "State", linetype = "State",
     title = "Annual median salary of Registered Nurses"
@@ -674,6 +695,7 @@ fig5 <- nurses_subset %>%
   filter(year %in% c(2000, 2010, 2020)) %>%
   ggplot(aes(x = factor(year), y = total_employed_rn, fill = state)) +
   geom_col(position = "fill") +
+  colorblindr::scale_color_OkabeIto() +
   labs(
     x = "Year", y = "Proportion of Registered Nurses", fill = "State",
     title = "Total employed Registered Nurses"
@@ -692,6 +714,7 @@ fig6 <- nurses_subset %>%
   filter(year %in% c(2000, 2010, 2020)) %>%
   ggplot(aes(x = factor(year), y = total_employed_rn, fill = state)) +
   geom_col(position = "fill", color = "white", size = 1) +
+  colorblindr::scale_color_OkabeIto() +
   labs(
     x = "Year", y = "Proportion of Registered Nurses", 
     fill = "State",
@@ -754,5 +777,5 @@ by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins Univer
 class: middle
 
 .task[
-Revisit your Project 2 proposals with accessibility guidelines in place and use the remaining time for checking for and implementing as many of the accessibility guidelines as relevant to your project.
+Revisit your Project 2 materials with accessibility guidelines in place and use the remaining time for checking for and implementing as many of the accessibility guidelines as relevant to your project.
 ]
